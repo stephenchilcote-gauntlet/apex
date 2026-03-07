@@ -1,4 +1,5 @@
 import { test as base, expect, Page } from '@playwright/test';
+import { CHECK_FRONT, CHECK_BACK } from './fixtures';
 
 /**
  * Video Tour — exercises every workflow in the APEX Mobile Check Deposit system
@@ -106,12 +107,8 @@ async function submitDeposit(
   await pause(page, 500);
   await page.locator('select[name="investorAccountId"]').selectOption({ value: accountId });
   await page.locator('input[name="amount"]').fill(amount);
-  await page.locator('input[name="frontImage"]').setInputFiles({
-    name: 'front.png', mimeType: 'image/png', buffer: Buffer.from('fake-front'),
-  });
-  await page.locator('input[name="backImage"]').setInputFiles({
-    name: 'back.png', mimeType: 'image/png', buffer: Buffer.from('fake-back'),
-  });
+  await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
+  await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
   await page.locator('select[name="vendorScenario"]').selectOption(scenario);
   await page.locator('button[type="submit"]').click();
   await page.locator('[data-transfer-id]').waitFor();
@@ -193,12 +190,8 @@ test.describe('Video Tour', () => {
     await pause(page, 800);
     await clearHighlights(page);
 
-    await page.locator('input[name="frontImage"]').setInputFiles({
-      name: 'front.png', mimeType: 'image/png', buffer: Buffer.from('fake-front'),
-    });
-    await page.locator('input[name="backImage"]').setInputFiles({
-      name: 'back.png', mimeType: 'image/png', buffer: Buffer.from('fake-back'),
-    });
+    await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
+    await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
 
     await highlight(page, 'select[name="vendorScenario"]');
     await page.locator('select[name="vendorScenario"]').selectOption('clean_pass');

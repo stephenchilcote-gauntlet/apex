@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures';
+import { test, expect, CHECK_FRONT, CHECK_BACK } from './fixtures';
 
 test.describe('Deposit Submission', () => {
   test('can navigate to deposit simulation page', async ({ page }) => {
@@ -24,11 +24,9 @@ test.describe('Deposit Submission', () => {
     await page.locator('select[name="investorAccountId"]').selectOption({ value: 'INV-1001' });
     await page.locator('input[name="amount"]').fill('1250.00');
 
-    // Upload synthetic check images
-    const frontInput = page.locator('input[name="frontImage"]');
-    const backInput = page.locator('input[name="backImage"]');
-    await frontInput.setInputFiles({ name: 'front.png', mimeType: 'image/png', buffer: Buffer.from('fake-front-image') });
-    await backInput.setInputFiles({ name: 'back.png', mimeType: 'image/png', buffer: Buffer.from('fake-back-image') });
+    // Upload check images
+    await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
+    await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
 
     await page.locator('select[name="vendorScenario"]').selectOption('clean_pass');
     await page.locator('button[type="submit"]').click();
