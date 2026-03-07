@@ -1,36 +1,32 @@
-import { test, expect } from './fixtures';
+import { test, expect, submitDepositUI } from './fixtures';
 
 test.describe('Transfer Detail & Decision Trace', () => {
-  test('transfer list page shows all deposits', async ({ page, request }) => {
-    // Create a deposit
-    await request.post('/api/v1/deposits', {
-      multipart: {
-        investorAccountId: 'INV-1001',
-        amount: '100.00',
-        frontImage: { name: 'front.png', mimeType: 'image/png', buffer: Buffer.from('fake') },
-        backImage: { name: 'back.png', mimeType: 'image/png', buffer: Buffer.from('fake') },
-        vendorScenario: 'clean_pass',
-      },
-    });
+  test('transfer list shows deposit and clicking navigates to detail', async ({ page }) => {
+    await submitDepositUI(page, { amount: '100.00', scenario: 'clean_pass' });
 
-    await page.goto('/ui/transfers');
-    await expect(page.locator('h1, h2')).toContainText(/transfer|deposit/i);
-    await expect(page.locator('table tbody tr, [data-transfer]')).toHaveCount(1, { timeout: 5000 });
+    // Navigate to transfer list
+    await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
+    await expect(page.locator('h1, h2')).toContainText(/transfer/i);
+
+    // Verify transfer row exists with content
+    const row = page.locator('[data-transfer]').first();
+    await expect(row).toBeVisible();
+    await expect(row).toContainText('$100.00');
+
+    // Click the transfer link to navigate to detail
+    await row.locator('a').first().click();
+
+    // Should be on transfer detail page
+    await expect(page.locator('h1, h2')).toContainText(/transfer detail/i);
+    await expect(page.locator('[data-state]')).toBeVisible();
   });
 
-  test('transfer detail shows full decision trace', async ({ page, request }) => {
-    const resp = await request.post('/api/v1/deposits', {
-      multipart: {
-        investorAccountId: 'INV-1001',
-        amount: '200.00',
-        frontImage: { name: 'front.png', mimeType: 'image/png', buffer: Buffer.from('fake') },
-        backImage: { name: 'back.png', mimeType: 'image/png', buffer: Buffer.from('fake') },
-        vendorScenario: 'clean_pass',
-      },
-    });
-    const { transferId } = await resp.json();
+  test('transfer detail shows full decision trace', async ({ page }) => {
+    await submitDepositUI(page, { amount: '200.00', scenario: 'clean_pass' });
 
-    await page.goto(`/ui/transfers/${transferId}`);
+    // Navigate to transfer detail via click-through
+    await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
+    await page.locator('[data-transfer] a').first().click();
 
     // Should show state
     await expect(page.locator('[data-state]')).toBeVisible();
@@ -41,7 +37,7 @@ test.describe('Transfer Detail & Decision Trace', () => {
     await expect(page.locator('body')).toContainText(/clean_pass|pass/i);
 
     // Should show images
-    await expect(page.locator('img[alt*="front" i], img[data-side="front"]')).toBeVisible();
-    await expect(page.locator('img[alt*="back" i], img[data-side="back"]')).toBeVisible();
+    await expect(page.locator('img[alt*="Front" i], img[data-side="front"]')).toBeVisible();
+    await expect(page.locator('img[alt*="Back" i], img[data-side="back"]')).toBeVisible();
   });
 });

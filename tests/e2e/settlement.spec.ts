@@ -1,58 +1,46 @@
-import { test, expect } from './fixtures';
+import { test, expect, submitDepositUI } from './fixtures';
 
 test.describe('Settlement', () => {
   test('settlement page shows batch management', async ({ page }) => {
     await page.goto('/ui/settlement');
     await expect(page.locator('h1, h2')).toContainText(/settlement/i);
-    await expect(page.locator('button:has-text("Generate"), [data-action="generate"]')).toBeVisible();
+    await expect(page.locator('[data-action="generate"]')).toBeVisible();
   });
 
-  test('generate settlement batch from posted deposits', async ({ page, request }) => {
-    // Create a deposit that will auto-approve
-    const resp = await request.post('/api/v1/deposits', {
-      multipart: {
-        investorAccountId: 'INV-1001',
-        amount: '600.00',
-        frontImage: { name: 'front.png', mimeType: 'image/png', buffer: Buffer.from('fake-front') },
-        backImage: { name: 'back.png', mimeType: 'image/png', buffer: Buffer.from('fake-back') },
-        vendorScenario: 'clean_pass',
-      },
-    });
-    expect(resp.ok()).toBeTruthy();
+  test('generate settlement batch from posted deposits', async ({ page }) => {
+    await submitDepositUI(page, { amount: '600.00', scenario: 'clean_pass' });
 
-    // Generate settlement batch
-    await page.goto('/ui/settlement');
-    await page.locator('button:has-text("Generate"), [data-action="generate"]').click();
+    // Navigate to settlement and generate
+    await page.locator('a.nav-level-tab', { hasText: 'Settlement' }).click();
+    await page.locator('[data-action="generate"]').click();
 
-    // Should show generated batch with item count and total
+    // Verify batch table content: status badge, items count, total amount
     await expect(page.locator('body')).toContainText(/generated/i);
-    await expect(page.locator('body')).toContainText(/600/);
+    const batchRow = page.locator('table tbody tr').first();
+    await expect(batchRow.locator('[data-state]')).toContainText(/generated/i);
+    await expect(batchRow).toContainText('1'); // 1 item
+    await expect(batchRow).toContainText('$600.00');
   });
 
-  test('acknowledging batch moves transfers to Completed', async ({ page, request }) => {
-    // Submit deposit
-    const depositResp = await request.post('/api/v1/deposits', {
-      multipart: {
-        investorAccountId: 'INV-1001',
-        amount: '300.00',
-        frontImage: { name: 'front.png', mimeType: 'image/png', buffer: Buffer.from('fake-front') },
-        backImage: { name: 'back.png', mimeType: 'image/png', buffer: Buffer.from('fake-back') },
-        vendorScenario: 'clean_pass',
-      },
-    });
-    expect(depositResp.ok()).toBeTruthy();
-    const { transferId } = await depositResp.json();
+  test('acknowledging batch moves transfers to Completed', async ({ page }) => {
+    await submitDepositUI(page, { amount: '300.00', scenario: 'clean_pass' });
 
     // Generate batch
-    await page.goto('/ui/settlement');
-    await page.locator('button:has-text("Generate"), [data-action="generate"]').click();
+    await page.locator('a.nav-level-tab', { hasText: 'Settlement' }).click();
+    await page.locator('[data-action="generate"]').click();
     await expect(page.locator('body')).toContainText(/generated/i);
 
     // Acknowledge
-    await page.locator('button:has-text("Acknowledge"), [data-action="ack"]').first().click();
+    await page.locator('[data-action="ack"]').first().click();
+    await expect(page.locator('body')).toContainText(/acknowledged/i);
 
-    // Verify transfer completed
-    await page.goto(`/ui/transfers/${transferId}`);
+    // Verify batch status changed
+    const batchRow = page.locator('table tbody tr').first();
+    await expect(batchRow.locator('[data-state]')).toContainText(/acknowledged/i);
+
+    // Verify transfer completed by clicking through
+    await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
+    await page.locator('[data-transfer] a').first().click();
     await expect(page.locator('[data-state]')).toContainText(/completed/i);
   });
 });
