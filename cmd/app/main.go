@@ -13,6 +13,7 @@ import (
 	"github.com/apex-checkout/mobile-check-deposit/internal/deposits"
 	"github.com/apex-checkout/mobile-check-deposit/internal/funding"
 	"github.com/apex-checkout/mobile-check-deposit/internal/http/api"
+	uihandlers "github.com/apex-checkout/mobile-check-deposit/internal/http/ui"
 	"github.com/apex-checkout/mobile-check-deposit/internal/ledger"
 	"github.com/apex-checkout/mobile-check-deposit/internal/repository"
 	"github.com/apex-checkout/mobile-check-deposit/internal/returns"
@@ -78,7 +79,25 @@ func main() {
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 
-	r.Mount("/", apiHandlers.Routes())
+	// Register API routes directly on main router
+	apiHandlers.RegisterRoutes(r)
+
+	// UI handlers
+	uiH := &uihandlers.UIHandlers{
+		DB:            db,
+		TemplateDir:   "web/templates",
+		ImageDir:      cfg.ImageStoragePath,
+		DepositSvc:    depositSvc,
+		TransferSvc:   transferSvc,
+		LedgerSvc:     ledgerSvc,
+		SettlementSvc: settlementSvc,
+		ReturnsSvc:    returnsSvc,
+	}
+	if err := uiH.Init(); err != nil {
+		slog.Error("failed to initialize UI templates", "err", err)
+		os.Exit(1)
+	}
+	uiH.RegisterRoutes(r)
 
 	addr := fmt.Sprintf(":%s", cfg.AppPort)
 	slog.Info("Starting Mobile Check Deposit server", "addr", addr)

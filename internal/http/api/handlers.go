@@ -30,9 +30,7 @@ type Handlers struct {
 	ReturnsSvc    *returns.ReturnsService
 }
 
-func (h *Handlers) Routes() chi.Router {
-	r := chi.NewRouter()
-
+func (h *Handlers) RegisterRoutes(r chi.Router) {
 	// Deposits
 	r.Post("/api/v1/deposits", h.submitDeposit)
 	r.Get("/api/v1/deposits", h.listDeposits)
@@ -57,8 +55,6 @@ func (h *Handlers) Routes() chi.Router {
 
 	// Returns
 	r.Post("/api/v1/returns", h.processReturn)
-
-	return r
 }
 
 // ---------------------------------------------------------------------------

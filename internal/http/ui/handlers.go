@@ -156,8 +156,7 @@ func (h *UIHandlers) render(w http.ResponseWriter, page string, data map[string]
 	}
 }
 
-func (h *UIHandlers) Routes() chi.Router {
-	r := chi.NewRouter()
+func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Get("/ui/simulate", h.simulatePage)
 	r.Post("/ui/simulate", h.simulateSubmit)
 	r.Get("/ui/transfers", h.transfersPage)
@@ -173,7 +172,6 @@ func (h *UIHandlers) Routes() chi.Router {
 	r.Get("/ui/returns", h.returnsPage)
 	r.Post("/ui/returns", h.returnsSubmit)
 	r.Get("/ui/images/{transferId}/{side}", h.serveImage)
-	return r
 }
 
 // ---------------------------------------------------------------------------
