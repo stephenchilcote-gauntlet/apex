@@ -35,6 +35,11 @@ func InitDB(dbPath string) (*sql.DB, error) {
 }
 
 func RunMigrations(db *sql.DB, migrationsDir string) error {
+	// Create migration tracking table if it doesn't exist.
+	if _, err := db.Exec(`CREATE TABLE IF NOT EXISTS _migrations (name TEXT PRIMARY KEY, applied_at DATETIME DEFAULT CURRENT_TIMESTAMP)`); err != nil {
+		return fmt.Errorf("create migrations table: %w", err)
+	}
+
 	entries, err := os.ReadDir(migrationsDir)
 	if err != nil {
 		return fmt.Errorf("read migrations directory: %w", err)
@@ -49,6 +54,14 @@ func RunMigrations(db *sql.DB, migrationsDir string) error {
 	sort.Strings(sqlFiles)
 
 	for _, name := range sqlFiles {
+		var count int
+		if err := db.QueryRow(`SELECT COUNT(*) FROM _migrations WHERE name = ?`, name).Scan(&count); err != nil {
+			return fmt.Errorf("check migration %s: %w", name, err)
+		}
+		if count > 0 {
+			continue
+		}
+
 		path := filepath.Join(migrationsDir, name)
 		content, err := os.ReadFile(path)
 		if err != nil {
@@ -56,6 +69,9 @@ func RunMigrations(db *sql.DB, migrationsDir string) error {
 		}
 		if _, err := db.Exec(string(content)); err != nil {
 			return fmt.Errorf("execute migration %s: %w", name, err)
+		}
+		if _, err := db.Exec(`INSERT INTO _migrations (name) VALUES (?)`, name); err != nil {
+			return fmt.Errorf("record migration %s: %w", name, err)
 		}
 	}
 

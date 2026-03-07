@@ -1,0 +1,8 @@
+node_modules/
+bin/
+data/sqlite/
+data/images/
+reports/settlement/*.json
+test-results/
+.env
+vendorstub
