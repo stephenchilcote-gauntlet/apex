@@ -4,5 +4,6 @@ data/sqlite/
 data/images/
 reports/settlement/*.json
 test-results/
+tests/artifacts/
 .env
 vendorstub
