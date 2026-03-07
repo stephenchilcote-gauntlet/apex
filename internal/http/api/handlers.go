@@ -55,6 +55,9 @@ func (h *Handlers) RegisterRoutes(r chi.Router) {
 
 	// Returns
 	r.Post("/api/v1/returns", h.processReturn)
+
+	// Test
+	r.Post("/api/v1/test/reset", h.testReset)
 }
 
 // ---------------------------------------------------------------------------
@@ -581,6 +584,35 @@ func (h *Handlers) processReturn(w http.ResponseWriter, r *http.Request) {
 		"status":     "RETURNED",
 		"message":    "Return processed successfully",
 	})
+}
+
+// ---------------------------------------------------------------------------
+// Test
+// ---------------------------------------------------------------------------
+
+func (h *Handlers) testReset(w http.ResponseWriter, r *http.Request) {
+	tables := []string{
+		"settlement_batch_items",
+		"settlement_batches",
+		"return_notifications",
+		"notifications_outbox",
+		"ledger_entries",
+		"ledger_journals",
+		"operator_actions",
+		"rule_evaluations",
+		"vendor_results",
+		"transfer_images",
+		"audit_events",
+		"transfers",
+	}
+	for _, t := range tables {
+		if _, err := h.DB.Exec("DELETE FROM " + t); err != nil {
+			http.Error(w, fmt.Sprintf("reset %s: %v", t, err), 500)
+			return
+		}
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{"status": "ok"})
 }
 
 // ---------------------------------------------------------------------------
