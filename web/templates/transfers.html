@@ -1,0 +1,39 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Transfers</h1></div>
+</div>
+
+<div class="panel">
+  <div class="panel-header"><span class="panel-header-title">All Transfers</span></div>
+  <div class="panel-body">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Account</th>
+          <th>Amount</th>
+          <th>State</th>
+          <th>Scenario</th>
+          <th>Business Date</th>
+          <th>Created At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Transfers}}
+        <tr data-transfer>
+          <td><a href="/ui/transfers/{{.ID}}">{{slice .ID 0 8}}…</a></td>
+          <td>{{.InvestorAccountID}}</td>
+          <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
+          <td><span class="badge badge--{{.State}}" data-state>{{.State}}</span></td>
+          <td>{{if .VendorScenario}}{{deref .VendorScenario}}{{else}}—{{end}}</td>
+          <td>{{if .BusinessDateCT}}{{deref .BusinessDateCT}}{{else}}—{{end}}</td>
+          <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+        {{else}}
+        <tr><td colspan="7" style="text-align:center;">No transfers found</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}

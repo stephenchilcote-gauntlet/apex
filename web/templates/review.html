@@ -1,0 +1,37 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Review Queue</h1></div>
+</div>
+
+<div class="panel">
+  <div class="panel-header"><span class="panel-header-title">Pending Reviews</span></div>
+  <div class="panel-body">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Account</th>
+          <th>Amount</th>
+          <th>Scenario</th>
+          <th>Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Transfers}}
+        <tr data-review-item>
+          <td><a href="/ui/review/{{.ID}}">{{slice .ID 0 8}}…</a></td>
+          <td>{{.InvestorAccountID}}</td>
+          <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
+          <td>{{if .VendorScenario}}{{deref .VendorScenario}}{{else}}—{{end}}</td>
+          <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+          <td><a href="/ui/review/{{.ID}}" class="btn">Review</a></td>
+        </tr>
+        {{else}}
+        <tr><td colspan="6" style="text-align:center;">No items pending review</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}

@@ -1,0 +1,37 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Ledger</h1></div>
+</div>
+
+<div class="panel">
+  <div class="panel-header"><span class="panel-header-title">Account Balances</span></div>
+  <div class="panel-body">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>External ID</th>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Accounts}}
+        <tr>
+          <td>{{.ExternalAccountID}}</td>
+          <td>{{.AccountName}}</td>
+          <td>{{.AccountType}}</td>
+          <td>
+            <span class="data-value data-value--currency"{{if lt .BalanceCents 0}} style="color:var(--color-error,#f44)"{{end}}>
+              {{if lt .BalanceCents 0}}-${{formatCents (abs .BalanceCents)}}{{else}}${{formatCents .BalanceCents}}{{end}}
+            </span>
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="4" style="text-align:center;">No accounts found</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}

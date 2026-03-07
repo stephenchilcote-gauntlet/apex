@@ -1,0 +1,43 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>APEX — Mobile Check Deposit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@900&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+</head>
+<body>
+<div class="viewport" data-escalation="nominal">
+  <div class="nav-shell">
+    <nav class="nav-header">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span class="nav-brand">APEX MCD</span>
+        <div class="nav-level-tabs">
+          <a href="/ui/simulate" class="nav-level-tab" {{if eq .ActivePage "simulate"}}aria-selected="true"{{end}}>Simulate</a>
+          <a href="/ui/transfers" class="nav-level-tab" {{if eq .ActivePage "transfers"}}aria-selected="true"{{end}}>Transfers</a>
+          <a href="/ui/review" class="nav-level-tab" {{if eq .ActivePage "review"}}aria-selected="true"{{end}}>Review Queue</a>
+          <a href="/ui/ledger" class="nav-level-tab" {{if eq .ActivePage "ledger"}}aria-selected="true"{{end}}>Ledger</a>
+          <a href="/ui/settlement" class="nav-level-tab" {{if eq .ActivePage "settlement"}}aria-selected="true"{{end}}>Settlement</a>
+          <a href="/ui/returns" class="nav-level-tab" {{if eq .ActivePage "returns"}}aria-selected="true"{{end}}>Returns</a>
+        </div>
+      </div>
+      <div class="nav-status-strip">
+        <span class="status-dot" data-active></span>
+        <span>SYSTEM NOMINAL</span>
+      </div>
+    </nav>
+    <main class="nav-content">
+      <div class="container">
+        {{template "content" .}}
+      </div>
+    </main>
+  </div>
+  <div class="scanline-overlay"></div>
+</div>
+</body>
+</html>
+{{end}}

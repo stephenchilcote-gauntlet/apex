@@ -1,0 +1,74 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Simulate Deposit</h1></div>
+</div>
+
+{{if .Flash}}
+<div class="flash flash--{{.Flash.Type}}">{{.Flash.Text}}</div>
+{{end}}
+
+{{if .Result}}
+<div class="panel" style="margin-bottom:12px;" data-transfer-id="{{.Result.TransferID}}">
+  <div class="panel-header"><span class="panel-header-title">Deposit Result</span></div>
+  <div class="panel-body">
+    <div class="detail-grid">
+      <span class="detail-label">Transfer ID</span><span class="detail-value">{{.Result.TransferID}}</span>
+      <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Result.State}}" data-state>{{.Result.State}}</span></span>
+      <span class="detail-label">Message</span><span class="detail-value">{{.Result.Message}}</span>
+      {{if .Result.RejectionCode}}
+      <span class="detail-label">Rejection</span><span class="detail-value">{{.Result.RejectionCode}}: {{.Result.RejectionMessage}}</span>
+      {{end}}
+    </div>
+  </div>
+</div>
+{{end}}
+
+<div class="panel">
+  <div class="panel-header"><span class="panel-header-title">New Deposit</span></div>
+  <div class="panel-body">
+    <form method="POST" action="/ui/simulate" enctype="multipart/form-data">
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="investorAccountId">Investor Account</label>
+          <select name="investorAccountId" id="investorAccountId" class="input" style="width:100%">
+            <option value="INV-1001">INV-1001 (Clean Pass)</option>
+            <option value="INV-1002">INV-1002 (IQA Blur)</option>
+            <option value="INV-1003">INV-1003 (IQA Glare)</option>
+            <option value="INV-1004">INV-1004 (MICR Failure)</option>
+            <option value="INV-1005">INV-1005 (Duplicate)</option>
+            <option value="INV-1006">INV-1006 (Amount Mismatch)</option>
+            <option value="INV-1007">INV-1007 (Review — High Risk)</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="amount">Amount (USD)</label>
+          <input type="text" name="amount" id="amount" class="input" placeholder="500.00" style="width:100%">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="frontImage">Front Image</label>
+          <input type="file" name="frontImage" id="frontImage" class="input" style="width:100%">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="backImage">Back Image</label>
+          <input type="file" name="backImage" id="backImage" class="input" style="width:100%">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="vendorScenario">Vendor Scenario</label>
+        <select name="vendorScenario" id="vendorScenario" class="input" style="width:100%">
+          <option value="clean_pass">Clean Pass</option>
+          <option value="iqa_blur">IQA Fail — Blur</option>
+          <option value="iqa_glare">IQA Fail — Glare</option>
+          <option value="micr_failure">MICR Read Failure</option>
+          <option value="duplicate_detected">Duplicate Detected</option>
+          <option value="amount_mismatch">Amount Mismatch</option>
+          <option value="iqa_pass_review">IQA Pass — High Risk Review</option>
+        </select>
+      </div>
+      <button type="submit" class="btn">Submit Deposit</button>
+    </form>
+  </div>
+</div>
+{{end}}

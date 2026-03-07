@@ -1,0 +1,147 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Transfer Detail</h1></div>
+</div>
+
+<div data-transfer-id="{{.Transfer.ID}}">
+
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Transfer Info</span></div>
+    <div class="panel-body">
+      <div class="detail-grid">
+        <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}</span>
+        <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span></span>
+        <span class="detail-label">Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
+        <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
+        <span class="detail-label">Correspondent</span><span class="detail-value">{{.Transfer.CorrespondentID}}</span>
+        <span class="detail-label">Scenario</span><span class="detail-value">{{if .Transfer.VendorScenario}}{{deref .Transfer.VendorScenario}}{{else}}—{{end}}</span>
+        <span class="detail-label">Business Date</span><span class="detail-value">{{if .Transfer.BusinessDateCT}}{{deref .Transfer.BusinessDateCT}}{{else}}—{{end}}</span>
+        <span class="detail-label">Submitted</span><span class="detail-value">{{if .Transfer.SubmittedAt}}{{.Transfer.SubmittedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
+        <span class="detail-label">Approved</span><span class="detail-value">{{if .Transfer.ApprovedAt}}{{.Transfer.ApprovedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
+        <span class="detail-label">Posted</span><span class="detail-value">{{if .Transfer.PostedAt}}{{.Transfer.PostedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
+        <span class="detail-label">Completed</span><span class="detail-value">{{if .Transfer.CompletedAt}}{{.Transfer.CompletedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
+        <span class="detail-label">Created</span><span class="detail-value">{{.Transfer.CreatedAt.Format "2006-01-02 15:04:05"}}</span>
+        <span class="detail-label">Updated</span><span class="detail-value">{{.Transfer.UpdatedAt.Format "2006-01-02 15:04:05"}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Check Images</span></div>
+    <div class="panel-body">
+      <div class="check-images">
+        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/FRONT" alt="Front Check" data-side="front">
+        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/BACK" alt="Back Check" data-side="back">
+      </div>
+    </div>
+  </div>
+
+  {{if .VendorResult}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Vendor Result</span></div>
+    <div class="panel-body">
+      <div class="detail-grid">
+        <span class="detail-label">Decision</span><span class="detail-value">{{.VendorResult.Decision}}</span>
+        <span class="detail-label">IQA Status</span><span class="detail-value">{{.VendorResult.IQAStatus}}</span>
+        {{if .VendorResult.MICR}}
+        <span class="detail-label">MICR Routing</span><span class="detail-value">{{.VendorResult.MICR.Routing}}</span>
+        <span class="detail-label">MICR Account</span><span class="detail-value">{{.VendorResult.MICR.Account}}</span>
+        <span class="detail-label">MICR Check #</span><span class="detail-value">{{.VendorResult.MICR.Serial}}</span>
+        <span class="detail-label">MICR Confidence</span><span class="detail-value">{{printf "%.2f" .VendorResult.MICR.Confidence}}</span>
+        {{end}}
+        <span class="detail-label">Risk Score</span><span class="detail-value">{{.VendorResult.RiskScore}}</span>
+        {{if .VendorResult.OCRAmountCents}}
+        <span class="detail-label">OCR Amount</span><span class="detail-value">${{formatCentsInt (derefInt .VendorResult.OCRAmountCents)}}</span>
+        {{end}}
+        <span class="detail-label">Amount Match</span><span class="detail-value">{{if .VendorResult.AmountMatches}}Yes{{else}}No{{end}}</span>
+        <span class="detail-label">Duplicate Detected</span><span class="detail-value">{{if .VendorResult.DuplicateDetected}}Yes{{else}}No{{end}}</span>
+      </div>
+    </div>
+  </div>
+  {{end}}
+
+  {{if .Transfer.RejectionCode}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Rejection</span></div>
+    <div class="panel-body">
+      <div class="detail-grid">
+        <span class="detail-label">Code</span><span class="detail-value">{{deref .Transfer.RejectionCode}}</span>
+        <span class="detail-label">Message</span><span class="detail-value">{{if .Transfer.RejectionMessage}}{{deref .Transfer.RejectionMessage}}{{else}}—{{end}}</span>
+      </div>
+    </div>
+  </div>
+  {{end}}
+
+  {{if .Transfer.ReturnReasonCode}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Return</span></div>
+    <div class="panel-body">
+      <div class="detail-grid">
+        <span class="detail-label">Reason Code</span><span class="detail-value">{{deref .Transfer.ReturnReasonCode}}</span>
+        <span class="detail-label">Return Fee</span><span class="detail-value data-value--currency">${{formatCents .Transfer.ReturnFeeCents}}</span>
+        <span class="detail-label">Returned At</span><span class="detail-value">{{if .Transfer.ReturnedAt}}{{.Transfer.ReturnedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
+      </div>
+    </div>
+  </div>
+  {{end}}
+
+  {{if .RuleEvaluations}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Rule Evaluations</span></div>
+    <div class="panel-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Outcome</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .RuleEvaluations}}
+          <tr>
+            <td>{{.RuleName}}</td>
+            <td><span class="badge badge--{{.Outcome}}">{{.Outcome}}</span></td>
+            <td>{{.DetailsJSON}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{end}}
+
+  {{if .AuditEvents}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Audit Trail</span></div>
+    <div class="panel-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Event</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Actor</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .AuditEvents}}
+          <tr>
+            <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+            <td>{{.EventType}}</td>
+            <td>{{if .FromState}}{{deref .FromState}}{{else}}—{{end}}</td>
+            <td>{{if .ToState}}{{deref .ToState}}{{else}}—{{end}}</td>
+            <td>{{.ActorID}}</td>
+            <td>{{if .DetailsJSON}}{{deref .DetailsJSON}}{{else}}—{{end}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{end}}
+
+</div>
+{{end}}

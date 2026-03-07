@@ -1,0 +1,144 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Review Transfer</h1></div>
+</div>
+
+<div data-transfer-id="{{.Transfer.ID}}">
+
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Transfer Info</span></div>
+    <div class="panel-body">
+      <div class="detail-grid">
+        <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}</span>
+        <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span></span>
+        <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
+        <span class="detail-label">Entered Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
+        {{if .VendorResult}}{{if .VendorResult.OCRAmountCents}}
+        <span class="detail-label">OCR Amount</span><span class="detail-value data-value--currency"{{if not .VendorResult.AmountMatches}} style="color:var(--color-error,#f44)"{{end}}>${{formatCentsInt (derefInt .VendorResult.OCRAmountCents)}}</span>
+        {{end}}{{end}}
+        <span class="detail-label">Business Date</span><span class="detail-value">{{if .Transfer.BusinessDateCT}}{{deref .Transfer.BusinessDateCT}}{{else}}—{{end}}</span>
+        <span class="detail-label">Created</span><span class="detail-value">{{.Transfer.CreatedAt.Format "2006-01-02 15:04:05"}}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Check Images</span></div>
+    <div class="panel-body">
+      <div class="check-images">
+        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/FRONT" alt="Front Check" data-side="front">
+        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/BACK" alt="Back Check" data-side="back">
+      </div>
+    </div>
+  </div>
+
+  {{if .VendorResult}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Vendor Analysis</span></div>
+    <div class="panel-body">
+      <div class="detail-grid">
+        <span class="detail-label">Decision</span><span class="detail-value">{{.VendorResult.Decision}}</span>
+        <span class="detail-label">IQA Status</span><span class="detail-value">{{.VendorResult.IQAStatus}}</span>
+        {{if .VendorResult.MICR}}
+        <span class="detail-label">MICR Routing</span><span class="detail-value">{{.VendorResult.MICR.Routing}}</span>
+        <span class="detail-label">MICR Account</span><span class="detail-value">{{.VendorResult.MICR.Account}}</span>
+        <span class="detail-label">MICR Check #</span><span class="detail-value">{{.VendorResult.MICR.Serial}}</span>
+        <span class="detail-label">MICR Confidence</span><span class="detail-value">{{printf "%.2f" .VendorResult.MICR.Confidence}}</span>
+        {{end}}
+        <span class="detail-label">Risk Score</span><span class="detail-value">{{.VendorResult.RiskScore}}</span>
+        <span class="detail-label">Amount Match</span><span class="detail-value">{{if .VendorResult.AmountMatches}}Yes{{else}}No{{end}}</span>
+        <span class="detail-label">Duplicate Detected</span><span class="detail-value">{{if .VendorResult.DuplicateDetected}}Yes{{else}}No{{end}}</span>
+      </div>
+    </div>
+  </div>
+  {{end}}
+
+  {{if .RuleEvaluations}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Rule Evaluations</span></div>
+    <div class="panel-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Rule</th>
+            <th>Outcome</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .RuleEvaluations}}
+          <tr>
+            <td>{{.RuleName}}</td>
+            <td><span class="badge badge--{{.Outcome}}">{{.Outcome}}</span></td>
+            <td>{{.DetailsJSON}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{end}}
+
+  {{if .AuditEvents}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header"><span class="panel-header-title">Audit Trail</span></div>
+    <div class="panel-body">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Event</th>
+            <th>From</th>
+            <th>To</th>
+            <th>Actor</th>
+            <th>Details</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .AuditEvents}}
+          <tr>
+            <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+            <td>{{.EventType}}</td>
+            <td>{{if .FromState}}{{deref .FromState}}{{else}}—{{end}}</td>
+            <td>{{if .ToState}}{{deref .ToState}}{{else}}—{{end}}</td>
+            <td>{{.ActorID}}</td>
+            <td>{{if .DetailsJSON}}{{deref .DetailsJSON}}{{else}}—{{end}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{end}}
+
+  <div class="workspace-grid" style="margin-top:16px;">
+    <div class="panel">
+      <div class="panel-header"><span class="panel-header-title">Approve</span></div>
+      <div class="panel-body">
+        <form method="POST" action="/ui/review/{{.Transfer.ID}}/approve">
+          <input type="hidden" name="operatorId" value="op_demo">
+          <div class="form-group">
+            <label class="form-label" for="approve-notes">Operator Notes</label>
+            <textarea name="notes" id="approve-notes" class="input" rows="3" style="width:100%"></textarea>
+          </div>
+          <button type="submit" class="btn" data-action="approve">Approve</button>
+        </form>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-header"><span class="panel-header-title">Reject</span></div>
+      <div class="panel-body">
+        <form method="POST" action="/ui/review/{{.Transfer.ID}}/reject">
+          <input type="hidden" name="operatorId" value="op_demo">
+          <div class="form-group">
+            <label class="form-label" for="reject-notes">Rejection Reason</label>
+            <textarea name="notes" id="reject-notes" class="input" rows="3" style="width:100%"></textarea>
+          </div>
+          <button type="submit" class="btn btn-destructive" data-action="reject">Reject</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+{{end}}

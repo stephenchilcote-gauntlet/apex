@@ -1,0 +1,47 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Returns</h1></div>
+</div>
+
+{{if .Message}}
+<div class="flash flash--{{.Message.Type}}">{{.Message.Text}}</div>
+{{end}}
+
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header"><span class="panel-header-title">Process Return</span></div>
+  <div class="panel-body">
+    <form method="POST" action="/ui/returns">
+      <div class="form-group">
+        <label class="form-label" for="transferId">Transfer ID</label>
+        <input type="text" name="transferId" id="transferId" class="input" style="width:100%">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="reasonCode">Reason Code</label>
+        <select name="reasonCode" id="reasonCode" class="input" style="width:100%">
+          <option value="NSF">NSF</option>
+          <option value="ACCOUNT_CLOSED">ACCOUNT_CLOSED</option>
+          <option value="STOP_PAYMENT">STOP_PAYMENT</option>
+          <option value="FRAUD">FRAUD</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-destructive">Process Return</button>
+    </form>
+  </div>
+</div>
+
+{{if .Transfer}}
+<div class="panel">
+  <div class="panel-header"><span class="panel-header-title">Returned Transfer</span></div>
+  <div class="panel-body">
+    <div class="detail-grid">
+      <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}</span>
+      <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span></span>
+      <span class="detail-label">Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
+      <span class="detail-label">Return Reason</span><span class="detail-value">{{if .Transfer.ReturnReasonCode}}{{deref .Transfer.ReturnReasonCode}}{{else}}—{{end}}</span>
+      <span class="detail-label">Return Fee</span><span class="detail-value data-value--currency">${{formatCents .Transfer.ReturnFeeCents}}</span>
+      <span class="detail-label">Returned At</span><span class="detail-value">{{if .Transfer.ReturnedAt}}{{.Transfer.ReturnedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
+    </div>
+  </div>
+</div>
+{{end}}
+{{end}}

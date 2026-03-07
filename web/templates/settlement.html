@@ -1,0 +1,62 @@
+{{define "content"}}
+<div class="page-header">
+  <div class="compressed-title-wrap"><h1 class="section-title">Settlement</h1></div>
+</div>
+
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header"><span class="panel-header-title">Actions</span></div>
+  <div class="panel-body">
+    <form method="POST" action="/ui/settlement/generate" style="display:inline;">
+      <button type="submit" class="btn" data-action="generate">Generate Settlement Batch</button>
+    </form>
+  </div>
+</div>
+
+{{if .Message}}
+<div class="flash flash--{{.Message.Type}}">{{.Message.Text}}</div>
+{{end}}
+
+<div class="panel">
+  <div class="panel-header"><span class="panel-header-title">Batches</span></div>
+  <div class="panel-body">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Business Date</th>
+          <th>Status</th>
+          <th>Items</th>
+          <th>Total Amount</th>
+          <th>File</th>
+          <th>Created</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Batches}}
+        <tr>
+          <td>{{slice .ID 0 8}}…</td>
+          <td>{{.BusinessDateCT}}</td>
+          <td><span class="badge badge--{{.Status}}" data-state>{{.Status}}</span></td>
+          <td>{{.TotalItems}}</td>
+          <td><span class="data-value data-value--currency">${{formatCents .TotalAmountCents}}</span></td>
+          <td>{{if .FilePath}}{{deref .FilePath}}{{else}}—{{end}}</td>
+          <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+          <td>
+            {{if eq .Status "GENERATED"}}
+            <form method="POST" action="/ui/settlement/{{.ID}}/ack" style="display:inline;">
+              <button type="submit" class="btn" data-action="ack">Acknowledge</button>
+            </form>
+            {{else}}
+            —
+            {{end}}
+          </td>
+        </tr>
+        {{else}}
+        <tr><td colspan="8" style="text-align:center;">No batches found</td></tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
