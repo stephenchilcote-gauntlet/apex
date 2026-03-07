@@ -1,23 +1,27 @@
 /* ==========================================================================
    Apex Mobile Check Deposit — Operations Dashboard
-   High-Density Dark UI · Design Handbook Implementation
+   Clean Dark UI · UX Principles Implementation
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   §5.2  Color System
+   Color System
+   --------------------------------------------------------------------------
+   Per UX §6: saturated color reserved for states requiring attention.
+   Backgrounds are dark gray (not pitch black) to reduce fatigue.
+   Gray/neutral canvas lets alert colors pop.
    -------------------------------------------------------------------------- */
 :root {
-  --bg-primary:     #08080c;
-  --bg-elevated:    #0e0e14;
-  --bg-surface:     #14141e;
-  --bg-overlay:     rgba(8,8,12,0.92);
-  --border-subtle:  rgba(255,255,255,0.06);
-  --border-default: rgba(255,255,255,0.10);
-  --border-strong:  rgba(255,255,255,0.18);
+  --bg-primary:     #121218;
+  --bg-elevated:    #1a1a22;
+  --bg-surface:     #22222c;
+  --bg-overlay:     rgba(18,18,24,0.92);
+  --border-subtle:  rgba(255,255,255,0.07);
+  --border-default: rgba(255,255,255,0.12);
+  --border-strong:  rgba(255,255,255,0.20);
   --grid-line:      rgba(255,255,255,0.04);
-  --text-primary:   #c8c8d0;
-  --text-secondary: #6e6e7a;
-  --text-tertiary:  #3a3a44;
+  --text-primary:   #d0d0d8;
+  --text-secondary: #78788a;
+  --text-tertiary:  #44444e;
   --green-bright:   #00e03c;
   --green-mid:      #00aa2e;
   --green-dim:      #004d15;
@@ -40,13 +44,14 @@
 }
 
 /* --------------------------------------------------------------------------
-   §4  Font System
+   Font System
+   --------------------------------------------------------------------------
+   Dropped Orbitron (decorative display font, never earned its place).
    -------------------------------------------------------------------------- */
 :root {
   --font-title:   'Noto Serif JP', 'Georgia', serif;
   --font-ui:      'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
   --font-data:    'Share Tech Mono', 'JetBrains Mono', 'Courier New', monospace;
-  --font-display: 'Orbitron', sans-serif;
 }
 
 /* --------------------------------------------------------------------------
@@ -61,8 +66,8 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-ui);
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: 14px;
+  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -80,27 +85,36 @@ body {
 .container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 20px;
 }
 
 /* --------------------------------------------------------------------------
-   §3.3  Navigation
+   Navigation
    -------------------------------------------------------------------------- */
 .nav-header {
   display: flex;
   align-items: center;
-  height: 36px;
+  height: 40px;
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border-subtle);
   padding: 0 16px;
   gap: 0;
 }
 
+.nav-brand {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--text-primary);
+  text-transform: uppercase;
+}
+
 .nav-level-tab {
   font-family: var(--font-ui);
-  font-size: 10px;
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--text-secondary);
   text-decoration: none;
   padding: 0 12px;
@@ -116,6 +130,7 @@ body {
 }
 
 .nav-level-tab.active,
+.nav-level-tab[aria-selected="true"],
 .nav-level-tab[aria-current="page"] {
   color: var(--green-mid);
   border-bottom-color: var(--green-bright);
@@ -126,33 +141,52 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green-mid);
+}
+
+.status-dot[data-active] {
+  animation: status-pulse 3s ease-in-out infinite;
 }
 
 /* --------------------------------------------------------------------------
-   §4.2  Section Titles
+   Page Headers
+   -------------------------------------------------------------------------- */
+.page-header {
+  padding: 16px 0 12px;
+}
+
+/* --------------------------------------------------------------------------
+   Section Titles
+   --------------------------------------------------------------------------
+   Removed scaleX(0.72) compression — sacrificed legibility for style.
    -------------------------------------------------------------------------- */
 .section-title {
   font-family: var(--font-title);
   font-weight: 900;
+  font-size: 20px;
   text-transform: uppercase;
-  transform: scaleX(0.72);
-  transform-origin: left;
   color: var(--text-primary);
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .compressed-title-wrap {
   display: inline-flex;
-  overflow: hidden;
-}
-
-.section-title--inline {
-  margin-right: -28%;
 }
 
 /* --------------------------------------------------------------------------
-   §6  Panels
+   Panels
    -------------------------------------------------------------------------- */
 .panel {
   background: var(--bg-elevated);
@@ -163,7 +197,7 @@ body {
 .panel-header {
   display: flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 8px 12px;
   background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -200,7 +234,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   §7  Tables
+   Tables
    -------------------------------------------------------------------------- */
 .data-table {
   width: 100%;
@@ -212,13 +246,13 @@ body {
 
 .data-table th {
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   color: var(--text-secondary);
   background: var(--bg-surface);
-  padding: 5px 8px;
+  padding: 6px 8px;
   text-align: left;
   border-bottom: 1px solid var(--border-default);
   position: sticky;
@@ -227,7 +261,7 @@ body {
 }
 
 .data-table td {
-  padding: 3px 8px;
+  padding: 4px 8px;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-subtle);
   font-variant-numeric: tabular-nums;
@@ -243,7 +277,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   §12.2  Buttons
+   Buttons
    -------------------------------------------------------------------------- */
 .btn {
   font-family: var(--font-ui);
@@ -289,16 +323,16 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   §12.3  Inputs
+   Inputs
    -------------------------------------------------------------------------- */
 .input,
 select.input {
   font-family: var(--font-data);
   font-size: 13px;
   background: var(--bg-primary);
-  color: var(--green-mid);
+  color: var(--text-primary);
   border: 1px solid var(--border-default);
-  border-bottom: 2px solid var(--green-dim);
+  border-bottom: 2px solid var(--border-strong);
   padding: 6px 8px;
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
@@ -308,7 +342,7 @@ select.input {
 .input:focus,
 select.input:focus {
   border-bottom-color: var(--green-bright);
-  box-shadow: 0 2px 8px var(--green-glow);
+  box-shadow: 0 1px 4px var(--green-glow);
 }
 
 .input::placeholder {
@@ -319,101 +353,150 @@ label,
 .form-label {
   display: block;
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: 10px;
   text-transform: uppercase;
   color: var(--text-secondary);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
   margin-bottom: 4px;
 }
 
 /* --------------------------------------------------------------------------
-   8. Status Badges
+   Status Badges
+   --------------------------------------------------------------------------
+   Fixed class names: templates use badge--State (double-dash).
    -------------------------------------------------------------------------- */
 .badge {
   display: inline-block;
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
   padding: 2px 8px;
   line-height: 1.4;
-  border-radius: 0;
+  border-radius: 2px;
 }
 
 /* Requested — neutral */
-.badge-requested {
+.badge-requested,
+.badge--Requested {
   color: var(--text-secondary);
   background: transparent;
   border: 1px solid var(--border-default);
 }
 
 /* Validating — blue */
-.badge-validating {
+.badge-validating,
+.badge--Validating {
   color: var(--blue-bright);
   background: rgba(0,112,224,0.10);
   border: 1px solid var(--blue-dim);
 }
 
-/* Analyzing — amber (trending toward threshold) */
-.badge-analyzing {
+/* Analyzing — amber */
+.badge-analyzing,
+.badge--Analyzing {
   color: var(--amber);
   background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
 }
 
 /* Approved — green-mid */
-.badge-approved {
+.badge-approved,
+.badge--Approved {
   color: var(--green-mid);
   background: var(--green-surface);
   border: 1px solid var(--green-dim);
 }
 
 /* FundsPosted — green-bright */
-.badge-fundsposted {
+.badge-fundsposted,
+.badge--FundsPosted {
   color: var(--green-bright);
   background: var(--green-surface);
   border: 1px solid var(--green-dim);
 }
 
-/* Completed — green-bright with glow */
-.badge-completed {
+/* Completed — green-bright */
+.badge-completed,
+.badge--Completed {
   color: var(--green-bright);
   background: var(--green-glow);
   border: 1px solid var(--green-mid);
 }
 
-/* Rejected — amber (normal business rejection, NOT red) */
-.badge-rejected {
+/* Rejected — amber (business rejection, not system error) */
+.badge-rejected,
+.badge--Rejected {
   color: var(--amber);
   background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
 }
 
 /* Returned — amber */
-.badge-returned {
+.badge-returned,
+.badge--Returned {
+  color: var(--amber);
+  background: var(--amber-glow);
+  border: 1px solid var(--amber-dim);
+}
+
+/* PendingReview — blue */
+.badge--PendingReview {
+  color: var(--blue-bright);
+  background: rgba(0,112,224,0.10);
+  border: 1px solid var(--blue-dim);
+}
+
+/* Settlement statuses */
+.badge--GENERATED {
+  color: var(--blue-bright);
+  background: rgba(0,112,224,0.10);
+  border: 1px solid var(--blue-dim);
+}
+
+.badge--ACKNOWLEDGED {
+  color: var(--green-mid);
+  background: var(--green-surface);
+  border: 1px solid var(--green-dim);
+}
+
+/* Rule outcomes */
+.badge--pass,
+.badge--PASS {
+  color: var(--green-mid);
+  background: var(--green-surface);
+  border: 1px solid var(--green-dim);
+}
+
+.badge--fail,
+.badge--FAIL {
+  color: var(--red);
+  background: var(--red-surface);
+  border: 1px solid var(--red-dim);
+}
+
+.badge--review,
+.badge--REVIEW {
   color: var(--amber);
   background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
 }
 
 /* --------------------------------------------------------------------------
-   §13.4  Scanline Overlay
+   Scanline Overlay — REMOVED
+   --------------------------------------------------------------------------
+   Per UX §10: "Don't animate unless the animation communicates state."
+   The scanline was purely decorative and reduced text contrast.
    -------------------------------------------------------------------------- */
 .scanline-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px, transparent 1px,
-    rgba(0,0,0,0.08) 1px, rgba(0,0,0,0.08) 2px
-  );
+  display: none;
 }
 
 /* --------------------------------------------------------------------------
-   10. Data Values
+   Data Values
+   --------------------------------------------------------------------------
+   Removed text-shadow glow — decorative, reduced sharpness.
    -------------------------------------------------------------------------- */
 .data-value {
   font-family: var(--font-data);
@@ -422,11 +505,11 @@ label,
 }
 
 .data-value--currency {
-  text-shadow: 0 0 6px var(--green-glow);
+  /* Clean rendering, no glow */
 }
 
 /* --------------------------------------------------------------------------
-   11. Form Layout
+   Form Layout
    -------------------------------------------------------------------------- */
 .form-group {
   margin-bottom: 12px;
@@ -442,16 +525,16 @@ label,
 }
 
 /* --------------------------------------------------------------------------
-   §6.4  Workspace Grid
+   Workspace Grid
    -------------------------------------------------------------------------- */
 .workspace-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 4px;
+  gap: 8px;
 }
 
 /* --------------------------------------------------------------------------
-   13. Flash / Alert Messages
+   Flash / Alert Messages
    -------------------------------------------------------------------------- */
 .flash {
   background: var(--bg-elevated);
@@ -459,7 +542,7 @@ label,
   border-left: 2px solid var(--border-default);
   padding: 8px 12px;
   font-family: var(--font-ui);
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-primary);
   margin-bottom: 8px;
 }
@@ -477,7 +560,7 @@ label,
 }
 
 /* --------------------------------------------------------------------------
-   14. Detail Layout (key-value pairs)
+   Detail Layout (key-value pairs)
    -------------------------------------------------------------------------- */
 .detail-grid {
   display: grid;
@@ -488,10 +571,10 @@ label,
 
 .detail-label {
   font-family: var(--font-ui);
-  font-size: 9px;
+  font-size: 10px;
   text-transform: uppercase;
   color: var(--text-secondary);
-  letter-spacing: 0.12em;
+  letter-spacing: 0.1em;
 }
 
 .detail-value {
@@ -500,7 +583,7 @@ label,
 }
 
 /* --------------------------------------------------------------------------
-   15. Check Image Display
+   Check Image Display
    -------------------------------------------------------------------------- */
 .check-image {
   border: 1px solid var(--border-subtle);
@@ -514,7 +597,7 @@ label,
 }
 
 /* --------------------------------------------------------------------------
-   16. Review Controls
+   Review Controls
    -------------------------------------------------------------------------- */
 .review-actions {
   display: flex;
@@ -523,7 +606,7 @@ label,
 }
 
 /* --------------------------------------------------------------------------
-   §13.2  Status Indicator Pulse
+   Status Indicator Pulse
    -------------------------------------------------------------------------- */
 @keyframes status-pulse {
   0%, 100% { opacity: 0.7; }
@@ -543,7 +626,19 @@ label,
 }
 
 /* --------------------------------------------------------------------------
-   §14  Reduced Motion
+   Links
+   -------------------------------------------------------------------------- */
+a {
+  color: var(--blue-bright);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced Motion
    -------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
