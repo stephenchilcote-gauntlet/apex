@@ -11,7 +11,6 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/apex-checkout/mobile-check-deposit/internal/audit"
 	"github.com/apex-checkout/mobile-check-deposit/internal/funding"
 	"github.com/apex-checkout/mobile-check-deposit/internal/ledger"
 	"github.com/apex-checkout/mobile-check-deposit/internal/transfers"
