@@ -1,0 +1,203 @@
+?   	github.com/apex-checkout/mobile-check-deposit/cmd/app	[no test files]
+?   	github.com/apex-checkout/mobile-check-deposit/cmd/vendorstub	[no test files]
+?   	github.com/apex-checkout/mobile-check-deposit/internal/audit	[no test files]
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward/before_cutoff_weekday
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward/at_cutoff_weekday
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward/after_cutoff_weekday
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward/friday_after_cutoff
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward/saturday_morning
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward/sunday_morning
+=== RUN   TestBusinessDateCT_CutoffAndWeekendRollForward/saturday_after_cutoff
+--- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward (0.00s)
+    --- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward/before_cutoff_weekday (0.00s)
+    --- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward/at_cutoff_weekday (0.00s)
+    --- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward/after_cutoff_weekday (0.00s)
+    --- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward/friday_after_cutoff (0.00s)
+    --- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward/saturday_morning (0.00s)
+    --- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward/sunday_morning (0.00s)
+    --- PASS: TestBusinessDateCT_CutoffAndWeekendRollForward/saturday_after_cutoff (0.00s)
+PASS
+ok  	github.com/apex-checkout/mobile-check-deposit/internal/clock	0.002s
+?   	github.com/apex-checkout/mobile-check-deposit/internal/config	[no test files]
+=== RUN   TestDepositService_SubmitDeposit_CleanPass_E2E
+2026/03/08 16:47:10 INFO transfer created id=fbdaa1e4-981c-4925-8248-b626a3751d32 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=fbdaa1e4-981c-4925-8248-b626a3751d32 side=FRONT path=/tmp/TestDepositService_SubmitDeposit_CleanPass_E2E3388963528/001/fbdaa1e4-981c-4925-8248-b626a3751d32/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=fbdaa1e4-981c-4925-8248-b626a3751d32 side=BACK path=/tmp/TestDepositService_SubmitDeposit_CleanPass_E2E3388963528/001/fbdaa1e4-981c-4925-8248-b626a3751d32/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=fbdaa1e4-981c-4925-8248-b626a3751d32 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=fbdaa1e4-981c-4925-8248-b626a3751d32 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=fbdaa1e4-981c-4925-8248-b626a3751d32 from=Analyzing to=Approved
+2026/03/08 16:47:10 INFO transfer transitioned id=fbdaa1e4-981c-4925-8248-b626a3751d32 from=Approved to=FundsPosted
+--- PASS: TestDepositService_SubmitDeposit_CleanPass_E2E (0.01s)
+=== RUN   TestDepositService_SubmitDeposit_VendorScenarios
+=== RUN   TestDepositService_SubmitDeposit_VendorScenarios/iqa_blur
+2026/03/08 16:47:10 INFO transfer created id=586b8edd-b566-418b-976a-88a8790405c7 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=586b8edd-b566-418b-976a-88a8790405c7 side=FRONT path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosiqa_blur4024089109/001/586b8edd-b566-418b-976a-88a8790405c7/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=586b8edd-b566-418b-976a-88a8790405c7 side=BACK path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosiqa_blur4024089109/001/586b8edd-b566-418b-976a-88a8790405c7/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=586b8edd-b566-418b-976a-88a8790405c7 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=586b8edd-b566-418b-976a-88a8790405c7 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=586b8edd-b566-418b-976a-88a8790405c7 from=Analyzing to=Rejected
+=== RUN   TestDepositService_SubmitDeposit_VendorScenarios/iqa_glare
+2026/03/08 16:47:10 INFO transfer created id=113970fc-79ff-486d-af3e-4602086cbb2b state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=113970fc-79ff-486d-af3e-4602086cbb2b side=FRONT path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosiqa_glare879577143/001/113970fc-79ff-486d-af3e-4602086cbb2b/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=113970fc-79ff-486d-af3e-4602086cbb2b side=BACK path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosiqa_glare879577143/001/113970fc-79ff-486d-af3e-4602086cbb2b/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=113970fc-79ff-486d-af3e-4602086cbb2b from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=113970fc-79ff-486d-af3e-4602086cbb2b from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=113970fc-79ff-486d-af3e-4602086cbb2b from=Analyzing to=Rejected
+=== RUN   TestDepositService_SubmitDeposit_VendorScenarios/micr_failure
+2026/03/08 16:47:10 INFO transfer created id=d25be074-d1d5-4d20-b760-9c4220eb87f7 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=d25be074-d1d5-4d20-b760-9c4220eb87f7 side=FRONT path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosmicr_failure1950052759/001/d25be074-d1d5-4d20-b760-9c4220eb87f7/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=d25be074-d1d5-4d20-b760-9c4220eb87f7 side=BACK path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosmicr_failure1950052759/001/d25be074-d1d5-4d20-b760-9c4220eb87f7/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=d25be074-d1d5-4d20-b760-9c4220eb87f7 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=d25be074-d1d5-4d20-b760-9c4220eb87f7 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=d25be074-d1d5-4d20-b760-9c4220eb87f7 from=Analyzing to=Rejected
+=== RUN   TestDepositService_SubmitDeposit_VendorScenarios/duplicate_detected
+2026/03/08 16:47:10 INFO transfer created id=73668ade-2998-42d1-8366-152931228895 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=73668ade-2998-42d1-8366-152931228895 side=FRONT path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosduplicate_detec2179200509/001/73668ade-2998-42d1-8366-152931228895/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=73668ade-2998-42d1-8366-152931228895 side=BACK path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosduplicate_detec2179200509/001/73668ade-2998-42d1-8366-152931228895/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=73668ade-2998-42d1-8366-152931228895 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=73668ade-2998-42d1-8366-152931228895 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=73668ade-2998-42d1-8366-152931228895 from=Analyzing to=Rejected
+=== RUN   TestDepositService_SubmitDeposit_VendorScenarios/amount_mismatch
+2026/03/08 16:47:10 INFO transfer created id=4e8a37e2-bf18-4e1e-9f56-0d370b12040a state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=4e8a37e2-bf18-4e1e-9f56-0d370b12040a side=FRONT path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosamount_mismatch2870337541/001/4e8a37e2-bf18-4e1e-9f56-0d370b12040a/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=4e8a37e2-bf18-4e1e-9f56-0d370b12040a side=BACK path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosamount_mismatch2870337541/001/4e8a37e2-bf18-4e1e-9f56-0d370b12040a/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=4e8a37e2-bf18-4e1e-9f56-0d370b12040a from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=4e8a37e2-bf18-4e1e-9f56-0d370b12040a from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=4e8a37e2-bf18-4e1e-9f56-0d370b12040a from=Analyzing to=Rejected
+=== RUN   TestDepositService_SubmitDeposit_VendorScenarios/iqa_pass_review
+2026/03/08 16:47:10 INFO transfer created id=b41b7531-93b4-40b0-be3f-d4393644291d state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=b41b7531-93b4-40b0-be3f-d4393644291d side=FRONT path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosiqa_pass_review3691366133/001/b41b7531-93b4-40b0-be3f-d4393644291d/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=b41b7531-93b4-40b0-be3f-d4393644291d side=BACK path=/tmp/TestDepositService_SubmitDeposit_VendorScenariosiqa_pass_review3691366133/001/b41b7531-93b4-40b0-be3f-d4393644291d/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=b41b7531-93b4-40b0-be3f-d4393644291d from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=b41b7531-93b4-40b0-be3f-d4393644291d from=Validating to=Analyzing
+--- PASS: TestDepositService_SubmitDeposit_VendorScenarios (0.04s)
+    --- PASS: TestDepositService_SubmitDeposit_VendorScenarios/iqa_blur (0.01s)
+    --- PASS: TestDepositService_SubmitDeposit_VendorScenarios/iqa_glare (0.01s)
+    --- PASS: TestDepositService_SubmitDeposit_VendorScenarios/micr_failure (0.01s)
+    --- PASS: TestDepositService_SubmitDeposit_VendorScenarios/duplicate_detected (0.01s)
+    --- PASS: TestDepositService_SubmitDeposit_VendorScenarios/amount_mismatch (0.01s)
+    --- PASS: TestDepositService_SubmitDeposit_VendorScenarios/iqa_pass_review (0.01s)
+=== RUN   TestDepositService_SubmitDeposit_FundingRuleRejections
+=== RUN   TestDepositService_SubmitDeposit_FundingRuleRejections/over_max_deposit_limit
+2026/03/08 16:47:10 INFO transfer created id=9a9501ed-4a0c-4793-90a4-36f627e2a0a2 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=9a9501ed-4a0c-4793-90a4-36f627e2a0a2 side=FRONT path=/tmp/TestDepositService_SubmitDeposit_FundingRuleRejectionsover_max_3043109051/001/9a9501ed-4a0c-4793-90a4-36f627e2a0a2/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=9a9501ed-4a0c-4793-90a4-36f627e2a0a2 side=BACK path=/tmp/TestDepositService_SubmitDeposit_FundingRuleRejectionsover_max_3043109051/001/9a9501ed-4a0c-4793-90a4-36f627e2a0a2/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=9a9501ed-4a0c-4793-90a4-36f627e2a0a2 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=9a9501ed-4a0c-4793-90a4-36f627e2a0a2 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=9a9501ed-4a0c-4793-90a4-36f627e2a0a2 from=Analyzing to=Rejected
+=== RUN   TestDepositService_SubmitDeposit_FundingRuleRejections/inactive_account
+2026/03/08 16:47:10 INFO transfer created id=bb0828ef-17dc-4599-a67c-6ed65eebcc6c state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=bb0828ef-17dc-4599-a67c-6ed65eebcc6c side=FRONT path=/tmp/TestDepositService_SubmitDeposit_FundingRuleRejectionsinactive_2181276323/001/bb0828ef-17dc-4599-a67c-6ed65eebcc6c/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=bb0828ef-17dc-4599-a67c-6ed65eebcc6c side=BACK path=/tmp/TestDepositService_SubmitDeposit_FundingRuleRejectionsinactive_2181276323/001/bb0828ef-17dc-4599-a67c-6ed65eebcc6c/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=bb0828ef-17dc-4599-a67c-6ed65eebcc6c from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=bb0828ef-17dc-4599-a67c-6ed65eebcc6c from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=bb0828ef-17dc-4599-a67c-6ed65eebcc6c from=Analyzing to=Rejected
+--- PASS: TestDepositService_SubmitDeposit_FundingRuleRejections (0.01s)
+    --- PASS: TestDepositService_SubmitDeposit_FundingRuleRejections/over_max_deposit_limit (0.01s)
+    --- PASS: TestDepositService_SubmitDeposit_FundingRuleRejections/inactive_account (0.01s)
+=== RUN   TestDepositService_SubmitDeposit_InternalDuplicateFingerprint
+2026/03/08 16:47:10 INFO transfer created id=7e0799a5-dd7b-412d-8720-f1a196edb501 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=7e0799a5-dd7b-412d-8720-f1a196edb501 side=FRONT path=/tmp/TestDepositService_SubmitDeposit_InternalDuplicateFingerprint872226734/001/7e0799a5-dd7b-412d-8720-f1a196edb501/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=7e0799a5-dd7b-412d-8720-f1a196edb501 side=BACK path=/tmp/TestDepositService_SubmitDeposit_InternalDuplicateFingerprint872226734/001/7e0799a5-dd7b-412d-8720-f1a196edb501/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=7e0799a5-dd7b-412d-8720-f1a196edb501 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=7e0799a5-dd7b-412d-8720-f1a196edb501 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=7e0799a5-dd7b-412d-8720-f1a196edb501 from=Analyzing to=Approved
+2026/03/08 16:47:10 INFO transfer transitioned id=7e0799a5-dd7b-412d-8720-f1a196edb501 from=Approved to=FundsPosted
+2026/03/08 16:47:10 INFO transfer created id=2191c43f-306e-452e-891c-cbafb543f66c state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=2191c43f-306e-452e-891c-cbafb543f66c side=FRONT path=/tmp/TestDepositService_SubmitDeposit_InternalDuplicateFingerprint872226734/001/2191c43f-306e-452e-891c-cbafb543f66c/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=2191c43f-306e-452e-891c-cbafb543f66c side=BACK path=/tmp/TestDepositService_SubmitDeposit_InternalDuplicateFingerprint872226734/001/2191c43f-306e-452e-891c-cbafb543f66c/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=2191c43f-306e-452e-891c-cbafb543f66c from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=2191c43f-306e-452e-891c-cbafb543f66c from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=2191c43f-306e-452e-891c-cbafb543f66c from=Analyzing to=Rejected
+--- PASS: TestDepositService_SubmitDeposit_InternalDuplicateFingerprint (0.01s)
+PASS
+ok  	github.com/apex-checkout/mobile-check-deposit/internal/deposits	0.075s
+?   	github.com/apex-checkout/mobile-check-deposit/internal/funding	[no test files]
+?   	github.com/apex-checkout/mobile-check-deposit/internal/http/api	[no test files]
+?   	github.com/apex-checkout/mobile-check-deposit/internal/http/ui	[no test files]
+?   	github.com/apex-checkout/mobile-check-deposit/internal/ledger	[no test files]
+?   	github.com/apex-checkout/mobile-check-deposit/internal/repository	[no test files]
+=== RUN   TestReturnsService_ProcessReturn_FromFundsPosted
+2026/03/08 16:47:10 INFO transfer created id=d2e1d562-e2ed-4d06-a911-e207469fda67 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=d2e1d562-e2ed-4d06-a911-e207469fda67 side=FRONT path=/tmp/TestReturnsService_ProcessReturn_FromFundsPosted64870048/001/d2e1d562-e2ed-4d06-a911-e207469fda67/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=d2e1d562-e2ed-4d06-a911-e207469fda67 side=BACK path=/tmp/TestReturnsService_ProcessReturn_FromFundsPosted64870048/001/d2e1d562-e2ed-4d06-a911-e207469fda67/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=d2e1d562-e2ed-4d06-a911-e207469fda67 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=d2e1d562-e2ed-4d06-a911-e207469fda67 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=d2e1d562-e2ed-4d06-a911-e207469fda67 from=Analyzing to=Approved
+2026/03/08 16:47:10 INFO transfer transitioned id=d2e1d562-e2ed-4d06-a911-e207469fda67 from=Approved to=FundsPosted
+2026/03/08 16:47:10 INFO transfer transitioned id=d2e1d562-e2ed-4d06-a911-e207469fda67 from=FundsPosted to=Returned
+2026/03/08 16:47:10 INFO return processed transferID=d2e1d562-e2ed-4d06-a911-e207469fda67 reasonCode=R01 feeCents=3000
+--- PASS: TestReturnsService_ProcessReturn_FromFundsPosted (0.01s)
+=== RUN   TestReturnsService_ProcessReturn_FromCompleted
+2026/03/08 16:47:10 INFO transfer created id=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf side=FRONT path=/tmp/TestReturnsService_ProcessReturn_FromCompleted1857823397/001/ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf side=BACK path=/tmp/TestReturnsService_ProcessReturn_FromCompleted1857823397/001/ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf from=Analyzing to=Approved
+2026/03/08 16:47:10 INFO transfer transitioned id=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf from=Approved to=FundsPosted
+2026/03/08 16:47:10 INFO transfer transitioned id=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf from=FundsPosted to=Completed
+2026/03/08 16:47:10 INFO transfer transitioned id=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf from=Completed to=Returned
+2026/03/08 16:47:10 INFO return processed transferID=ffc4cd05-0f4a-404b-a1b6-37ae9d8291cf reasonCode=R09 feeCents=3000
+--- PASS: TestReturnsService_ProcessReturn_FromCompleted (0.01s)
+=== RUN   TestReturnsService_ProcessReturn_RejectsIneligibleState
+2026/03/08 16:47:10 INFO transfer created id=488a1619-70fe-4156-b77c-c95bbb749328 state=Requested
+--- PASS: TestReturnsService_ProcessReturn_RejectsIneligibleState (0.00s)
+PASS
+ok  	github.com/apex-checkout/mobile-check-deposit/internal/returns	0.024s
+=== RUN   TestSettlementService_GenerateAndAcknowledgeBatch
+2026/03/08 16:47:10 INFO transfer created id=3fba249e-22a2-443e-8839-b2bae825dbca state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=3fba249e-22a2-443e-8839-b2bae825dbca side=FRONT path=/tmp/TestSettlementService_GenerateAndAcknowledgeBatch974614348/001/3fba249e-22a2-443e-8839-b2bae825dbca/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=3fba249e-22a2-443e-8839-b2bae825dbca side=BACK path=/tmp/TestSettlementService_GenerateAndAcknowledgeBatch974614348/001/3fba249e-22a2-443e-8839-b2bae825dbca/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=3fba249e-22a2-443e-8839-b2bae825dbca from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=3fba249e-22a2-443e-8839-b2bae825dbca from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=3fba249e-22a2-443e-8839-b2bae825dbca from=Analyzing to=Approved
+2026/03/08 16:47:10 INFO transfer transitioned id=3fba249e-22a2-443e-8839-b2bae825dbca from=Approved to=FundsPosted
+2026/03/08 16:47:10 INFO transfer created id=cd123ec6-8d9a-4370-93fe-100c0ede5f29 state=Requested
+2026/03/08 16:47:10 INFO image saved transferID=cd123ec6-8d9a-4370-93fe-100c0ede5f29 side=FRONT path=/tmp/TestSettlementService_GenerateAndAcknowledgeBatch974614348/001/cd123ec6-8d9a-4370-93fe-100c0ede5f29/FRONT.jpg
+2026/03/08 16:47:10 INFO image saved transferID=cd123ec6-8d9a-4370-93fe-100c0ede5f29 side=BACK path=/tmp/TestSettlementService_GenerateAndAcknowledgeBatch974614348/001/cd123ec6-8d9a-4370-93fe-100c0ede5f29/BACK.jpg
+2026/03/08 16:47:10 INFO transfer transitioned id=cd123ec6-8d9a-4370-93fe-100c0ede5f29 from=Requested to=Validating
+2026/03/08 16:47:10 INFO transfer transitioned id=cd123ec6-8d9a-4370-93fe-100c0ede5f29 from=Validating to=Analyzing
+2026/03/08 16:47:10 INFO transfer transitioned id=cd123ec6-8d9a-4370-93fe-100c0ede5f29 from=Analyzing to=Approved
+2026/03/08 16:47:10 INFO transfer transitioned id=cd123ec6-8d9a-4370-93fe-100c0ede5f29 from=Approved to=FundsPosted
+2026/03/08 16:47:10 INFO settlement batch generated batchID=593af5e0-8ec2-4540-a442-4fa4224cfc28 items=2 totalCents=30000
+2026/03/08 16:47:10 INFO transfer transitioned id=3fba249e-22a2-443e-8839-b2bae825dbca from=FundsPosted to=Completed
+2026/03/08 16:47:10 INFO transfer transitioned id=cd123ec6-8d9a-4370-93fe-100c0ede5f29 from=FundsPosted to=Completed
+2026/03/08 16:47:10 INFO settlement batch acknowledged batchID=593af5e0-8ec2-4540-a442-4fa4224cfc28 ackReference=ACK-001 transfers=2
+--- PASS: TestSettlementService_GenerateAndAcknowledgeBatch (0.01s)
+PASS
+ok  	github.com/apex-checkout/mobile-check-deposit/internal/settlement	0.018s
+=== RUN   TestTransferService_Transition_Valid
+2026/03/08 16:47:10 INFO transfer created id=a6f97c53-14d3-4947-ab27-b7d5d3707282 state=Requested
+2026/03/08 16:47:10 INFO transfer transitioned id=a6f97c53-14d3-4947-ab27-b7d5d3707282 from=Requested to=Validating
+--- PASS: TestTransferService_Transition_Valid (0.00s)
+=== RUN   TestTransferService_Transition_Invalid
+2026/03/08 16:47:10 INFO transfer created id=6083bedd-9562-4b7b-b129-bd11aba11246 state=Requested
+--- PASS: TestTransferService_Transition_Invalid (0.00s)
+=== RUN   TestCanTransition_AllPairs
+--- PASS: TestCanTransition_AllPairs (0.00s)
+=== RUN   TestCanTransition_UnknownState
+--- PASS: TestCanTransition_UnknownState (0.00s)
+=== RUN   TestIsTerminal
+=== RUN   TestIsTerminal/Requested
+=== RUN   TestIsTerminal/Validating
+=== RUN   TestIsTerminal/Analyzing
+=== RUN   TestIsTerminal/Approved
+=== RUN   TestIsTerminal/FundsPosted
+=== RUN   TestIsTerminal/Completed
+=== RUN   TestIsTerminal/Rejected
+=== RUN   TestIsTerminal/Returned
+--- PASS: TestIsTerminal (0.00s)
+    --- PASS: TestIsTerminal/Requested (0.00s)
+    --- PASS: TestIsTerminal/Validating (0.00s)
+    --- PASS: TestIsTerminal/Analyzing (0.00s)
+    --- PASS: TestIsTerminal/Approved (0.00s)
+    --- PASS: TestIsTerminal/FundsPosted (0.00s)
+    --- PASS: TestIsTerminal/Completed (0.00s)
+    --- PASS: TestIsTerminal/Rejected (0.00s)
+    --- PASS: TestIsTerminal/Returned (0.00s)
+PASS
+ok  	github.com/apex-checkout/mobile-check-deposit/internal/transfers	0.012s
+?   	github.com/apex-checkout/mobile-check-deposit/internal/vendorsvc/client	[no test files]
+?   	github.com/apex-checkout/mobile-check-deposit/internal/vendorsvc/model	[no test files]
