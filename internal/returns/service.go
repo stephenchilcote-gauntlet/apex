@@ -12,8 +12,6 @@ import (
 	"github.com/google/uuid"
 )
 
-const feeRevenueAccountID = "00000000-0000-0000-0000-000000000002"
-
 type ReturnNotification struct {
 	ID             string
 	TransferID     string
@@ -40,6 +38,15 @@ func (s *ReturnsService) ProcessReturn(ctx interface{}, transferID, reasonCode, 
 
 	if t.State != transfers.StateFundsPosted && t.State != transfers.StateCompleted {
 		return fmt.Errorf("transfer %s in state %s is not eligible for return", transferID, t.State)
+	}
+
+	var feeRevenueAccountID string
+	err = s.DB.QueryRow(`
+		SELECT id FROM accounts
+		WHERE correspondent_id = ? AND account_type = 'FEE_REVENUE'
+		LIMIT 1`, t.CorrespondentID).Scan(&feeRevenueAccountID)
+	if err != nil {
+		return fmt.Errorf("resolve fee revenue account: %w", err)
 	}
 
 	now := time.Now().UTC()
