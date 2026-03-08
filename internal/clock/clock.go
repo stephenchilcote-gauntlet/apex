@@ -15,13 +15,12 @@ func BusinessDateCT(c Clock, tz *time.Location, cutoffHour, cutoffMinute int) st
 	cutoff := time.Date(now.Year(), now.Month(), now.Day(), cutoffHour, cutoffMinute, 0, 0, tz)
 
 	date := now
-	if now.Before(cutoff) {
-		date = now
-	} else {
+	if !now.Before(cutoff) {
 		date = now.AddDate(0, 0, 1)
-	}
-
-	for date.Weekday() == time.Saturday || date.Weekday() == time.Sunday {
+		for date.Weekday() == time.Saturday || date.Weekday() == time.Sunday {
+			date = date.AddDate(0, 0, 1)
+		}
+	} else if date.Weekday() == time.Sunday {
 		date = date.AddDate(0, 0, 1)
 	}
 
