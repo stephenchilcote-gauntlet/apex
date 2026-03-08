@@ -49,9 +49,9 @@
    Dropped Orbitron (decorative display font, never earned its place).
    -------------------------------------------------------------------------- */
 :root {
-  --font-title:   'Noto Serif JP', 'Georgia', serif;
-  --font-ui:      'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
-  --font-data:    'Share Tech Mono', 'JetBrains Mono', 'Courier New', monospace;
+  --font-title:   'Inter', 'Helvetica Neue', 'Arial', sans-serif;
+  --font-ui:      'Inter', 'Helvetica Neue', 'Arial', sans-serif;
+  --font-data:    'JetBrains Mono', 'Menlo', 'Consolas', monospace;
 }
 
 /* --------------------------------------------------------------------------

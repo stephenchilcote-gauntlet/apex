@@ -578,6 +578,7 @@ test.describe('Video Tour', () => {
     // 20. END CARD
     // -----------------------------------------------------------------------
     await page.locator('a.nav-level-tab', { hasText: 'Simulate' }).click();
+    await page.waitForLoadState('domcontentloaded');
     await announce(page, 'Tour Complete', 'APEX Mobile Check Deposit — All Workflows Demonstrated');
     await pause(page, 4000);
     await clearOverlay(page);
