@@ -7,7 +7,6 @@ type AnalyzeRequest struct {
 	AmountCents        int    `json:"amountCents"`
 	FrontImageSha256   string `json:"frontImageSha256"`
 	BackImageSha256    string `json:"backImageSha256"`
-	Scenario           string `json:"scenario,omitempty"`
 }
 
 // MICRResult holds the MICR data extracted from a check image.
@@ -31,8 +30,3 @@ type AnalyzeResponse struct {
 	ManualReviewRequired bool       `json:"manualReviewRequired"`
 }
 
-// ScenarioInfo describes a single supported scenario for the listing endpoint.
-type ScenarioInfo struct {
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}

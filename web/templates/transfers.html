@@ -13,7 +13,6 @@
           <th>Account</th>
           <th>Amount</th>
           <th>State</th>
-          <th>Scenario</th>
           <th>Business Date</th>
           <th>Created At</th>
         </tr>
@@ -25,12 +24,11 @@
           <td>{{.InvestorAccountID}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
           <td><span class="badge badge--{{.State}}" data-state>{{.State}}</span></td>
-          <td>{{if .VendorScenario}}{{deref .VendorScenario}}{{else}}—{{end}}</td>
           <td>{{if .BusinessDateCT}}{{deref .BusinessDateCT}}{{else}}—{{end}}</td>
           <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
         </tr>
         {{else}}
-        <tr><td colspan="7" style="text-align:center;">No transfers found</td></tr>
+        <tr><td colspan="6" style="text-align:center;">No transfers found</td></tr>
         {{end}}
       </tbody>
     </table>

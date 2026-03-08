@@ -14,7 +14,6 @@ type Transfer struct {
 	ContributionType     *string
 	ReviewRequired       bool
 	ReviewStatus         *string
-	VendorScenario       *string
 	BusinessDateCT       *string
 	RejectionCode        *string
 	RejectionMessage     *string

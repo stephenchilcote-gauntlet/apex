@@ -14,7 +14,6 @@
         <span class="detail-label">Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
         <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
         <span class="detail-label">Correspondent</span><span class="detail-value">{{.Transfer.CorrespondentID}}</span>
-        <span class="detail-label">Scenario</span><span class="detail-value">{{if .Transfer.VendorScenario}}{{deref .Transfer.VendorScenario}}{{else}}—{{end}}</span>
         <span class="detail-label">Business Date</span><span class="detail-value">{{if .Transfer.BusinessDateCT}}{{deref .Transfer.BusinessDateCT}}{{else}}—{{end}}</span>
         <span class="detail-label">Submitted</span><span class="detail-value">{{if .Transfer.SubmittedAt}}{{.Transfer.SubmittedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
         <span class="detail-label">Approved</span><span class="detail-value">{{if .Transfer.ApprovedAt}}{{.Transfer.ApprovedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>

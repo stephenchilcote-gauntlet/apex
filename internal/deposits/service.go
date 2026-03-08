@@ -57,7 +57,6 @@ func (s *DepositService) SubmitDeposit(ctx context.Context, investorAccountID st
 		OmnibusAccountID:  omnibusAccountID,
 		AmountCents:       amountCents,
 		Currency:          "USD",
-		VendorScenario:    vendorScenario,
 		BusinessDateCT:    &businessDate,
 		SubmittedAt:       &now,
 	}
@@ -85,11 +84,11 @@ func (s *DepositService) SubmitDeposit(ctx context.Context, investorAccountID st
 		FrontImageSha256:  frontHash,
 		BackImageSha256:   backHash,
 	}
+	var scenario string
 	if vendorScenario != nil {
-		analyzeReq.Scenario = *vendorScenario
+		scenario = *vendorScenario
 	}
-
-	vendorResp, err := s.VendorClient.Analyze(ctx, analyzeReq)
+	vendorResp, err := s.VendorClient.Analyze(ctx, analyzeReq, scenario)
 	if err != nil {
 		return nil, fmt.Errorf("vendor analyze: %w", err)
 	}

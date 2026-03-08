@@ -69,9 +69,6 @@ func loadConfig(path string) (*scenarioConfig, error) {
 }
 
 func resolveScenario(req *model.AnalyzeRequest, header string, cfg *scenarioConfig) string {
-	if req.Scenario != "" {
-		return req.Scenario
-	}
 	if header != "" {
 		return header
 	}
@@ -190,10 +187,15 @@ func buildResponse(scenario string, amountCents int) (*model.AnalyzeResponse, er
 	return resp, nil
 }
 
+type scenarioInfo struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 func handleScenarios() http.HandlerFunc {
-	scenarios := make([]model.ScenarioInfo, 0, len(scenarioDescriptions))
+	scenarios := make([]scenarioInfo, 0, len(scenarioDescriptions))
 	for name, desc := range scenarioDescriptions {
-		scenarios = append(scenarios, model.ScenarioInfo{Name: name, Description: desc})
+		scenarios = append(scenarios, scenarioInfo{Name: name, Description: desc})
 	}
 	return func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, scenarios)

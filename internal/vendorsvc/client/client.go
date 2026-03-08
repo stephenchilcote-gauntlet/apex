@@ -28,7 +28,7 @@ func New(baseURL string) *VendorClient {
 }
 
 // Analyze calls POST /stub/v1/checks/analyze on the vendor stub.
-func (c *VendorClient) Analyze(ctx context.Context, req model.AnalyzeRequest) (*model.AnalyzeResponse, error) {
+func (c *VendorClient) Analyze(ctx context.Context, req model.AnalyzeRequest, vendorScenario string) (*model.AnalyzeResponse, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("marshal analyze request: %w", err)
@@ -39,6 +39,9 @@ func (c *VendorClient) Analyze(ctx context.Context, req model.AnalyzeRequest) (*
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
+	if vendorScenario != "" {
+		httpReq.Header.Set("X-Vendor-Scenario", vendorScenario)
+	}
 
 	resp, err := c.HTTPClient.Do(httpReq)
 	if err != nil {
@@ -74,7 +77,6 @@ func SaveVendorResult(db *sql.DB, transferID string, resp *model.AnalyzeResponse
 		micrConfidence = &resp.MICR.Confidence
 	}
 
-	scenario := resp.Decision // use decision as scenario fallback
 	var ocrAmount *int
 	if resp.OCRAmountCents != nil {
 		ocrAmount = resp.OCRAmountCents
@@ -82,13 +84,13 @@ func SaveVendorResult(db *sql.DB, transferID string, resp *model.AnalyzeResponse
 
 	_, err = db.Exec(`
 		INSERT INTO vendor_results (
-			id, transfer_id, vendor_transaction_id, scenario, decision,
+			id, transfer_id, vendor_transaction_id, decision,
 			iqa_status, micr_routing_number, micr_account_number,
 			micr_check_number, micr_confidence, ocr_amount_cents,
 			amount_matches, duplicate_detected, risk_score,
 			manual_review_required, raw_response_json, created_at
-		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-		uuid.New().String(), transferID, resp.VendorTransactionID, scenario, resp.Decision,
+		) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+		uuid.New().String(), transferID, resp.VendorTransactionID, resp.Decision,
 		resp.IQAStatus, micrRouting, micrAccount,
 		micrCheckNumber, micrConfidence, ocrAmount,
 		resp.AmountMatches, resp.DuplicateDetected, resp.RiskScore,
