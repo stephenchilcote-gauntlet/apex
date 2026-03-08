@@ -1,7 +1,18 @@
+FROM golang:1.26-alpine AS builder
+
+RUN apk add --no-cache git
+
+WORKDIR /src
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+RUN CGO_ENABLED=0 go build -o /vendorstub ./cmd/vendorstub
+
 FROM alpine:3.21
 
 WORKDIR /app
-COPY bin/vendorstub .
+COPY --from=builder /vendorstub .
 COPY config/vendor_scenarios.yaml config/vendor_scenarios.yaml
 
 EXPOSE 8081
