@@ -13,6 +13,8 @@ import (
 	"github.com/google/uuid"
 )
 
+const fileFormatX9ICL = "X9_ICL"
+
 type Batch struct {
 	ID               string
 	BusinessDateCT   string
@@ -46,15 +48,6 @@ type SettlementService struct {
 	TransferSvc *transfers.TransferService
 }
 
-type fileHeader struct {
-	BatchID          string `json:"batchId"`
-	BusinessDateCT   string `json:"businessDateCT"`
-	CreatedAt        string `json:"createdAt"`
-	Format           string `json:"format"`
-	TotalItems       int    `json:"totalItems"`
-	TotalAmountCents int64  `json:"totalAmountCents"`
-}
-
 type micrData struct {
 	RoutingNumber string `json:"routingNumber"`
 	AccountNumber string `json:"accountNumber"`
@@ -72,11 +65,6 @@ type fileItem struct {
 	AmountCents    int64    `json:"amountCents"`
 	MICR           micrData `json:"micr"`
 	Images         imageData `json:"images"`
-}
-
-type settlementFile struct {
-	FileHeader fileHeader `json:"fileHeader"`
-	Items      []fileItem `json:"items"`
 }
 
 func (s *SettlementService) GenerateBatch(ctx interface{}, businessDateCT string) (*Batch, error) {
@@ -127,8 +115,8 @@ func (s *SettlementService) GenerateBatch(ctx interface{}, businessDateCT string
 
 	_, err = tx.Exec(`
 		INSERT INTO settlement_batches (id, business_date_ct, file_format, status, total_items, total_amount_cents, created_at)
-		VALUES (?, ?, 'X9_JSON_EQUIVALENT', 'GENERATED', ?, ?, ?)`,
-		batchID, businessDateCT, len(eligibleTransfers), totalAmountCents, now)
+		VALUES (?, ?, ?, 'GENERATED', ?, ?, ?)`,
+		batchID, businessDateCT, fileFormatX9ICL, len(eligibleTransfers), totalAmountCents, now)
 	if err != nil {
 		return nil, fmt.Errorf("insert batch: %w", err)
 	}
@@ -186,35 +174,21 @@ func (s *SettlementService) GenerateBatch(ctx interface{}, businessDateCT string
 		})
 	}
 
-	// Generate X9-equivalent JSON file
-	sf := settlementFile{
-		FileHeader: fileHeader{
-			BatchID:          batchID,
-			BusinessDateCT:   businessDateCT,
-			CreatedAt:        now.Format(time.RFC3339),
-			Format:           "X9_JSON_EQUIVALENT",
-			TotalItems:       len(eligibleTransfers),
-			TotalAmountCents: totalAmountCents,
-		},
-		Items: fileItems,
-	}
-
+	// Generate X9.37 ICL binary file
 	if err := os.MkdirAll(s.OutputPath, 0755); err != nil {
 		return nil, fmt.Errorf("create output directory: %w", err)
 	}
 
-	filename := fmt.Sprintf("%s_%s.json", businessDateCT, batchID)
-	filePath := filepath.Join(s.OutputPath, filename)
-	f, err := os.Create(filePath)
+	bizDate, err := time.Parse("2006-01-02", businessDateCT)
 	if err != nil {
-		return nil, fmt.Errorf("create settlement file: %w", err)
+		return nil, fmt.Errorf("parse business date: %w", err)
 	}
-	defer f.Close()
 
-	enc := json.NewEncoder(f)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(sf); err != nil {
-		return nil, fmt.Errorf("encode settlement file: %w", err)
+	filename := fmt.Sprintf("%s_%s.x9", businessDateCT, batchID)
+	filePath := filepath.Join(s.OutputPath, filename)
+
+	if err := writeX9File(filePath, batchID, bizDate, parseX9Items(fileItems)); err != nil {
+		return nil, fmt.Errorf("write X9 ICL file: %w", err)
 	}
 
 	// Update batch with file path
@@ -232,7 +206,7 @@ func (s *SettlementService) GenerateBatch(ctx interface{}, businessDateCT string
 	batch := &Batch{
 		ID:               batchID,
 		BusinessDateCT:   businessDateCT,
-		FileFormat:       "X9_JSON_EQUIVALENT",
+		FileFormat:       fileFormatX9ICL,
 		FilePath:         &filePath,
 		Status:           "GENERATED",
 		TotalItems:       len(eligibleTransfers),

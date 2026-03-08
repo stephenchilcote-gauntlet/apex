@@ -11,6 +11,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"testing"
 	"time"
 
@@ -21,6 +22,7 @@ import (
 	vendorclient "github.com/apex-checkout/mobile-check-deposit/internal/vendorsvc/client"
 	"github.com/apex-checkout/mobile-check-deposit/internal/vendorsvc/model"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/moov-io/imagecashletter"
 )
 
 func migrationsDir() string {
@@ -138,38 +140,57 @@ func TestSettlementService_GenerateAndAcknowledgeBatch(t *testing.T) {
 		t.Fatal("batch file_path is nil")
 	}
 
-	// Verify settlement file contents
-	data, err := os.ReadFile(*batch.FilePath)
-	if err != nil {
-		t.Fatalf("read settlement file: %v", err)
-	}
-	var sf settlementFile
-	if err := json.Unmarshal(data, &sf); err != nil {
-		t.Fatalf("unmarshal settlement file: %v", err)
-	}
-	if sf.FileHeader.BatchID != batch.ID {
-		t.Errorf("file header batch_id = %s, want %s", sf.FileHeader.BatchID, batch.ID)
-	}
-	if sf.FileHeader.Format != "X9_JSON_EQUIVALENT" {
-		t.Errorf("file header format = %s, want X9_JSON_EQUIVALENT", sf.FileHeader.Format)
-	}
-	if sf.FileHeader.TotalItems != 2 {
-		t.Errorf("file header total_items = %d, want 2", sf.FileHeader.TotalItems)
-	}
-	if sf.FileHeader.TotalAmountCents != 30000 {
-		t.Errorf("file header total_amount_cents = %d, want 30000", sf.FileHeader.TotalAmountCents)
-	}
-	if len(sf.Items) != 2 {
-		t.Errorf("file items count = %d, want 2", len(sf.Items))
+	// Verify file has .x9 extension
+	if !strings.HasSuffix(*batch.FilePath, ".x9") {
+		t.Errorf("file path = %s, want .x9 extension", *batch.FilePath)
 	}
 
-	// Collect transfer IDs from settlement items
-	itemIDs := map[string]bool{}
-	for _, item := range sf.Items {
-		itemIDs[item.TransferID] = true
+	// Parse the X9 ICL file back using the library's reader
+	x9f, err := os.Open(*batch.FilePath)
+	if err != nil {
+		t.Fatalf("open settlement file: %v", err)
 	}
-	if !itemIDs[r1.TransferID] || !itemIDs[r2.TransferID] {
-		t.Errorf("settlement items should contain both transfer IDs")
+	defer x9f.Close()
+
+	reader := imagecashletter.NewReader(x9f, imagecashletter.ReadVariableLineLengthOption())
+	iclFile, err := reader.Read()
+	if err != nil {
+		t.Fatalf("parse X9 ICL file: %v", err)
+	}
+
+	// Validate file structure
+	if iclFile.Header.ImmediateOrigin != originRoutingNumber {
+		t.Errorf("file header origin = %s, want %s", iclFile.Header.ImmediateOrigin, originRoutingNumber)
+	}
+	if len(iclFile.CashLetters) != 1 {
+		t.Fatalf("cash letter count = %d, want 1", len(iclFile.CashLetters))
+	}
+	cl := iclFile.CashLetters[0]
+	bundles := cl.GetBundles()
+	if len(bundles) != 1 {
+		t.Fatalf("bundle count = %d, want 1", len(bundles))
+	}
+	checks := bundles[0].GetChecks()
+	if len(checks) != 2 {
+		t.Fatalf("check detail count = %d, want 2", len(checks))
+	}
+
+	// Verify total amount across checks
+	var totalAmount int
+	for _, cd := range checks {
+		totalAmount += cd.ItemAmount
+		if cd.AddendumCount != 1 {
+			t.Errorf("check addendum count = %d, want 1", cd.AddendumCount)
+		}
+		if len(cd.ImageViewDetail) != 2 {
+			t.Errorf("image view detail count = %d, want 2 (front+back)", len(cd.ImageViewDetail))
+		}
+		if len(cd.ImageViewData) != 2 {
+			t.Errorf("image view data count = %d, want 2 (front+back)", len(cd.ImageViewData))
+		}
+	}
+	if totalAmount != 30000 {
+		t.Errorf("total amount across checks = %d, want 30000", totalAmount)
 	}
 
 	// Second GenerateBatch should fail (no new eligible transfers)
