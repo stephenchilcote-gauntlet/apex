@@ -1,0 +1,9 @@
+default: clean_pass
+account_suffix_map:
+  "1001": clean_pass
+  "1002": iqa_blur
+  "1003": iqa_glare
+  "1004": micr_failure
+  "1005": duplicate_detected
+  "1006": amount_mismatch
+  "1007": iqa_pass_review

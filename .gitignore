@@ -2,8 +2,7 @@ node_modules/
 bin/
 data/sqlite/
 data/images/
-reports/settlement/*.json
+reports/settlement/
 test-results/
-tests/artifacts/
 .env
 vendorstub

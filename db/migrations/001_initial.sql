@@ -146,7 +146,7 @@ CREATE TABLE settlement_batches (
     id TEXT PRIMARY KEY,
     business_date_ct DATE NOT NULL,
     cutoff_at_ct DATETIME,
-    file_format TEXT NOT NULL DEFAULT 'X9_JSON_EQUIVALENT',
+    file_format TEXT NOT NULL DEFAULT 'X9_ICL',
     file_path TEXT,
     status TEXT NOT NULL DEFAULT 'GENERATED' CHECK(status IN ('GENERATED','SUBMITTED','ACKNOWLEDGED','FAILED')),
     total_items INTEGER NOT NULL DEFAULT 0,
