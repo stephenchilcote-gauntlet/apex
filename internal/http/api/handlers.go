@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -57,7 +58,9 @@ func (h *Handlers) RegisterRoutes(r chi.Router) {
 	r.Post("/api/v1/returns", h.processReturn)
 
 	// Test
-	r.Post("/api/v1/test/reset", h.testReset)
+	if os.Getenv("ENABLE_TEST_RESET") == "true" {
+		r.Post("/api/v1/test/reset", h.testReset)
+	}
 }
 
 // ---------------------------------------------------------------------------
