@@ -1,0 +1,8 @@
+FROM alpine:3.21
+
+WORKDIR /app
+COPY bin/vendorstub .
+COPY config/vendor_scenarios.yaml config/vendor_scenarios.yaml
+
+EXPOSE 8081
+CMD ["./vendorstub"]

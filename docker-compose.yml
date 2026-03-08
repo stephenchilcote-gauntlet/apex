@@ -1,0 +1,24 @@
+services:
+  vendorstub:
+    build:
+      context: .
+      dockerfile: Dockerfile.vendorstub
+    env_file: .env
+    ports:
+      - "8081:8081"
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    env_file: .env
+    environment:
+      - VENDOR_STUB_URL=http://vendorstub:8081
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data/sqlite:/app/data/sqlite
+      - ./data/images:/app/data/images
+      - ./reports/settlement:/app/reports/settlement
+    depends_on:
+      - vendorstub

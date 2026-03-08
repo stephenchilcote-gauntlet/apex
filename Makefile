@@ -1,4 +1,4 @@
-.PHONY: dev build test demo reset vendor-stub app
+.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux
 
 build:
 	go build -o bin/app ./cmd/app
@@ -28,6 +28,16 @@ test-e2e:
 reset:
 	rm -rf data/sqlite/mcd.db data/images/* reports/settlement/*
 	@echo "Database and data reset."
+
+docker-build: build-linux
+	docker compose build
+
+docker-dev: build-linux
+	docker compose up --build
+
+build-linux:
+	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/app ./cmd/app
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/vendorstub ./cmd/vendorstub
 
 clean:
 	rm -rf bin/ data/sqlite/ data/images/ reports/settlement/ .vendorstub.pid
