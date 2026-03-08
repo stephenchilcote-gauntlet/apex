@@ -1,8 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type Config struct {
@@ -18,33 +20,55 @@ type Config struct {
 	EODCutoffMinute      int
 }
 
-func Load() Config {
-	return Config{
-		AppPort:              envOrDefault("APP_PORT", "8080"),
-		VendorStubPort:       envOrDefault("VENDOR_STUB_PORT", "8081"),
-		VendorStubURL:        envOrDefault("VENDOR_STUB_URL", "http://localhost:8081"),
-		DBPath:               envOrDefault("DB_PATH", "./data/sqlite/mcd.db"),
-		ImageStoragePath:     envOrDefault("IMAGE_STORAGE_PATH", "./data/images"),
-		SettlementOutputPath: envOrDefault("SETTLEMENT_OUTPUT_PATH", "./reports/settlement"),
-		LogLevel:             envOrDefault("LOG_LEVEL", "info"),
-		Timezone:             envOrDefault("TIMEZONE", "America/Chicago"),
-		EODCutoffHour:        envOrDefaultInt("EOD_CUTOFF_HOUR", 18),
-		EODCutoffMinute:      envOrDefaultInt("EOD_CUTOFF_MINUTE", 30),
+func Load() (Config, error) {
+	var errs []string
+
+	eodHour, err := requiredInt("EOD_CUTOFF_HOUR")
+	if err != nil {
+		errs = append(errs, err.Error())
 	}
+
+	eodMinute, err := requiredInt("EOD_CUTOFF_MINUTE")
+	if err != nil {
+		errs = append(errs, err.Error())
+	}
+
+	cfg := Config{
+		AppPort:              required("APP_PORT", &errs),
+		VendorStubPort:       required("VENDOR_STUB_PORT", &errs),
+		VendorStubURL:        required("VENDOR_STUB_URL", &errs),
+		DBPath:               required("DB_PATH", &errs),
+		ImageStoragePath:     required("IMAGE_STORAGE_PATH", &errs),
+		SettlementOutputPath: required("SETTLEMENT_OUTPUT_PATH", &errs),
+		LogLevel:             required("LOG_LEVEL", &errs),
+		Timezone:             required("TIMEZONE", &errs),
+		EODCutoffHour:        eodHour,
+		EODCutoffMinute:      eodMinute,
+	}
+
+	if len(errs) > 0 {
+		return Config{}, fmt.Errorf("configuration errors:\n  %s\nSee .env.example for required variables", strings.Join(errs, "\n  "))
+	}
+
+	return cfg, nil
 }
 
-func envOrDefault(key, defaultVal string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
+func required(key string, errs *[]string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		*errs = append(*errs, fmt.Sprintf("%s: required but not set", key))
 	}
-	return defaultVal
+	return v
 }
 
-func envOrDefaultInt(key string, defaultVal int) int {
-	if v := os.Getenv(key); v != "" {
-		if i, err := strconv.Atoi(v); err == nil {
-			return i
-		}
+func requiredInt(key string) (int, error) {
+	v := os.Getenv(key)
+	if v == "" {
+		return 0, fmt.Errorf("%s: required but not set", key)
 	}
-	return defaultVal
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		return 0, fmt.Errorf("%s: %q is not a valid integer", key, v)
+	}
+	return i, nil
 }

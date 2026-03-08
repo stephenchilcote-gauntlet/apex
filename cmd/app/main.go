@@ -23,7 +23,11 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		slog.Error("invalid configuration", "err", err)
+		os.Exit(1)
+	}
 
 	db, err := repository.InitDB(cfg.DBPath)
 	if err != nil {
