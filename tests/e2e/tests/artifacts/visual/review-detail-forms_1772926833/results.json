@@ -1,0 +1,20 @@
+{
+  "Is there a \"Transfer Info\" panel showing the transfer details including State badge and amounts?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Transfer Info panel is clearly present with all required elements including state badge and amount information",
+    "evidence": "Transfer Info panel visible on left side with fields: ID (1b54c931-a192-53bc-a45-f6d882f1ca1), STATE with yellow 'ANALYZING' badge, ACCOUNT (masked number), ENTERED AMOUNT $500.00, OCR AMOUNT $361.00, BUSINESS DATE 2026-01-07708 08:882, CREATED 2026-01-07 23:48:16"
+  },
+  "Are there two side-by-side or stacked sections: one for \"Approve\" with a notes textarea and approve button, and one for \"Reject\" with a notes textarea and reject button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Both approve and reject sections are clearly visible with their respective textareas and action buttons in a side-by-side layout",
+    "evidence": "Bottom section shows 'APPROVE' button area on left side with 'OPERATOR NOTES' textarea, and 'REJECT' button area on right side with 'REJECTION REASON' textarea, arranged side-by-side"
+  },
+  "Is there a \"Check Images\" panel showing front and back check images?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Check Images panel is present showing the front of the check with bank details, amount, and payee information, plus endorsement area for the back",
+    "evidence": "'CHECK IMAGES' section header visible above check image display. Front of check from First National Bank (Check #1042) shown on left with payee 'Apex Clearing Corporation', amount '$500.00', date '03/07/2026'. Right side shows 'ENDORSE HERE' section for check back/endorsement"
+  }
+}

@@ -1,0 +1,89 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Design
+The interface uses a dark theme with green accent colors, creating a high-contrast professional appearance. The layout is structured with clear vertical sections separated by spacing.
+
+## Header & Navigation
+- **Top Navigation Bar**: Black background with light gray text
+- **Tabs**: APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS
+- **System Label**: "SYSTEM NOMINAL" appears in the top right corner
+- Clean, minimalist navigation design
+
+## Main Content Structure
+
+### Deposit Result Section (Top)
+- **Title**: "SIMULATE DEPOSIT" in large, bold white text
+- **Subtitle**: "DEPOSIT RESULT" in smaller gray text
+- **Status Box**: Green-bordered container with dark background displaying:
+  - **Transfer ID**: `cc156008-9506-45e5-995d-161ca72858f4` (monospace font)
+  - **State**: REJECTED (red/critical indicator)
+  - **Message**: "Deposit rejected by vendor analysis"
+  - **Rejection Details**: `VENDOR_REJECT: Vendor decision FAIL: IOA=FAIL_BLUR duplicate=false`
+
+### New Deposit Section (Bottom)
+Green-bordered form container with structured fields:
+
+#### Left Column
+1. **Investor Account Dropdown**
+   - Field label: "INVESTOR ACCOUNT"
+   - Selected value: "INV-1001 (Clean Pass)" in green text
+   - Dark dropdown styling
+
+2. **Front Image Upload**
+   - Label: "FRONT IMAGE"
+   - File input button with text "No file chosen" in gray
+   - Standard file chooser interface
+
+#### Right Column
+1. **Amount Input**
+   - Field label: "AMOUNT (USD)"
+   - Input value: "500.00" in green text
+   - Currency format indication
+
+2. **Back Image Upload**
+   - Label: "BACK IMAGE"
+   - File input button with text "No file chosen" in gray
+   - Matches front image styling
+
+### Vendor Scenario Section
+- **Label**: "VENDOR SCENARIO"
+- **Dropdown**: Currently set to "Clean Pass" (green highlight)
+- Full-width dropdown menu
+
+### Action Button
+- **Submit Button**: "SUBMIT DEPOSIT" in all caps
+- Gray/neutral styling
+- Full-width placement at bottom of form
+
+## Color Scheme
+- **Primary Background**: #1a1a1a (dark charcoal)
+- **Accent Color**: Bright green (#00ff00 or similar) for highlights and successful elements
+- **Text Color**: Light gray to white for readability
+- **Borders**: Green accent borders on form containers
+- **Error/Status**: Red text for "REJECTED" status
+
+## Typography
+- **Main Headings**: Bold, large sans-serif (appears to be a modern system font)
+- **Field Labels**: Smaller, all-caps gray text
+- **Data Text**: Mix of regular and monospace fonts
+- **Input Text**: Green for active/populated fields
+
+## Spacing & Alignment
+- Generous vertical spacing between sections
+- Consistent left-aligned labels above inputs
+- Form elements aligned in a two-column grid on bottom section
+- Proper padding within bordered containers
+
+## Component Quality
+- Clean, consistent form styling
+- Clear visual hierarchy with size and color differentiation
+- Accessible contrast ratios between text and background
+- Professional, technical aesthetic appropriate for financial/administrative interface
+- Responsive spacing that maintains readability
+
+## Visual Hierarchy
+1. Primary focus: Deposit Result status (top section)
+2. Secondary focus: New Deposit form (bottom section)
+3. Supporting elements: Navigation, labels, and auxiliary information
+
+The interface appears to be a banking or investment platform's deposit simulation tool, allowing users to test deposit scenarios before actual submission.

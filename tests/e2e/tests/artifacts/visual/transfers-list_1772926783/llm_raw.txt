@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table headers visible: ID, ACCOUNT, AMOUNT, STATE, SCENARIO, BUSINESS DATE, CREATED AT",
+      "reason": "All required column headers are present in the table, including ID, Account, Amount, State, and date-related columns (BUSINESS DATE, CREATED AT)"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Single row contains: ID '149fd6a...' (cyan clickable link), AMOUNT '$100.00' (green text), STATE 'FUNDSPOSTED' (green badge)",
+      "reason": "Table contains at least one complete transfer data row with all required elements: clickable ID link, dollar amount, and state badge"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "TRANSFERS tab in navigation bar is highlighted in green, indicating active state",
+      "reason": "The TRANSFERS tab is clearly marked as the active tab with green highlighting in the top navigation bar"
+    }
+  ]
+}
+```

@@ -1,0 +1,96 @@
+# Detailed Analysis of Review Transfer Web Application
+
+## Overall Layout & Design
+
+This is a dark-themed financial transaction review interface with a professional, technical aesthetic. The layout uses a vertical stack of distinct sections with clear hierarchical separation.
+
+### Color Scheme
+- **Primary Background**: Deep black/near-black (#0a0e27 or similar)
+- **Text**: Light gray/white (#ffffff, #cccccc)
+- **Accents**: 
+  - Red for alert values ($585.00 OCR amount)
+  - Green for action buttons (APPROVE)
+  - Red for destructive actions (REJECT)
+  - Cyan/light blue for navigation tabs
+
+### Typography
+- **Font Family**: Monospace (likely "Courier New" or similar) for a technical feel
+- **Heading Style**: All caps, bold weight (REVIEW TRANSFER, TRANSFER INFO, VENDOR ANALYSIS, etc.)
+- **Body Text**: Small to medium size, consistent weight
+- **Field Labels**: All caps, slightly muted color, left-aligned
+
+---
+
+## Section-by-Section Breakdown
+
+### 1. **Navigation Header**
+- Horizontal tab navigation: APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS
+- Right-aligned label: "SYSTEM NOMINAL"
+- Subtle gray coloring with light highlighting on active sections
+- Clean, minimal spacing
+
+### 2. **Transfer Info Section**
+Contains key metadata in a grid layout:
+
+| Field | Content |
+|-------|---------|
+| ID | e287fcb35-bf11-4d6f-b8f8-8972ebb0290d5 |
+| STATE | ANALYZING |
+| ACCOUNT | 00000000-0000-0000-0000-000000001001 |
+| ENTERED AMOUNT | $500.00 |
+| **OCR AMOUNT** | **$585.00** (red, indicating discrepancy) |
+| BUSINESS DATE | 2026-03-07T00:00:00Z |
+| CREATED | 2026-03-07 22:32:56 |
+
+**Visual Notes**: The OCR amount discrepancy is highlighted in red, drawing attention to potential issues.
+
+### 3. **Check Images Section**
+- Contains two image placeholders: "Front Check" and "Back Check"
+- Simple image gallery layout
+- Minimal styling
+
+### 4. **Vendor Analysis Section**
+Displays automated analysis results:
+
+| Field | Value |
+|-------|-------|
+| DECISION | REVIEW |
+| IQA STATUS | PASS |
+| MICR ROUTING | 021000021 |
+| MICR ACCOUNT | 123456789 |
+| MICR CHECK # | 0001 |
+| MICR CONFIDENCE | 0.99 |
+| RISK SCORE | 55 |
+| AMOUNT MATCH | No |
+| DUPLICATE DETECTED | No |
+
+**Visual Notes**: "No" values for amount match and duplicate detection are flagged, indicating the system is flagging the amount discrepancy.
+
+### 5. **Rule Evaluations Section**
+Table format showing validation rules:
+
+| Rule | Outcome | Details |
+|------|---------|---------|
+| ACCOUNT_ELIGIBLE | PASS | account is ACTIVE |
+| MAX_DEPOSIT_LIMIT | PASS | amount $0000 cents within limit |
+| CONTRIBUTION_TYPE_DEFAULT | PASS | set contribution_type to account default INDIVIDUAL |
+| INTERNAL_DUPLICATE | PASS | no duplicate found |
+
+**Visual Notes**: All rules pass, but the system still requires manual review due to amount discrepancy.
+
+### 6. **Audit Trail Section**
+Chronological event log:
+
+| Time | Event | From | To | Actor | Details |
+|------|-------|------|-----|-------|---------|
+| 2026-03-07 22:32:56 | STATE_TRANSITION | Requested | Validating | deposit-service | — |
+| 2026-03-07 22:32:56 | STATE_TRANSITION | Validating | Analyzing | deposit-service | — |
+
+**Visual Notes**: Shows the progression from requested → validating → analyzing state.
+
+### 7. **Action Section (Bottom)**
+Two-column layout:
+
+**Left Column - APPROVE**
+- "OPERATOR NOTES" textarea (empty)
+- Green

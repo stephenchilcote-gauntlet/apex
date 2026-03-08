@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Button labeled \"GENERATE SETTLEMENT BATCH\" is clearly visible in the ACTIONS section with a green left border accent",
+      "reason": "The button is present and properly labeled in an Actions panel as required"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Batches table displays columns: ID, BUSINESS DATE, STATUS, ITEMS, TOTAL AMOUNT, FILE, CREATED, and ACTION",
+      "reason": "All required columns (ID, Business Date, Status, Items, Total Amount, and Action) are present in the table header"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Single batch row shows ID 'fc7f03a1' with STATUS badge displaying 'GENERATED' and an 'ACKNOWLEDGE' button in the ACTION column",
+      "reason": "The batch table contains at least one row with the required GENERATED status badge and an Acknowledge button"
+    }
+  ]
+}
+```

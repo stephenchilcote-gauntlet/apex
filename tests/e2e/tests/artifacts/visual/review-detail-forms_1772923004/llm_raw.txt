@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "\"TRANSFER INFO\" panel is visible at the top with fields showing ID \"ce748934-40ba-49a2-bida-52e2b574388e\", STATE \"ANALYZING\", ACCOUNT, ENTERED AMOUNT \"$500.00\", OCR AMOUNT \"$505.00\", BUSINESS DATE \"2026-03-07T00:00:00Z\", and CREATED \"2026-03-07 22:36:28\"",
+      "reason": "Transfer Info panel is clearly present with all required details including state badge and amounts displayed"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Two side-by-side sections at bottom: left panel labeled \"APPROVE\" with \"OPERATOR NOTES\" textarea and green \"APPROVE\" button; right panel labeled \"REJECT\" with \"REJECTION REASON\" textarea and red \"REJECT\" button",
+      "reason": "Both approve and reject sections are present with the required textareas and action buttons in the expected layout"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "\"CHECK IMAGES\" panel visible with two image elements labeled \"Front Check\" and \"Back Check\"",
+      "reason": "Check Images panel is present showing both front and back check image placeholders"
+    }
+  ]
+}
+```

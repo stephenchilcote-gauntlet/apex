@@ -1,0 +1,100 @@
+# Detailed Analysis of Review Transfer Web Application
+
+## Overall Layout and Structure
+The interface is a dark-themed financial/banking system with a hierarchical, multi-section layout. It uses a grid-based structure with clearly defined content regions separated by subtle borders.
+
+## Color Scheme
+- **Primary Background**: Deep black (#0a0e27 or similar)
+- **Secondary Background**: Slightly lighter dark gray for sections
+- **Text Colors**: 
+  - Primary text: Light gray/white
+  - Accent/Warning text: Red/orange (#ff6b6b or similar)
+  - Status indicators: Green for pass, varied for other states
+- **Borders**: Subtle gray lines defining section boundaries
+
+## Typography
+- **Font Family**: Monospace (likely "Courier New" or similar) for data consistency
+- **Font Sizes**: 
+  - Headers: Larger, bold, uppercase
+  - Body text: Smaller, regular weight
+  - Labels: Medium weight with reduced opacity
+
+## Header Navigation
+Horizontal navigation bar at top with tabs:
+- APEX MCD | SIMULATE | TRANSFERS | REVIEW QUEUE | LEDGER | SETTLEMENT | RETURNS
+- "SYSTEM NOMINAL" status indicator on the right
+- Clean, minimal design with gray text
+
+## Main Content Sections
+
+### 1. **TRANSFER INFO** (Top Section)
+Grid-based information display:
+- **ID**: `ce748934-40ba-49a2-bida-52e2b574388e`
+- **STATE**: ANALYZING (indicates processing status)
+- **ACCOUNT**: `0000000-0000-0000-0000-00000000001`
+- **ENTERED AMOUNT**: $500.00
+- **OCR AMOUNT**: $505.00 (highlighted in red, showing discrepancy)
+- **BUSINESS DATE**: 2026-03-07T00:00:00Z
+- **CREATED**: 2026-03-07 22:36:28
+
+*Visual hierarchy*: Left-aligned labels with right-aligned values; important discrepancies in red.
+
+### 2. **CHECK IMAGES** Section
+Displays thumbnail placeholders:
+- Front Check (thumbnail)
+- Back Check (thumbnail)
+Minimal styling, gray placeholder images
+
+### 3. **VENDOR ANALYSIS** Section
+Critical decision data presented in label-value pairs:
+- **DECISION**: REVIEW
+- **IQA STATUS**: PASS
+- **MICR ROUTING**: 021000021
+- **MICR ACCOUNT**: 123456789
+- **MICR CHECK #**: 0001
+- **MICR CONFIDENCE**: 0.99
+- **RISK SCORE**: 55
+- **AMOUNT MATCH**: No (potential issue highlighted)
+- **DUPLICATE DETECTED**: No
+
+Color coding: Red text for potential issues ("No" for amount match).
+
+### 4. **RULE EVALUATIONS** Section
+Table-based format with three columns:
+
+| RULE | OUTCOME | DETAILS |
+|------|---------|---------|
+| ACCOUNT_ELIGIBLE | PASS | *details*: "account is ACTIVE" |
+| MAX_DEPOSIT_LIMIT | PASS | *details*: "amount 50000 cents within limit" |
+| CONTRIBUTION_TYPE_DEFAULT | PASS | *details*: "set contribution_type to account default INDIVIDUAL" |
+| INTERNAL_DUPLICATE | PASS | *details*: "no duplicate found" |
+
+All showing PASS status (green), indicating no rule violations.
+
+### 5. **AUDIT TRAIL** Section
+Timeline table with columns:
+- **TIME**: 2026-03-07 22:36:28 (x2)
+- **EVENT**: STATE_TRANSITION
+- **FROM**: Requested / Validating
+- **TO**: Validating / Analyzing
+- **ACTOR**: deposit-service
+- **DETAILS**: – (empty)
+
+Shows system state progression with timestamps.
+
+## Action Buttons Section (Bottom)
+
+### Left Panel: **APPROVE**
+- Text area for "OPERATOR NOTES"
+- Green-bordered "APPROVE" button
+
+### Right Panel: **REJECT**
+- Text area for "REJECTION REASON"
+- Red-bordered "REJECT" button
+
+Clean split design with equal visual weight for both actions.
+
+## Visual Hierarchy Quality
+1. Main section headers (largest, uppercase)
+2. Transfer info and decision points (medium-sized, important data)
+3.

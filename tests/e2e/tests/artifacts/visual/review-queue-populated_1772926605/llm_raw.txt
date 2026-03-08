@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table header row displays columns labeled: ID, ACCOUNT, AMOUNT, SCENARIO, CREATED, ACTION",
+      "reason": "All required columns are present and visible in the table structure"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Single data row contains a green-bordered button labeled 'REVIEW' in the Action column",
+      "reason": "The table has one row with a functional Review button element"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Navigation tab 'REVIEW QUEUE' is highlighted in green color while other tabs (SIMULATE, TRANSFERS, LEDGER, SETTLEMENT, RETURNS) remain gray",
+      "reason": "The active tab is clearly distinguished by bright green color matching the system accent color"
+    }
+  ]
+}
+```

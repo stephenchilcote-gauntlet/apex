@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table header row displays columns: ID, ACCOUNT, AMOUNT, SCENARIO, CREATED, ACTION",
+      "reason": "All six required columns are present and visible in the table header"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Row contains ID 'RQC311' with a 'REVIEW' button in the ACTION column on the right side",
+      "reason": "At least one table row exists with a REVIEW button/link element"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Navigation tab 'REVIEW QUEUE' is styled differently from other tabs and the page title matches this tab name",
+      "reason": "The REVIEW QUEUE tab appears highlighted/active in the top navigation menu"
+    }
+  ]
+}
+```

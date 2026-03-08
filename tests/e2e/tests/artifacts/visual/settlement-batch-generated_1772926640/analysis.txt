@@ -1,0 +1,74 @@
+# Settlement Page Analysis
+
+## Overall Layout & Structure
+The page uses a dark theme with a clean, organized layout featuring:
+- Top navigation bar with multiple tabs
+- Main content area with actions section
+- Batches table displaying settlement data
+
+## Color Scheme
+- **Background**: Dark navy/charcoal (#1a1f2e or similar)
+- **Text**: Light gray/white for primary content
+- **Accents**: Bright green (#00ff00 or similar) for highlights and active states
+- **Status Badge**: Cyan/blue for "GENERATED" status
+- **Amount**: Green text for monetary values
+
+## Typography
+- **Heading**: "SETTLEMENT" in large, bold serif font (appears to be Georgia or similar)
+- **Labels**: Small caps in gray for section headers (ACTIONS, BATCHES)
+- **Body Text**: Sans-serif, regular weight for data
+- **Monospace**: Used for batch ID and file paths
+
+## Navigation Bar
+Located at top with tabs:
+- APEX MCD
+- SIMULATE
+- TRANSFERS
+- REVIEW QUEUE
+- LEDGER
+- **SETTLEMENT** (active/highlighted in green)
+- RETURNS
+- SYSTEM NOMINAL (right-aligned indicator)
+
+## Actions Section
+- Green bordered container
+- Single button: "GENERATE SETTLEMENT BATCH" (green text)
+- Confirmation message below: "Batch generated: 157cd668"
+
+## Batches Table
+| Column | Details |
+|--------|---------|
+| **ID** | 157cd668... |
+| **Business Date** | 2026-03-07T00:00:00Z |
+| **Status** | GENERATED (cyan badge) |
+| **Items** | 1 |
+| **Total Amount** | $500.00 (green) |
+| **File** | JSON file path (monospace) |
+| **Created** | 2026-03-07 23:37:10 |
+| **Action** | ACKNOWLEDGE button (green bordered) |
+
+## Visual Hierarchy
+1. Page title (largest)
+2. Section headers (ACTIONS, BATCHES)
+3. Table headers and data
+4. Interactive elements (buttons)
+
+## Spacing & Alignment
+- Generous padding around sections
+- Clear vertical separation between areas
+- Left-aligned table data
+- Consistent column widths
+- Green borders provide visual containment
+
+## Components & Interactivity
+- **Buttons**: Green text, dark background, border styling
+- **Status badges**: Colored backgrounds with contrasting text
+- **Table rows**: Hover-ready styling with monospace font for technical data
+
+## Overall Quality
+Professional, enterprise-grade UI with:
+- Clear readability despite dark theme
+- Consistent design language
+- Functional layout optimized for data display
+- Proper spacing and alignment
+- Good use of color for visual emphasis

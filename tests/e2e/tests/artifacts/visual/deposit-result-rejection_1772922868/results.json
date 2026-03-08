@@ -1,0 +1,14 @@
+{
+  "Is there a \"Deposit Result\" panel visible with a State badge showing \"Rejected\"?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The Deposit Result section clearly displays the rejected status with the STATE badge showing 'REJECTED'",
+    "evidence": "The 'DEPOSIT RESULT' panel is visible with a 'STATE' field showing 'REJECTED' in red text"
+  },
+  "Is there a Rejection field visible that contains the text \"FAIL_BLUR\" or \"blur\"?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The Rejection field clearly contains 'FAIL_BLUR' as part of the error message",
+    "evidence": "The REJECTION field contains the exact text: 'VENDOR_REJECT: Vendor decision FAIL: IOA=FAIL_BLUR duplicate=false'"
+  }
+}

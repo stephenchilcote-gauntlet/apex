@@ -1,0 +1,18 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table with column headers (ID, ACCOUNT, AMOUNT, STATE, SCENARIO, BUSINESS DATE, CREATED AT) is visible with the message \"No transfers found\" displayed in the table body area",
+      "reason": "The table structure is clearly present with all column headers visible, and the empty state message is displayed within the table grid rather than as a standalone element"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "The text \"No transfers found\" is centered horizontally within the table and positioned prominently in the middle of the data grid area",
+      "reason": "The empty state message is clearly centered and has sufficient visual prominence with appropriate spacing, making it immediately noticeable to users"
+    }
+  ]
+}
+```

@@ -1,0 +1,20 @@
+{
+  "Is there a \"Transfer Info\" panel showing the transfer details including State badge and amounts?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required transfer details including State badge and amounts are clearly visible in the Transfer Info panel on the left side",
+    "evidence": "Left panel shows 'TRANSFER INFO' section with ID, STATE badge showing 'ANALYZING', ACCOUNT, ENTERED AMOUNT '$500.00', OCH AMOUNT '$741.00', BUSINESS DATE, and CREATED timestamp"
+  },
+  "Are there two side-by-side or stacked sections: one for \"Approve\" with a notes textarea and approve button, and one for \"Reject\" with a notes textarea and reject button?": {
+    "passed": false,
+    "severity": "critical",
+    "reason": "The layout does not have two distinct side-by-side sections for Approve and Reject each with their own textarea and button. Instead there is one shared notes area and rejection reason field",
+    "evidence": "Bottom section shows single 'OPERATOR NOTES' textarea on left and single 'REJECTION REASON' field on right, with 'APPROVE' and 'REJECT' buttons at bottom. No side-by-side sections with separate approve/reject note areas"
+  },
+  "Is there a \"Check Images\" panel showing front and back check images?": {
+    "passed": false,
+    "severity": "critical",
+    "reason": "Only the front check image is displayed. There is no visible back check image in the 'Check Images' panel",
+    "evidence": "Check Images panel shows only the front of a single check image with endorsement area on the right. No back check image is visible"
+  }
+}

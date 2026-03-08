@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Deposit Result panel visible with TRANSFER ID: 407b5298-68e3-4933-a58e-b84f1bcd1960, STATE: FUNDSPOSTED, MESSAGE: 'Deposit accepted and funds posted'",
+      "reason": "All three required elements are present and clearly displayed in the green-bordered panel at the top"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "STATE badge displays 'FUNDSPOSTED' in green text",
+      "reason": "The state shows a success state (FundsPosted) indicating the deposit was accepted"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Result panel has a distinct green border, separate heading 'DEPOSIT RESULT', and is positioned above the 'NEW DEPOSIT' form section with clear visual separation",
+      "reason": "The result panel is clearly distinguished from the form below through bordered container styling, distinct headings, and vertical spacing"
+    }
+  ]
+}
+```

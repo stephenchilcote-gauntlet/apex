@@ -1,0 +1,111 @@
+# Detailed Analysis of Review Transfer Web Application
+
+## Overall Layout and Structure
+The interface follows a dark-themed dashboard design with multiple sections organized vertically. The layout is divided into clear sections with distinct visual separation, typical of financial or banking software.
+
+## Color Scheme
+- **Primary Background**: Dark charcoal/black (#1a1a1a or similar)
+- **Text**: Light gray and white for contrast
+- **Accent Colors**: 
+  - Yellow/Gold (#FFD700) for "ANALYZING" status badge
+  - Red (#FF4444) for "FAILED" status indicator
+  - Green (#00FF00) for "PASS" status indicators
+  - Blue/Cyan for hyperlinks and interactive elements
+
+## Header Navigation
+Located at the top with tabs including:
+- APEX MCD
+- SIMULATE
+- TRANSFERS
+- **REVIEW QUEUE** (currently active, highlighted in green)
+- LEDGER
+- SETTLEMENT
+- RETURNS
+- SYSTEM NORMAL indicator (top right)
+
+## Transfer Information Section
+
+### Visual Hierarchy
+The "TRANSFER INFO" section presents key details in a structured format:
+
+| Field | Value |
+|-------|-------|
+| ID | c0a1d915-23ca-4659-b320-06afcc0adeeb |
+| STATE | **ANALYZING** (yellow badge) |
+| ACCOUNT | 00000000-0000-0000-0000-000000001001 |
+| ENTERED AMOUNT | $500.00 |
+| OCR AMOUNT | $505.00 (displayed in red) |
+| BUSINESS DATE | 2026-03-07T00:00:00Z |
+| CREATED | 2026-03-08 02:40:44 |
+
+## Check Image Display
+
+### Visual Design
+The check image occupies the center-left portion of the screen and displays:
+
+**Check Details:**
+- Bank: FIRST NATIONAL BANK
+- Address: 1200 Financial Plaza, New York, NY 10001
+- Check Number: 1042
+- Date: 03/07/2026
+- Payee: Apex Clearing Corporation
+- Amount: $500.00
+- Memo: Investment deposit
+- Routing/Account Numbers at bottom
+
+### Typography
+- Headers use monospace font for technical information
+- Clear contrast between printed check text and background
+- Professional banking format with traditional check layout
+
+## Right Panel - Endorsement Section
+
+**Header**: "ENDORSE HERE"
+- Contains blank lines for endorsement
+- Warning text: "DO NOT WRITE, STAMP, OR SIGN BELOW THIS LINE"
+- Notation: "For Mobile Deposit Only"
+- Account reference: Account #7829104538
+- Footer note about financial institution use
+
+## Vendor Analysis Section
+
+**Decision**: REVIEW (blue badge)
+**Key Metrics:**
+- IQA Status: PASS
+- MICR Routing: 021000021
+- MICR Account: 123456789
+- MICR Check #: 0001
+- MICR Confidence: 0.99
+- Risk Score: 55
+- Amount Match: No
+- Duplicate Detected: No
+
+## Rule Evaluations
+
+A table showing validation rules with color-coded outcomes:
+
+| Rule | Outcome | Details |
+|------|---------|---------|
+| ACCOUNT_ELIGIBLE | **PASS** (green) | "default":"account is ACTIVE" |
+| MAX_DEPOSIT_LIMIT | **PASS** (green) | "default":"amount 500 cents within limit" |
+| CONTRIBUTION_TYPE_DEFAULT | **PASS** (green) | "default":"set contribution_type in account default INDIVIDUAL" |
+| INTERNAL_DUPLICATE | **PASS** (green) | "default":"no duplicate found" |
+
+## Audit Trail Section
+
+**Timeline of Events:**
+1. 2026-03-08 02:40:44 - STATE TRANSITION - Requested → Validating (deposit-service)
+2. 2026-03-08 02:40:44 - STATE TRANSITION - Validating → Analyzing (deposit-service)
+
+## Bottom Action Section
+
+**Buttons** (left-aligned):
+- **APPROVE** (dark button)
+- **REJECT** (dark button)
+
+**Approval Section** (right):
+- APPROVE box
+- REJECT box
+- Both appear to contain collapsible text areas for notes
+
+**Operator Notes**: Text field

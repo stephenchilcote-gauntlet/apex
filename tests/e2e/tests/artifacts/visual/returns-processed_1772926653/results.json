@@ -1,0 +1,20 @@
+{
+  "Is there a \"Process Return\" form with fields for Transfer ID and Reason Code, plus a submit button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required form elements are present and functional",
+    "evidence": "Form contains 'TRANSFER ID' input field, 'REASON CODE' dropdown set to 'NSF', and 'PROCESS RETURN' button visible"
+  },
+  "Is there a \"Returned Transfer\" panel showing ID, State badge with \"Returned\", Amount, Return Reason \"NSF\", Return Fee, and Returned At timestamp?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required fields are displayed with correct values and formatting",
+    "evidence": "Panel shows ID 'e09e5c03-bff2-4129-ad44-fb5dc4a65834', State badge labeled 'RETURNED', Amount '$400.00', Return Reason 'NSF', Return Fee '$30.00', and Returned At '2026-03-07 23:37:21'"
+  },
+  "Is the \"Returns\" tab highlighted as active in the navigation?": {
+    "passed": true,
+    "severity": "advisory",
+    "reason": "The Returns tab is clearly highlighted as the current active section",
+    "evidence": "Navigation bar shows 'RETURNS' tab with green underline indicating active state"
+  }
+}

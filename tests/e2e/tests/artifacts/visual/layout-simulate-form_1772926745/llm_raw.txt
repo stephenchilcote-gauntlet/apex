@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Navigation bar visible at top with tabs: \"APEX MCD\", \"SIMULATE\", \"TRANSFERS\", \"REVIEW QUEUE\", \"LEDGER\", \"SETTLEMENT\", \"RETURNS\", and \"SYSTEM NOMINAL\" indicator",
+      "reason": "All required navigation elements are present and clearly visible in the header"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Form contains fields labeled: \"INVESTOR ACCOUNT\" (dropdown showing \"INV-1001 (Clean Pass)\"), \"AMOUNT (USD)\" (input field with \"$00.00\"), \"FRONT IMAGE\" (file upload), \"BACK IMAGE\" (file upload), \"VENDOR SCENARIO\" (dropdown showing \"Clean Pass\"), and \"SUBMIT DEPOSIT\" button",
+      "reason": "All required form fields and submit button are present with proper labels"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Form container has consistent padding, fields are aligned in logical groupings (two-column layout for images, full-width for dropdowns), and elements are evenly spaced within a bordered box",
+      "reason": "Layout demonstrates clean design with consistent spacing, clear visual hierarchy, and organized field grouping"
+    }
+  ]
+}
+```

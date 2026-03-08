@@ -1,0 +1,20 @@
+{
+  "Is there a \"Transfer Info\" panel showing the transfer details including State badge and amounts?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Transfer Info panel is clearly present with all required details including state badge and amounts clearly displayed",
+    "evidence": "Section labeled 'TRANSFER INFO' is visible with fields: ID (e287fcb35-bf11-4d6f-b8f8-8972ebb0290d5), STATE (ANALYZING), ACCOUNT (00000000-0008-0000-0000-000000001001), ENTERED AMOUNT ($500.00), OCR AMOUNT ($585.00), BUSINESS DATE (2026-03-07T00:00:00Z), CREATED (2026-03-07 22:32:56)"
+  },
+  "Are there two side-by-side or stacked sections: one for \"Approve\" with a notes textarea and approve button, and one for \"Reject\" with a notes textarea and reject button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Both approval and rejection sections are present with textareas and action buttons in the expected layout",
+    "evidence": "Two side-by-side columns at bottom: Left column labeled 'APPROVE' with 'OPERATOR NOTES' textarea and 'APPROVE' button; Right column labeled 'REJECT' with 'REJECTION REASON' textarea and 'REJECT' button"
+  },
+  "Is there a \"Check Images\" panel showing front and back check images?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Check Images panel is present with both front and back check image placeholders visible",
+    "evidence": "Section labeled 'CHECK IMAGES' contains two image placeholders labeled 'Front Check' and 'Back Check'"
+  }
+}

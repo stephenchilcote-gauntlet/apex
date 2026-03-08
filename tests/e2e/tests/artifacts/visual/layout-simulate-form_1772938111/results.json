@@ -1,0 +1,20 @@
+{
+  "Is there a navigation bar at the top with multiple tab links including \"Simulate\", \"Transfers\", \"Review Queue\", \"Ledger\", \"Settlement\", and \"Returns\"?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required navigation tabs are present and clearly visible in the top navigation bar",
+    "evidence": "Navigation bar visible at top with tabs: APEX MCD, SIMULATE (green/active), TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS, and SYSTEM NOMINAL indicator"
+  },
+  "Is there a form with labeled fields for investor account, amount, front image, back image, vendor scenario, and a submit button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required form fields and submit button are present and properly labeled",
+    "evidence": "Form contains: INVESTOR ACCOUNT dropdown (INV-1001 Clean Pass), AMOUNT (USD) field (500.00), FRONT IMAGE file chooser, BACK IMAGE file chooser, VENDOR SCENARIO dropdown (Clean Pass), and SUBMIT DEPOSIT button"
+  },
+  "Is the overall layout clean with consistent spacing and alignment?": {
+    "passed": true,
+    "severity": "advisory",
+    "reason": "Layout demonstrates professional spacing, proper field grouping, and visual hierarchy with no misalignment issues",
+    "evidence": "Form maintains consistent vertical spacing between sections, clear label-above-input alignment, two-column layout for image uploads, and green left border accent on the form panel"
+  }
+}

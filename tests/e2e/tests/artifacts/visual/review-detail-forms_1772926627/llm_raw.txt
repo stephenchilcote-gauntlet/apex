@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Left panel shows 'TRANSFER INFO' section with ID, STATE badge showing 'ANALYZING', ACCOUNT, ENTERED AMOUNT '$500.00', OCH AMOUNT '$741.00', BUSINESS DATE, and CREATED timestamp",
+      "reason": "All required transfer details including State badge and amounts are clearly visible in the Transfer Info panel on the left side"
+    },
+    {
+      "id": 2,
+      "status": "fail",
+      "evidence": "Bottom section shows single 'OPERATOR NOTES' textarea on left and single 'REJECTION REASON' field on right, with 'APPROVE' and 'REJECT' buttons at bottom. No side-by-side sections with separate approve/reject note areas",
+      "reason": "The layout does not have two distinct side-by-side sections for Approve and Reject each with their own textarea and button. Instead there is one shared notes area and rejection reason field"
+    },
+    {
+      "id": 3,
+      "status": "fail",
+      "evidence": "Check Images panel shows only the front of a single check image with endorsement area on the right. No back check image is visible",
+      "reason": "Only the front check image is displayed. There is no visible back check image in the 'Check Images' panel"
+    }
+  ]
+}
+```

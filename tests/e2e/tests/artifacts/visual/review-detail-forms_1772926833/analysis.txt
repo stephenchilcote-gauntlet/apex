@@ -1,0 +1,113 @@
+# Detailed Analysis of Review Transfer Web Application
+
+## Overall Layout & Structure
+
+The application uses a **dark theme** with a multi-panel layout divided into several distinct sections:
+- **Header navigation** with tabs across the top
+- **Left panel** containing transfer information and check image
+- **Right panel** showing endorsement section
+- **Lower panels** with vendor analysis, rule evaluations, and audit trail
+
+## Color Scheme
+
+- **Primary Background**: Dark charcoal/black (#1a1a1a approximate)
+- **Accent Color**: Gold/yellow (#D4A942 approximate) for status indicators and highlights
+- **Secondary Text**: Light gray on dark background for readability
+- **Check Image**: Off-white/cream background (high contrast for legibility)
+
+## Typography
+
+- **Font Family**: Monospace (likely Courier or similar) for data/code elements
+- **Headings**: All caps, sans-serif, bold weight
+- **Body Text**: Mixed sizes with consistent hierarchy
+- **Status Labels**: Capitalized, colored backgrounds (yellow for "ANALYZING")
+
+## Header Navigation
+
+Horizontal tabs include:
+- APEX MCD
+- SIMULATE
+- TRANSFERS
+- **REVIEW QUEUE** (active, highlighted in green)
+- LEDGER
+- SETTLEMENT
+- RETURNS
+- System status indicator (top right)
+
+## Left Panel - Transfer Information
+
+**Section: TRANSFER INFO**
+- Transfer ID (long hash string)
+- State: ANALYZING (highlighted yellow background)
+- Account number (masked format)
+- Entered Amount: $500.00
+- OCR Amount: $361.00
+- Business Date: 2026-01-07708 08:882
+- Created: 2026-01-07 23:48:16
+
+## Check Image Display
+
+**First National Bank Check** (Check #1042)
+- Address: 1200 Financial Plaza, New York, NY 10001
+- Payee: Apex Clearing Corporation
+- Amount: $500.00 (Five hundred and 00/100 DOLLARS)
+- Date: 03/07/2026
+- Memo: Investment deposit
+- Routing numbers visible at bottom
+- Right side: "ENDORSE HERE" section with mobile deposit instructions
+
+## Vendor Analysis Section
+
+Key metrics in organized table format:
+- Decision: REVIEW
+- QA Status: PASS
+- MICR Routing: 021000089
+- MICR Account: 123456789
+- MICR Check #: 8881
+- MICR Confidence: 0.95
+- Risk Score: 55
+- Amount Match: No
+- Duplicate Detected: No
+
+## Rule Evaluations
+
+Table with columns: RULE | OUTCOME | DETAILS
+Rules listed include:
+- ACCOUNT_CLOSURE (PASS) - "[metala='account is active']"
+- MAX_DEPOSIT_LIMIT (PASS) - "[metala='amount $999 cents within limit']"
+- CONTRIBUTOR_TYPE_DEFAULT (PASS) - "[metala='set constitution_type to account default [INDIVIDUAL]']"
+- INTERNAL_DUPLICATE (PASS) - "[metala='no duplicate found']"
+
+All outcomes show green "PASS" status.
+
+## Audit Trail
+
+Table with columns: TIME | EVENT | FROM | TO | ACTOR | DETAILS
+
+Two entries:
+1. 2026-01-07 23:48:16 - STATE_TRANSITION - Requested → Validating - deposit-service
+2. 2026-01-07 23:48:18 - STATE_TRANSITION - Validating → Analyzing - deposit-service
+
+## Bottom Action Section
+
+Two button areas:
+- **APPROVE** (left side) with "OPERATOR NOTES" text field
+- **REJECT** (right side) with "REJECTION REASON" text field
+
+Both sections have expandable/collapsible areas for additional notes.
+
+## Visual Hierarchy & Spacing
+
+- **Generous vertical spacing** between major sections
+- **Clear visual separation** via horizontal dividers
+- **Consistent left-alignment** for labels and data
+- **Right-aligned values** for alignment clarity
+- **Bold section headers** in all caps for scanning
+
+## Data Presentation
+
+- **Monospace fonts** for codes, hashes, and numeric values
+- **Masked account numbers** for security
+- **Status badges** with background colors (yellow, green)
+- **Structured table layouts** for complex data
+- **Clear labels** with adequate whitespace

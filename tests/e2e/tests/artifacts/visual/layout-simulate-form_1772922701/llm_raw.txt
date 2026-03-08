@@ -1,0 +1,30 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Navigation bar visible at top with tabs: SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS. Each appears as a clickable link in gray text on black background.",
+      "reason": "All required navigation tabs are present and clearly visible in the header"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Form contains: 'INVESTOR ACCOUNT' dropdown showing 'INV-1001 [Clean Pass]', 'AMOUNT (USD)' field showing '500.00', 'FRONT IMAGE' file upload, 'BACK IMAGE' file upload, 'VENDOR SCENARIO' dropdown showing 'Clean Pass', and 'SUBMIT DEPOSIT' button",
+      "reason": "All required form fields and submit button are present with proper labels"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "The SIMULATE tab appears in a lighter/brighter color compared to other navigation tabs (TRANSFERS, REVIEW QUEUE, etc.), indicating it is the currently active/selected tab",
+      "reason": "The Simulate tab is visually distinguished from other navigation items, showing it as the active selection"
+    },
+    {
+      "id": 4,
+      "status": "pass",
+      "evidence": "Form elements are organized in a two-column grid layout with consistent padding, proper vertical spacing between sections, aligned labels above inputs, and symmetrical positioning of related fields",
+      "reason": "The interface demonstrates professional spacing, clear visual hierarchy, and consistent alignment throughout the layout"
+    }
+  ]
+}
+```

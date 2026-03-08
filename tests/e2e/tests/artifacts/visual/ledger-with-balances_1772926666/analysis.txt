@@ -1,0 +1,63 @@
+# Detailed Analysis of APEX MCD Ledger Interface
+
+## Layout & Structure
+- **Navigation Bar**: Horizontal menu at top with tabs: APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER (active/highlighted in green), SETTLEMENT, RETURNS
+- **System Status**: "SYSTEM NOMINAL" indicator in top-right corner with green dot
+- **Main Content Area**: Full-width table displaying account balances
+
+## Color Scheme
+- **Background**: Deep charcoal/black (#1a1a1a or similar)
+- **Text**: Light gray for labels, white for primary content
+- **Accent Colors**: 
+  - Green (#0f0 or similar) for positive values and active states
+  - Red (#f00 or similar) for negative values
+- **Table Headers**: Slightly lighter gray background
+
+## Typography
+- **Page Title**: "LEDGER" - Large, serif font (appears to be Georgia or similar)
+- **Section Headers**: "ACCOUNT BALANCES" - Monospace, uppercase, smaller font
+- **Table Text**: Monospace font for consistent data display
+
+## Table Components
+
+### Column Headers
+- EXTERNAL ID
+- NAME
+- TYPE
+- BALANCE
+
+### Data Rows (9 entries):
+1. **FEE-REVENUE** | Fee Revenue | FEE_REVENUE | $0.00
+2. **INV-1001** | Test Investor 1001 | INVESTOR | $250.00
+3. **INV-1002** | Test Investor 1002 | INVESTOR | $0.00
+4. **INV-1003** | Test Investor 1003 | INVESTOR | $0.00
+5. **INV-1004** | Test Investor 1004 | INVESTOR | $0.00
+6. **INV-1005** | Test Investor 1005 | INVESTOR | $0.00
+7. **INV-1006** | Test Investor 1006 | INVESTOR | $0.00
+8. **INV-1007** | Test Investor 1007 | INVESTOR | $0.00
+9. **OMNI-ACME** | ACME Omnibus | OMNIBUS | -$250.00
+
+## Spacing & Alignment
+- Generous left padding on table cells
+- Right-aligned numeric values (balances)
+- Consistent row height with clear visual separation
+- Borders appear as subtle lines separating rows
+
+## Visual Hierarchy
+1. Page title "LEDGER" dominates
+2. Section header "ACCOUNT BALANCES" creates logical grouping
+3. Column headers provide clear data organization
+4. Data values use color coding for quick scanning
+
+## Key Features
+- **Color-coded Balances**: Positive values in green, negative in red
+- **Clean Data Presentation**: Monospace font ensures alignment and readability
+- **Test Data**: Multiple investor accounts with consistent naming convention
+- **Balance Validation**: Total appears balanced (-$250 in OMNIBUS matches +$250 in INV-1001)
+
+## Overall Quality
+- Professional, minimal aesthetic
+- High contrast for accessibility
+- Logical information architecture
+- Suitable for financial/operational dashboard
+- Appears to be production-grade interface with test data

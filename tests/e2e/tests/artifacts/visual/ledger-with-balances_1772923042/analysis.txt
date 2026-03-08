@@ -1,0 +1,57 @@
+# Detailed Analysis of APEX MCD Ledger Interface
+
+## Overall Layout & Structure
+- **Header Navigation**: Dark banner with tabs (APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS) and "SYSTEM NOMINAL" status indicator on the right
+- **Main Content Area**: Single table-based view displaying account balances
+- **Color Scheme**: Dark background (near black #1a1a1a) with green text highlights and red accent colors
+
+## Typography & Text Hierarchy
+- **Font**: Monospace system font (appears to be a terminal/code style font like Courier or similar)
+- **Sizes**: Consistent small-to-medium sizing throughout
+- **Colors**: 
+  - White text for primary content
+  - Bright green (#00FF00 or similar) for positive balances
+  - Red (#FF0000 or similar) for negative balances
+  - Muted gray for secondary labels
+
+## Header Section
+- "LEDGER" title in white, bold serif font
+- "ACCOUNT BALANCES" subtitle in smaller gray text
+
+## Table Structure
+
+### Column Headers (gray text, left-aligned)
+- EXTERNAL ID
+- NAME
+- TYPE
+- BALANCE
+
+### Data Rows
+**Eight account entries:**
+1. **FEE-REVENUE** - Fee Revenue (FEE_REVENUE type) - $0.00 balance
+2. **INV-1801** - Test Investor 1801 (INVESTOR type) - $250.00 balance
+3. **INV-1802** - Test Investor 1802 (INVESTOR type) - $0.00 balance
+4. **INV-1803** - Test Investor 1803 (INVESTOR type) - $0.00 balance
+5. **INV-1804** - Test Investor 1804 (INVESTOR type) - $0.00 balance
+6. **INV-1805** - Test Investor 1805 (INVESTOR type) - $0.00 balance
+7. **INV-1806** - Test Investor 1806 (INVESTOR type) - $0.00 balance
+8. **INV-1807** - Test Investor 1807 (INVESTOR type) - $0.00 balance
+9. **OMNI-ACME** - ACME Omnibus (OMNIBUS type) - **-$250.00 balance** (displayed in red)
+
+## Visual Styling Details
+- **Borders**: Green left border on table (indicating active/valid state)
+- **Spacing**: Compact row spacing with consistent padding
+- **Balance Alignment**: Right-aligned currency values
+- **Negative Value Indicator**: Red text color with minus sign prefix
+- **Row Alternation**: Subtle or no visible alternating row colors
+- **Hover States**: Not visible in static screenshot
+
+## Financial Logic
+- Balances sum to zero: $250.00 (INV-1801) - $250.00 (OMNI-ACME) = $0.00
+- Indicates a balanced ledger system with omnibus accounts offsetting investor positions
+
+## Overall Quality Assessment
+- **Professional appearance**: Clean, finance-sector appropriate
+- **Readability**: Excellent contrast with dark theme
+- **Functionality**: Clear data presentation for transaction/balance tracking
+- **UX Clarity**: Straightforward table layout without unnecessary complexity

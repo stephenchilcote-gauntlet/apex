@@ -1,0 +1,30 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Visible panel showing ID 'd17b6768-3452-48bf-5315-c1ca12943k', State badge 'TRANSPOSTED' in green, Amount '$200.00', Account numbers masked with bullets, and multiple timestamp fields (SUBMITTED, APPROVED, POSTED, COMPLETED, CREATED, UPDATED all showing '2826-03-07 23:19:44')",
+      "reason": "All required Transfer Info elements are present and clearly displayed in the left panel section"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Two check images displayed side-by-side: Left image shows FIRST NATIONAL BANK check (1042) with date 03/07/2026 and amount $500.00; Right image shows check back with 'ENDORSE HERE' section and 'For Mobile Deposit Only' notation with account #7829104538",
+      "reason": "Check Images panel with both front and back check images is clearly visible with all expected details rendered"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Vendor Result section showing DECISION: PASS, IQA STATUS: PASS, MICR ROUTING: 0210000089, MICR ACCOUNT: 121456789, MICR CHECK: 6061, MICR CONFORMANCE: 0.39, DUE AMOUNT: £200.00, DUPLICATE DETECTED: No",
+      "reason": "Vendor Result panel is present with decision details, IQA Status, and MICR data displayed. Risk Score is not visible but other key metrics are comprehensively shown"
+    },
+    {
+      "id": 4,
+      "status": "pass",
+      "evidence": "Audit Trail section shows table with columns: TIME ('2826-01-07 23:19:44'), EVENT ('STATE_TRANSITION'), FROM (Requested, Validating, Analyzing, Approved, FundPosted), TO (corresponding status), ACTION ('deposit-service'), and DETAILS (dashes indicating no additional details)",
+      "reason": "Audit Trail panel with event table is present showing all required columns tracking the state transitions with timestamps and actions"
+    }
+  ]
+}
+```

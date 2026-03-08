@@ -1,0 +1,88 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Layout & Structure
+The interface uses a clean, two-section vertical layout:
+- **Top Section**: Deposit result information (read-only)
+- **Bottom Section**: New deposit form (interactive input fields)
+
+## Color Scheme
+- **Background**: Dark charcoal/near-black (#1a1f2e approximate)
+- **Text**: Light gray and white for contrast
+- **Accent Colors**:
+  - Green (#00d084 approximate) for active tabs and highlights
+  - Orange/amber (#ff9500 approximate) for the "REJECTED" status badge
+  - Teal/cyan borders for input containers
+
+## Typography
+- **Font Family**: Appears to be a monospace or sans-serif system font
+- **Header**: "SIMULATE DEPOSIT" in uppercase, bold, white
+- **Labels**: Uppercase, smaller font size, light gray (#888888 approximate)
+- **Values**: Regular weight, white text
+
+## Navigation & Components
+
+### Top Navigation Bar
+Horizontal tabs in uppercase:
+- APEX MCD | SIMULATE (active/green) | TRANSFERS | REVIEW QUEUE | LEDGER | SETTLEMENT | RETURNS
+- System indicator in top right (green dot + "SYSTEM NOMINAL")
+
+### Deposit Result Section
+**Fields displayed:**
+- **TRANSFER ID**: `71152b4d-94bf-4f45-933c-508aceac22a7` (monospace UUID)
+- **STATE**: `REJECTED` (orange badge)
+- **MESSAGE**: "Deposit rejected by vendor analysis"
+- **REJECTION**: `VENDOR_REJECT: Vendor decision FAIL: IQA=FAIL_BLUR duplicate=false`
+
+## Form Elements (New Deposit Section)
+
+### Input Fields:
+1. **Investor Account Dropdown**
+   - Value: "INV-1001 (Clean Pass)"
+   - Styled dropdown with dark background
+
+2. **Amount (USD)**
+   - Placeholder: "500.00"
+   - Right-aligned number input
+   - Light gray text
+
+3. **Front Image**
+   - File upload button
+   - Status: "No file chosen"
+   - Styled gray button
+
+4. **Back Image**
+   - Identical file upload styling
+   - Status: "No file chosen"
+
+5. **Vendor Scenario Dropdown**
+   - Value: "Clean Pass"
+   - Full-width dropdown
+
+### Action Button
+- **SUBMIT DEPOSIT**: Gray button at bottom left
+- Minimal styling, uppercase text
+
+## Spacing & Alignment
+- Consistent padding within bordered containers (green/teal borders)
+- Fields use 2-column layout (labels left, inputs right) for amount section
+- Image uploads use side-by-side layout
+- Vertical spacing maintains approximately 16-20px between sections
+- Left-aligned labels with right-aligned or left-aligned inputs
+
+## Visual Hierarchy
+1. Primary focus: Rejected deposit details (prominent red/orange badge)
+2. Secondary focus: Form inputs for new deposit submission
+3. The rejection information takes precedence visually
+
+## Overall Quality
+- **Professional**: Enterprise-level financial application design
+- **Accessibility**: Good contrast ratios for readability
+- **Usability**: Clear labeling and logical field organization
+- **Consistency**: Unified styling throughout with repeating patterns
+- **Visual Feedback**: Status badges and section divisions clearly demarcate different content areas
+
+## Edge Cases & Details
+- Error message is technical and detailed (suggests developer/institutional user)
+- UUID format suggests high-security transaction tracking
+- "Clean Pass" and vendor analysis references indicate KYC/AML workflow
+- File upload fields suggest identity verification documents (front/back images)

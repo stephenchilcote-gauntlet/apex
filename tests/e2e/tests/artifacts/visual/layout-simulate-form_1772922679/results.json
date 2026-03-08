@@ -1,0 +1,26 @@
+{
+  "Is there a navigation bar at the top with multiple tab links including \"Simulate\", \"Transfers\", \"Review Queue\", \"Ledger\", \"Settlement\", and \"Returns\"?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required tab links are present and clearly visible in the top navigation bar",
+    "evidence": "Navigation bar visible at top containing: APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS"
+  },
+  "Is there a form with labeled fields for investor account, amount, front image, back image, vendor scenario, and a submit button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required form fields and submit button are present with appropriate labels and input mechanisms",
+    "evidence": "Form contains fields labeled: INVESTOR ACCOUNT (showing 'INV-1001 (Clean Pass)'), AMOUNT (USD) (showing '500.00'), FRONT IMAGE (file upload), BACK IMAGE (file upload), VENDOR SCENARIO (showing 'Clean Pass'), and SUBMIT DEPOSIT button"
+  },
+  "Is the \"Simulate\" tab visually highlighted or marked as active/selected?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The SIMULATE tab is visually distinguished from other tabs, indicating it is the active/selected section",
+    "evidence": "The SIMULATE tab in the navigation bar is displayed in a lighter/brighter appearance compared to other tabs (TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS which appear grayed out)"
+  },
+  "Is the overall layout clean with consistent spacing and alignment?": {
+    "passed": true,
+    "severity": "advisory",
+    "reason": "The layout demonstrates clean organization with consistent spacing, alignment, and visual hierarchy throughout the interface",
+    "evidence": "Form elements display consistent green borders, regular vertical spacing between fields, aligned labels on the left, consistent padding within the form container, and clear visual hierarchy"
+  }
+}

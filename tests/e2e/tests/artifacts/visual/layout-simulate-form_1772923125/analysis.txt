@@ -1,0 +1,80 @@
+# Detailed Analysis of the APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Structure
+- **Header Navigation**: Dark background with horizontal menu tabs (APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS)
+- **Right Corner**: "SYSTEM NOMINAL" indicator
+- **Main Content**: Single-column form layout on dark background
+- **Content Width**: Form confined to approximately 70% of the screen width, centered
+
+## Typography & Branding
+- **Page Title**: "SIMULATE DEPOSIT" in large serif font (appears to be Georgia or similar)
+- **Subtitle**: "NEW DEPOSIT" in smaller uppercase sans-serif
+- **Color Scheme**: Green (#00FF00 or similar neon green) accent text on black backgrounds, typical of terminal/developer interfaces
+- **Font Family**: Mix of serif headers and monospace/sans-serif for input labels
+
+## Color Palette
+- **Primary Background**: Pure black (#000000)
+- **Accent Color**: Neon green (#00FF00 or similar)
+- **Input Fields**: Dark with green borders
+- **Text**: Green on black for labels, white for input placeholders
+
+## Form Components & Hierarchy
+
+### Section 1: Investor Account
+- **Label**: "INVESTOR ACCOUNT" (uppercase, green)
+- **Input Type**: Dropdown/Select field
+- **Current Value**: "INV-1001 [Clean Pass]" (green text)
+- **Styling**: Dark background with green left border accent
+
+### Section 2: Amount
+- **Label**: "AMOUNT (USD)" (uppercase, green)
+- **Input Type**: Text field
+- **Current Value**: "500.00"
+- **Styling**: Matches account field styling
+
+### Section 3: Front Image
+- **Label**: "FRONT IMAGE" (uppercase, green)
+- **Input Type**: File upload button
+- **Status**: "No file chosen" (green text)
+- **Styling**: Dark background with green border
+
+### Section 4: Back Image
+- **Label**: "BACK IMAGE" (uppercase, green)
+- **Input Type**: File upload button
+- **Status**: "No file chosen" (green text)
+- **Positioning**: Right-aligned, parallel to Front Image field
+
+### Section 5: Vendor Scenario
+- **Label**: "VENDOR SCENARIO" (uppercase, green)
+- **Input Type**: Dropdown field
+- **Current Value**: "Clean Pass"
+- **Styling**: Full-width dark dropdown with green border
+
+### Section 6: Action Button
+- **Button**: "SUBMIT DEPOSIT"
+- **Styling**: Outlined button with green border, uppercase text
+- **Positioning**: Left-aligned below form fields
+
+## Spacing & Alignment
+- **Vertical Spacing**: Consistent spacing between form sections (approximately 15-20px)
+- **Horizontal Alignment**: Left-aligned labels, full-width inputs
+- **Field Grouping**: Account and Amount appear side-by-side; Image fields appear side-by-side
+- **Padding**: Generous internal padding (15-20px) within form container
+
+## Visual Quality & UX Considerations
+- **Accessibility**: High contrast green-on-black may cause eye strain for some users
+- **Visual Feedback**: Green outlines indicate focused/active states
+- **Consistency**: Uniform styling across all input types
+- **Professional Appearance**: Clean, minimal design with clear information hierarchy
+- **Terminal Aesthetic**: Deliberately styled to resemble a command-line interface or legacy banking system
+
+## Empty State Design
+- Large black space below form indicates room for additional content or messaging
+- Clean, uncluttered design when form is not populated
+
+## Browser/Technical Notes
+- **Responsive Design**: Form appears to use max-width constraints
+- **Input States**: Appears to support file uploads, dropdowns, and text inputs
+- **Validation**: No visible validation messages in current state
+
+This interface appears to be a financial transaction simulation tool with a deliberately retro/technical aesthetic, prioritizing clarity and functionality over modern design trends.

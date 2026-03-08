@@ -1,0 +1,20 @@
+{
+  "Is there an \"Account Balances\" table with columns \"External ID\", \"Name\", \"Type\", and \"Balance\"?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All four required columns are present in the Account Balances table with exact naming",
+    "evidence": "Table headers clearly visible: \"EXTERNAL ID\", \"NAME\", \"TYPE\", and \"BALANCE\" columns are present and properly labeled"
+  },
+  "Does the table show investor accounts (INV-prefixed), an omnibus account, and a fee revenue account?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All three account types are present and correctly identified with appropriate prefixes and naming conventions",
+    "evidence": "Table shows INV-1801, INV-1802, INV-1803, INV-1804, INV-1805, INV-1806, INV-1807 (investor accounts), OMNI-ACME (omnibus account), and FEE-REVENUE (fee revenue account)"
+  },
+  "Are dollar amounts displayed with proper currency formatting (e.g., $250.00)?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Currency formatting is consistent and proper throughout the table, including positive, negative, and zero values",
+    "evidence": "All balance values displayed as: \"$0.00\", \"$250.00\", and \"-$250.00\" with dollar sign and two decimal places"
+  }
+}

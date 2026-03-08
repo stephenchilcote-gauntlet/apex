@@ -1,0 +1,18 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "\"DEPOSIT RESULT\" panel is visible with STATE field showing orange \"REJECTED\" badge",
+      "reason": "The Deposit Result section clearly displays with a prominent orange REJECTED status indicator"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "REJECTION field contains text: \"VENDOR_REJECT: Vendor decision FAIL: IOA=FAIL_BLUR duplicate=false\"",
+      "reason": "The rejection field explicitly displays \"FAIL_BLUR\" within the error message"
+    }
+  ]
+}
+```

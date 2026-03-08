@@ -1,0 +1,30 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "TRANSFER INFO section visible with ID \"4f11abbc-8184-4e18-9556-d85d588cd92e\", STATE \"FUNDSPOSTED\", AMOUNT \"$200.00\", ACCOUNT \"00000000-0000-0000-0000-000000001001\", and timestamps including BUSINESS DATE, SUBMITTED, APPROVED, POSTED, CREATED, and UPDATED",
+      "reason": "All required Transfer Info elements are present and clearly displayed"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "CHECK IMAGES section visible with two image placeholders labeled \"Front Check\" and \"Back Check\"",
+      "reason": "Check Images panel is present with both front and back image placeholders clearly identified"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "VENDOR RESULT section shows DECISION \"PASS\", IQA STATUS \"PASS\", MICR ROUTING \"821000021\", MICR ACCOUNT \"123456789\", MICR CHECK # \"0001\", MICR CONFIDENCE \"0.99\", RISK SCORE \"12\", and OCR AMOUNT \"$200.00\"",
+      "reason": "All vendor result details including IQA Status, MICR data, and Risk Score are present and visible"
+    },
+    {
+      "id": 4,
+      "status": "pass",
+      "evidence": "AUDIT TRAIL section contains a table with columns TIME (2026-03-07 22:32:27), EVENT (STATE_TRANSITION), FROM (Requested/Validating/Analyzing/Approved), TO (Validating/Analyzing/Approved/FundsPosted), and ACTOR (deposit-service)",
+      "reason": "Audit Trail panel with all required columns (Time, Event, From, To, Actor) is present with multiple state transition events logged"
+    }
+  ]
+}
+```

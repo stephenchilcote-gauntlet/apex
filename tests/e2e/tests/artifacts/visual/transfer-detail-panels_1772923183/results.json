@@ -1,0 +1,26 @@
+{
+  "Is there a \"Transfer Info\" panel showing ID, State badge, Amount, Account, and timestamps?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required Transfer Info elements are clearly visible and properly organized in the panel",
+    "evidence": "TRANSFER INFO section containing ID: 9cf51573-761b-49af-923c-7f9a6cbcecc9, STATE: FUNDSPOSTED, AMOUNT: $200.00, ACCOUNT: 00000000-0000-0000-0000-000000001001, CORRESPONDENT: 00000000-0000-0000-0000-000000000010, and timestamps (BUSINESS DATE: 2026-03-07T00:00:00Z, SUBMITTED: 2026-03-07 22:39:26, APPROVED: 2026-03-07 22:39:26, POSTED: 2026-03-07 22:39:26, CREATED: 2026-03-07 22:39:26, UPDATED: 2026-03-07 22:39:26)"
+  },
+  "Is there a \"Check Images\" panel with front and back image placeholders or images?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Check Images panel is present with both front and back check image placeholders clearly labeled",
+    "evidence": "CHECK IMAGES section with checkboxes next to 'Front Check' and 'Back Check' placeholders visible"
+  },
+  "Is there a \"Vendor Result\" panel showing decision details like IQA Status, MICR data, and Risk Score?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Vendor Result panel contains all required decision details including IQA Status, MICR data, and Risk Score",
+    "evidence": "VENDOR RESULT section showing DECISION: PASS, IQA STATUS: PASS, MICR ROUTING: 821000021, MICR ACCOUNT: 123456789, MICR CHECK #: 0001, MICR CONFIDENCE: 0.99, RISK SCORE: 12, OCR AMOUNT: $200.00, AMOUNT MATCH: Yes, DUPLICATE DETECTED: No"
+  },
+  "Is there an \"Audit Trail\" panel with a table of events showing Time, Event, From, To, and Actor columns?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Audit Trail panel displays complete event history with all required columns and multiple state transition events",
+    "evidence": "AUDIT TRAIL section with table containing columns TIME, EVENT, FROM, TO, ACTOR, DETAILS showing four STATE_TRANSITION entries (Requested→Validating→Analyzing→Approved→FundsPosted) with timestamps 2026-03-07 22:39:26 and actor 'deposit-service'"
+  }
+}

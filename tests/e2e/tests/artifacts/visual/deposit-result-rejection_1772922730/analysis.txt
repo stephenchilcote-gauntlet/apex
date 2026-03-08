@@ -1,0 +1,75 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout and Design
+The interface follows a dark theme with a professional, financial-system aesthetic. The layout is organized vertically with clear sectional divisions using subtle borders and background color variations.
+
+## Color Scheme
+- **Primary Background**: Deep black (#000000 or near-black)
+- **Accent Colors**: Bright green (#00FF00 or similar) for active elements, labels, and status indicators
+- **Text Colors**: Light gray for secondary labels, bright green for interactive elements and data
+- **Borders**: Subtle green borders around form sections
+
+## Typography
+- **Headers**: "SIMULATE DEPOSIT" appears in large, all-caps serif font (likely Georgia or similar)
+- **Labels**: Sans-serif, all-caps in gray (e.g., "DEPOSIT RESULT", "TRANSFER ID")
+- **Data/Values**: Monospaced font for transaction IDs and technical information
+- **Button Text**: All-caps sans-serif
+
+## Header Navigation
+Top navigation bar includes tabs: SIMULATE | TRANSFERS | REVIEW QUEUE | LEDGER | SETTLEMENT | RETURNS
+"SYSTEM NOMINAL" appears right-aligned, indicating system status
+
+## Deposit Result Section
+**Status**: REJECTED (displayed prominently in green text)
+- **Transfer ID**: d198ca5f-ac2c-4ab1-8fa4-26ac77dec5ea (monospaced)
+- **Message**: "Deposit rejected by vendor analysis"
+- **Rejection Code**: VENDOR_REJECT with detailed failure message about IOA=FAIL_BLUR duplicate=false
+
+## New Deposit Form Section
+Contains the following input fields:
+
+### Investor Account Dropdown
+- Selected: "INV-1001 (Clean Pass)"
+- Green highlight on selection border
+
+### Amount Field
+- Label: "AMOUNT (USD)"
+- Input: 500.00
+- Right-aligned numerical display
+
+### Image Upload Fields
+- **Front Image**: "Choose File" button with "No file chosen" status (green text)
+- **Back Image**: "Choose File button with "No file chosen" status (green text)
+- Both styled as file input controls with green accent text
+
+### Vendor Scenario Dropdown
+- Selected: "Clean Pass"
+- Full-width dropdown with green border
+
+## Call-to-Action
+**SUBMIT DEPOSIT** button
+- All-caps text
+- Gray/muted styling (appears disabled or inactive)
+- Located at bottom of form
+
+## Visual Hierarchy
+1. Main heading dominates top
+2. Error/result information presented prominently
+3. Form fields organized logically with clear labels
+4. Submit button as clear endpoint
+
+## Spacing and Alignment
+- Consistent left-aligned labels with right-aligned or field-aligned values
+- Vertical spacing creates clear separation between sections
+- Form fields use full-width layout
+- Adequate padding around interactive elements
+
+## Overall Quality
+The interface demonstrates:
+- **Professional Design**: Clean, corporate aesthetic suitable for financial systems
+- **Clear Information Architecture**: Logical flow from result display to new deposit form
+- **Accessibility Considerations**: High contrast between dark background and bright green text
+- **Technical Clarity**: Detailed error messages and transaction IDs for debugging
+- **Form Usability**: Well-organized input fields with clear labeling
+
+The design prioritizes functionality and information clarity over decorative elements, which is appropriate for a backend/administrative financial system interface.

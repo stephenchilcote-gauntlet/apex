@@ -1,0 +1,87 @@
+# Detailed Analysis of APEX MCD Settlement Interface
+
+## Overall Layout & Structure
+- **Navigation Bar**: Horizontal tab-based navigation at the top with options: SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT (active), RETURNS
+- **System Identifier**: "SYSTEM NOMINAL" displayed in top-right corner
+- **Page Title**: "SETTLEMENT" in large serif font (appears to be Georgia or similar) positioned on the left
+- **Main Content Area**: Single-column layout with action section and batches table
+
+## Color Scheme
+- **Background**: Deep black (#000000 or near-black)
+- **Text**: Light gray/white for primary text
+- **Accents**: Green (#00FF00 or bright lime) for:
+  - Left border of main sections
+  - "GENERATE SETTLEMENT BATCH" button
+  - Total amount ($680.00)
+  - "ACKNOWLEDGE" action button
+- **Secondary Text**: Muted gray for labels and headers
+
+## Typography
+- **Page Title**: Large serif font (approximately 32-40px)
+- **Section Headers**: "ACTIONS" and "BATCHES" in sans-serif, uppercase, small caps (approximately 10-12px)
+- **Table Headers**: Sans-serif, uppercase, letter-spaced, approximately 11-12px
+- **Table Data**: Monospace font for IDs, timestamps, and amounts (likely Courier New or similar)
+- **Body Text**: Sans-serif, approximately 12-13px
+
+## Components
+
+### Action Section
+- **Green Left Border**: Vertical accent bar (3-5px width)
+- **Button**: "GENERATE SETTLEMENT BATCH" 
+  - Dark background with bright green text
+  - All caps, sans-serif
+  - Padding approximately 12-15px
+- **Status Message**: "Batch generated: 6fb49b06" in light gray
+
+### Batches Table
+**Column Headers:**
+- ID
+- BUSINESS DATE
+- STATUS
+- ITEMS
+- TOTAL AMOUNT
+- FILE
+- CREATED
+- ACTION
+
+**Data Row:**
+| Field | Value |
+|-------|-------|
+| ID | 6fb49b06... (truncated) |
+| Business Date | 2026-03-07T08:00:00Z |
+| Status | GENERATED (in gray) |
+| Items | 1 |
+| Total Amount | $680.00 (green) |
+| File | reports/settlement/2026-03-07_6fb49b06-fa3a-4d63-blcd-5f9627f71ad1.json |
+| Created | 2026-03-07 22:48:13 |
+| Action | ACKNOWLEDGE (bright green, clickable) |
+
+## Spacing & Alignment
+- **Vertical Spacing**: Approximately 20-30px between major sections
+- **Padding**: 15-20px internal padding within bordered sections
+- **Table Row Height**: Approximately 40-50px
+- **Column Alignment**: Left-aligned for most columns; numeric values (ITEMS, AMOUNT) appear right-aligned
+- **Text Baseline**: Consistent vertical centering within table cells
+
+## Visual Hierarchy
+1. **Primary**: Page title "SETTLEMENT"
+2. **Secondary**: Section headers ("ACTIONS", "BATCHES")
+3. **Tertiary**: Button and action items
+4. **Quaternary**: Table data and supporting information
+5. **De-emphasized**: Timestamps and file paths in smaller, monospace font
+
+## Quality Observations
+- **Professional appearance**: Clean, minimal design appropriate for a financial/settlement system
+- **Readability**: High contrast between text and background aids legibility
+- **Consistency**: Uniform styling across components
+- **Accessibility concerns**: Pure black background with light text may cause eye strain; green accent color provides visual guidance but could pose issues for colorblind users
+- **Data Presentation**: Clear table structure with appropriate monospace styling for technical identifiers
+
+## Technical Details
+- **Timestamp Format**: ISO 8601 (2026-03-07T08:00:00Z)
+- **ID Format**: Hexadecimal-like identifiers (6fb49b06)
+- **File Path Structure**: Hierarchical JSON file path indicating settlement report organization
+- **Amount Display**: Currency symbol ($) with two decimal places
+
+## Overall Impression
+This appears to be an enterprise-level settlement management interface designed for financial operations. The dark theme, technical data

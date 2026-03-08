@@ -1,0 +1,91 @@
+# Detailed Analysis of Transfer Detail Web Application
+
+## Overall Layout & Structure
+The application displays a dark-themed transfer detail page with a professional, structured layout. It uses a dark background (nearly black, #1a1a1a or similar) with light text, creating high contrast for readability. The page is divided into distinct sections using subtle divider lines.
+
+## Header Navigation
+- **Top Navigation Bar**: Contains tabs including "APEX MCD", "SIMULATE", "TRANSFERS", "REVIEW QUEUE", "LEDGER", "SETTLEMENT", and "RETURNS"
+- **Title**: "TRANSFER DETAIL" in large, bold serif font (likely a custom serif typeface)
+- **System Label**: "SYSTEM NOMINAL" appears in the top right corner
+
+## Color Scheme
+- **Primary Background**: Very dark gray/black (#0f0f0f or #1a1a1a)
+- **Text**: Light gray/white (#e0e0e0 to #ffffff)
+- **Accent Colors**: Green elements for "PASS" statuses, indicating positive validation
+- **Section Headers**: Slightly lighter gray (#666666-#888888) for label text
+
+## Section 1: Transfer Info
+Contains key transaction details in a label-value format:
+- **ID**: Hash identifier (ff866b72-47dd-4387-ae22-ce4527c3f7c)
+- **State**: FUNDSPOSTED
+- **Amount**: $200.00
+- **Account/Correspondent**: Masked account numbers (0000000-0000-0000...)
+- **Scenario**: clean_pass
+- **Business Date**: 2026-03-07T00:00:00Z
+- **Timestamps**: All dated 2026-03-07 22:35:57
+
+Typography: Monospace font for numeric/account data, sans-serif for labels
+
+## Section 2: Check Images
+Two thumbnail image links labeled:
+- Front Check
+- Back Check
+
+These are displayed inline with green checkmark icons (✓)
+
+## Section 3: Vendor Result
+Grid-style presentation of validation results:
+- **Decision**: PASS (in green)
+- **IQA Status**: PASS
+- **MICR Routing**: 821000021
+- **MICR Account**: 123456789
+- **MICR Check #**: 0001
+- **MICR Confidence**: 0.99
+- **Risk Score**: 12
+- **OCR Amount**: $200.00
+- **Amount Match**: Yes
+- **Duplicate Detected**: No
+
+Color coding: Green for passing statuses, neutral text for data values
+
+## Section 4: Rule Evaluations
+Tabular layout with columns:
+- **RULE**: Rule name
+- **OUTCOME**: Pass/Fail status
+- **DETAILS**: Specific validation details in JSON-like format
+
+Rules displayed:
+1. ACCOUNT_ELIGIBLE - PASS
+2. MAX_DEPOSIT_LIMIT - PASS
+3. CONTRIBUTION_TYPE_DEFAULT - PASS
+4. INTERNAL_DUPLICATE - PASS
+
+## Section 5: Audit Trail
+Chronological table showing state transitions:
+- **Columns**: TIME, EVENT, FROM, TO, ACTOR, DETAILS
+- **Rows**: Four STATE_TRANSITION entries
+- **Timeline**: 
+  - 22:35:57 - Requested → Validating
+  - 22:35:57 - Validating → Analyzing
+  - 22:35:57 - Analyzing → Approved
+  - 22:35:57 - Approved → FundsPosted
+
+Actor: "deposit-service" for all entries
+
+## Typography & Spacing
+- **Headings**: Serif font, larger size, bold weight
+- **Labels**: Sans-serif, smaller, uppercase, gray color (#888888)
+- **Values**: Mixed monospace (for codes/numbers) and sans-serif
+- **Line Height**: Generous vertical spacing for readability
+- **Padding**: Consistent left-aligned indentation for data fields
+
+## Visual Hierarchy
+1. Primary: Section titles (largest, uppercase, color-coded)
+2. Secondary: Data labels (smaller, uppercase, muted color)
+3. Tertiary: Values (standard size, high contrast)
+4. Status indicators: Green "PASS" badges stand out distinctly
+
+## Component Quality
+- **Consistency**: Uniform styling across sections
+- **Alignment**: Left-aligned labels with consistent indentation
+- **

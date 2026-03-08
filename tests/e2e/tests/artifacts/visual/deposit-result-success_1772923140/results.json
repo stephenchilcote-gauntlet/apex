@@ -1,0 +1,20 @@
+{
+  "Is there a \"Deposit Result\" panel showing a Transfer ID, a State badge, and a Message?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All three required elements are present and clearly displayed in the green-bordered panel at the top",
+    "evidence": "Deposit Result panel visible with TRANSFER ID: 407b5298-68e3-4933-a58e-b84f1bcd1960, STATE: FUNDSPOSTED, MESSAGE: 'Deposit accepted and funds posted'"
+  },
+  "Does the State badge show \"FundsPosted\" or similar success state?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The state shows a success state (FundsPosted) indicating the deposit was accepted",
+    "evidence": "STATE badge displays 'FUNDSPOSTED' in green text"
+  },
+  "Is the result panel visually distinct from the form below it?": {
+    "passed": true,
+    "severity": "advisory",
+    "reason": "The result panel is clearly distinguished from the form below through bordered container styling, distinct headings, and vertical spacing",
+    "evidence": "Result panel has a distinct green border, separate heading 'DEPOSIT RESULT', and is positioned above the 'NEW DEPOSIT' form section with clear visual separation"
+  }
+}

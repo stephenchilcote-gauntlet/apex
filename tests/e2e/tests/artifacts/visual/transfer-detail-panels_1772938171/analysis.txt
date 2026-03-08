@@ -1,0 +1,92 @@
+# Detailed Analysis of Transfer Detail Web Application
+
+## Overall Layout & Structure
+The interface uses a dark theme with a multi-panel layout displaying financial transfer information. The design follows a left-to-right information hierarchy with distinct sections stacked vertically.
+
+## Color Scheme
+- **Primary Background**: Dark charcoal/near-black (#1a1a1a or similar)
+- **Text Colors**: 
+  - Primary text: Light gray/white
+  - Status indicators: Bright green (#00ff00 or similar) for "FUNDED/PASSED"
+  - Monetary values: White
+- **Accent Colors**: Green highlights for positive states, white for critical information
+- **Check Image**: Cream/off-white background simulating a physical bank check
+
+## Typography
+- **Font Family**: Monospace (appears to be Courier or similar) for system-level data
+- **Font Sizes**: Hierarchical sizing with larger headers and smaller data fields
+- **Font Weights**: Regular weight throughout with some bold emphasis on labels
+- **Letter Spacing**: Tight, technical appearance suitable for financial data
+
+## Header Navigation
+Located at the top with tabs:
+- SIMULATE | **TRANSFERS** (active/highlighted in green) | REVIEW QUEUE | LEDGER | SETTLEMENT | RETURNS
+- Right-aligned "SYSTEM NOMINAL" indicator in green
+
+## Transfer Detail Section
+
+### Header Information
+**Title**: "TRANSFER DETAIL" with data subset labeled "TRANSFER INFO"
+
+### Key Data Fields (Left Column):
+- **ID**: Encoded transaction identifier
+- **STATE**: "FUNDED/POSTED" (bright green)
+- **AMOUNT**: $200.00
+- **ACCOUNT**: 16-digit account number
+- **CORRESPONDENT**: Account routing information
+- **SCENARIO**: "clean_pass"
+- **BUSINESS DATE**: Timestamp (2026-03-07)
+- **SUBMITTED/APPROVED/POSTED/COMPLETED/CREATED/UPDATED**: All stamped 2026-03-08 02:49:13
+
+## Visual Components
+
+### Bank Check Image
+**Location**: Center-left panel
+**Content**:
+- Institution: "FIRST NATIONAL BANK"
+- Address: "1200 Financial Plaza, New York, NY 10001"
+- Reference: "1042"
+- **Payee**: "Apex Clearing Corporation"
+- **Amount**: "$500.00"
+- **Date**: "03/07/2026"
+- **Memo**: "Investment deposit"
+- **Routing Numbers**: Printed at bottom (0210008**39*, *1081042*, *7829104538*)
+- Right panel labeled "ENDORSE HERE" with blank signature lines
+- "DO NOT WRITE, STAMP, OR SIGN BELOW THIS LINE"
+- "For Mobile Deposit Only"
+- Account: *7029104538
+
+### Vendor Result Section
+- **DECISION**: PASS
+- **QA STATUS**: PASS
+- **RESULT CODE**: 1500000021
+- **MICR ROUTING**: 121545789
+- **MICR AMOUNT**: 50000
+- **MICR CONFIDENCE**: 8.99
+- **RISK SCORE**: 12
+- **OCR AMOUNT**: $500.00
+- **AMOUNT MATCH**: Yes
+- **DUPLICATE DETECTED**: No
+
+## Rule Evaluations Section
+Table format with three columns: RULE | OUTCOME | DETAILS
+
+| Rule | Outcome | Details |
+|------|---------|---------|
+| ACCOUNT_ELIGIBLE | PASS | Account is ACTIVE |
+| MAX_DEPOSIT_LIMIT | PASS | Amount within limit |
+| CONTRIBUTION_TYPE_DEFAULT | PASS | Contribution type valid |
+| INTERNAL_DUPLICATE | PASS | No duplicate found |
+
+## Audit Trail Section
+Table with columns: TIME | EVENT | FROM | TO | ACTOR | DETAILS
+
+Four entries logged at 2026-03-08 02:49:13:
+1. STATE_TRANSITION - Requested → Validating - deposit-service
+2. STATE_TRANSITION - Validating → Analyzing - deposit-service
+3. STATE_TRANSITION - Analyzing → Approved - deposit-service
+4. STATE_TRANSITION - Approved → FundsPosted - deposit-service
+
+## Typography & Spacing
+- **Vertical Spacing**: Consistent padding between sections (approximately 16-24px)
+- **Horizontal Spacing**: Label-value pairs with consistent 8-

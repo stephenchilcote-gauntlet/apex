@@ -1,0 +1,74 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Structure
+- **Dark Theme**: Dark navy/charcoal background (#1a1f2e or similar) with high contrast elements
+- **Navigation Bar**: Horizontal menu at top with tabs: SIMULATE (active/green), TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS
+- **System Indicator**: "SYSTEM NOMINAL" indicator in top-right corner with green dot
+- **Form Container**: Single centered form panel with green left border accent
+
+## Typography & Color Scheme
+- **Font**: Sans-serif (appears to be a modern system font like -apple-system or similar)
+- **Text Colors**: 
+  - Primary text: Light gray (#b0b9c1 or similar)
+  - Labels: Muted gray (#7a8190)
+  - Active tab: Bright green (#00d84f or similar)
+- **Contrast**: Good readability with light text on dark backgrounds
+
+## Form Components
+
+### Header Section
+- **Title**: "SIMULATE DEPOSIT" (large, bold, white text)
+- **Subsection**: "NEW DEPOSIT" label with green accent
+
+### Input Fields
+
+1. **Investor Account Dropdown**
+   - Label: "INVESTOR ACCOUNT"
+   - Current value: "INV-1001 (Clean Pass)"
+   - Styled dropdown with arrow indicator
+
+2. **Amount Field**
+   - Label: "AMOUNT (USD)"
+   - Input value: "500.00"
+   - Right-aligned numeric field
+   - Currency denomination clearly labeled
+
+3. **File Upload Fields**
+   - **Front Image**: File chooser button ("Choose File" - No file chosen)
+   - **Back Image**: File chooser button ("Choose File" - No file chosen)
+   - Side-by-side layout for both images
+
+4. **Vendor Scenario Dropdown**
+   - Label: "VENDOR SCENARIO"
+   - Current value: "Clean Pass"
+   - Full-width dropdown
+
+### Action Button
+- **Submit Button**: "SUBMIT DEPOSIT"
+- Gray/charcoal styling
+- Standard button proportions
+- Bottom-aligned in form
+
+## Spacing & Alignment
+- **Vertical Spacing**: Consistent padding between form sections (approximately 20-24px)
+- **Horizontal Alignment**: Labels positioned above inputs
+- **Field Grouping**: Related fields (Front/Back images) positioned in two-column layout
+- **Left Padding**: Green accent border on left side of entire form panel
+
+## Visual Hierarchy
+1. Main title (largest, brightest)
+2. Section labels (medium, muted gray)
+3. Input fields (standard size, interactive)
+4. Submit button (prominent call-to-action)
+
+## Quality & Polish
+- **Professional Design**: Clean, corporate interface suitable for financial application
+- **Accessibility**: Good label-to-input associations, clear color differentiation
+- **State Feedback**: Dropdown indicators show interactive elements
+- **Error States**: None currently visible (form is clean)
+
+## Potential Observations
+- Minimal form filling required (mostly pre-populated or simple inputs)
+- Focus on data entry with image documentation (front/back)
+- Clean pass scenario is the selected/tested pathway
+- Large empty space below form suggests mobile-responsive design

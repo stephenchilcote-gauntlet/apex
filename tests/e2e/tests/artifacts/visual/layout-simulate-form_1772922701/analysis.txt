@@ -1,0 +1,86 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout and Structure
+The interface uses a dark theme with a clean, organized layout. It's divided into a header navigation area and a main content section for deposit simulation.
+
+## Header Navigation
+- **Top Navigation Bar**: Black background with gray text links
+  - Left side: "APEX MCD" branding followed by navigation tabs: SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS
+  - Right side: "SYSTEM NOMINAL" indicator
+  - The current tab "SIMULATE" appears to be active
+
+## Main Content Area: "SIMULATE DEPOSIT"
+
+### Section Header
+- Large white heading: "SIMULATE DEPOSIT"
+- Subheading in smaller gray text: "NEW DEPOSIT"
+- Left border accent in green (#00FF00 approximate)
+
+### Form Fields (Left Column)
+
+**1. Investor Account**
+- Label: "INVESTOR ACCOUNT" (gray, uppercase, small font)
+- Dropdown field with green border
+- Selected value: "INV-1001 [Clean Pass]" (green text)
+- Green dropdown indicator on right
+
+**2. Front Image**
+- Label: "FRONT IMAGE" (gray, uppercase, small font)
+- File upload button with black background
+- Status text in green: "No file chosen"
+
+**3. Vendor Scenario**
+- Label: "VENDOR SCENARIO" (gray, uppercase, small font)
+- Dropdown with green border
+- Selected value: "Clean Pass" (green text)
+- Full-width dropdown
+
+### Form Fields (Right Column)
+
+**1. Amount (USD)**
+- Label: "AMOUNT (USD)" (gray, uppercase, small font)
+- Input field with green border
+- Placeholder/default value: "500.00" (gray text)
+- Currency field
+
+**2. Back Image**
+- Label: "BACK IMAGE" (gray, uppercase, small font)
+- File upload button with black background
+- Status text in green: "No file chosen"
+
+## Submit Button
+- "SUBMIT DEPOSIT" button
+- Black background with gray text
+- Located below the form fields
+- Typical button styling with slight padding
+
+## Color Scheme
+- **Primary Colors**: 
+  - Black (#000000) - background
+  - Dark gray (#1a1a1a) - form background
+  - Bright green (#00FF00) - accents, borders, active elements
+- **Text Colors**:
+  - White - headings
+  - Gray - labels and secondary text
+  - Green - active values and status messages
+
+## Typography
+- Font appears to be monospace or technical font (fitting for financial/system interface)
+- Clear hierarchy: large heading > field labels > input text
+- All-caps treatment for field labels
+
+## Spacing and Alignment
+- Generous padding around form sections
+- Fields organized in logical two-column grid
+- Clear vertical separation between form sections
+- Consistent alignment of labels above inputs
+
+## Visual Quality
+- Professional, technical aesthetic
+- High contrast for accessibility
+- Clean, minimal design without unnecessary decorative elements
+- Good use of whitespace despite dark background
+- Consistent styling across all interactive elements
+
+## Overall Assessment
+This is a well-designed financial/banking system interface with strong visual hierarchy, clear labeling, and professional styling. The green accent color against black background provides excellent visibility while maintaining a serious, enterprise-level appearance appropriate for a deposit simulation system.

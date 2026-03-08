@@ -1,0 +1,72 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Design
+The interface presents a dark-themed financial application with a professional, minimalist aesthetic. The layout uses a clean grid structure with distinct sections organized vertically.
+
+## Color Scheme
+- **Primary Background**: Pure black (#000000)
+- **Accent Color**: Bright neon green (#00FF00 or similar)
+- **Text Colors**: White for headers, green for interactive elements and confirmed statuses
+- **Input Fields**: Dark gray backgrounds with green borders and green text
+
+## Typography
+- **Headlines**: "SIMULATE DEPOSIT" appears in large, serif font (likely a custom display font)
+- **Labels**: Sans-serif, all-caps, gray color (#888888 range), small font size
+- **Content Text**: Monospace font for transfer IDs and status messages, appropriate for financial data
+- **Font Hierarchy**: Clear distinction between section titles and input labels
+
+## Navigation & Sections
+Top navigation bar displays:
+- APEX MCD | SIMULATE | TRANSFERS | REVIEW QUEUE | LEDGER | SETTLEMENT | RETURNS
+- "SYSTEM NOMINAL" appears right-aligned
+
+## Deposit Result Section
+A highlighted box containing:
+- **Transfer ID**: `996f2c67-116f-4cfc-a574-28a215e4335c` (monospace)
+- **State**: "FUNDSPOSTED" (status indicator in green)
+- **Message**: "Deposit accepted and funds posted"
+
+## New Deposit Form Section
+
+### Input Fields:
+1. **Investor Account Dropdown**
+   - Selected: "INV-1001 (Clean Pass)"
+   - Green bordered field with dark background
+
+2. **Amount (USD)**
+   - Value: "500.00"
+   - Aligned to the right of the investor account field
+   - Same styling as other inputs
+
+3. **Front Image & Back Image**
+   - Two file upload buttons labeled "Choose File"
+   - Status: "No file chosen" in green text
+   - Positioned side-by-side
+
+4. **Vendor Scenario Dropdown**
+   - Selected: "Clean Pass"
+   - Full-width field
+
+### Submit Button
+- "SUBMIT DEPOSIT" button with green border
+- Styled consistently with other form elements
+- Located at bottom-left of form
+
+## Spacing & Alignment
+- Generous vertical spacing between sections
+- Left-aligned labels with inputs following below or to the right
+- Consistent padding around interactive elements
+- Two-column layout for amount field (sharing row with investor account)
+
+## Visual Quality
+- Crisp, clean rendering
+- No anti-aliasing artifacts
+- Professional appearance suitable for financial/administrative software
+- High contrast for accessibility
+- Responsive spacing that appears intentional and balanced
+
+## Usability Observations
+- Clear visual feedback (green = success/confirmed)
+- Logical form organization progressing top-to-bottom
+- Status information prominently displayed at top
+- Form fields clearly labeled with appropriate input types

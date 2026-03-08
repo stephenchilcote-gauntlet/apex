@@ -1,0 +1,20 @@
+{
+  "Is there a \"Pending Reviews\" table with columns for ID, Account, Amount, Scenario, Created, and Action?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All six required columns are present and visible in the table header",
+    "evidence": "Table header row displays columns: ID, ACCOUNT, AMOUNT, SCENARIO, CREATED, ACTION"
+  },
+  "Does the table have at least one row with a \"Review\" button or link?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "At least one table row exists with a REVIEW button/link element",
+    "evidence": "Row contains ID 'RQC311' with a 'REVIEW' button in the ACTION column on the right side"
+  },
+  "Is the \"Review Queue\" tab highlighted as active in the navigation?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The REVIEW QUEUE tab appears highlighted/active in the top navigation menu",
+    "evidence": "Navigation tab 'REVIEW QUEUE' is styled differently from other tabs and the page title matches this tab name"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "Is there a table structure visible with column headers but showing a \"No transfers found\" message in the body?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The table structure is clearly present with all expected column headers and the empty state message is displayed in the table body",
+    "evidence": "Table with column headers (ID, ACCOUNT, AMOUNT, STATE, SCENARIO, BUSINESS DATE, CREATED AT) is visible with centered text 'No transfers found' in the body area"
+  },
+  "Is the empty state message centered and clearly visible?": {
+    "passed": true,
+    "severity": "advisory",
+    "reason": "The empty state message is prominently displayed and centered, making it immediately visible and easy to understand",
+    "evidence": "The message 'No transfers found' is centered horizontally and vertically within the table area with adequate whitespace"
+  }
+}

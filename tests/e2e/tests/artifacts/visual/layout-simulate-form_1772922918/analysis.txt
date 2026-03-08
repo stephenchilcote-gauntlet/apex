@@ -1,0 +1,62 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Structure
+- **Navigation Bar**: Top horizontal menu with tabs (APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS) and "SYSTEM NOMINAL" aligned right
+- **Main Content Area**: Centered form container on dark background with a green accent border on the left
+- **Color Scheme**: Dark theme with black background, neon green accents (#00FF00 or similar), and white text
+
+## Typography
+- **Header**: "SIMULATE DEPOSIT" in large, bold serif font (appears to be a distinctive typeface)
+- **Subheadings**: "NEW DEPOSIT" in smaller caps
+- **Labels**: "INVESTOR ACCOUNT", "AMOUNT (USD)", "FRONT IMAGE", "BACK IMAGE", "VENDOR SCENARIO" in all caps, gray color
+- **Body Text**: Default sans-serif in white/light gray
+
+## Components & Fields
+
+### 1. **Investor Account Dropdown**
+- Label: "INVESTOR ACCOUNT"
+- Current value: "INV-1001 (Clean Pass)" highlighted in green
+- Has dropdown arrow indicator
+
+### 2. **Amount Field**
+- Label: "AMOUNT (USD)"
+- Input value: "500.00"
+- Right-aligned in input field
+
+### 3. **File Upload Sections**
+- **Front Image**: File upload button ("Choose File") with status "No file chosen" in green text
+- **Back Image**: File upload button ("Choose File") with status "No file chosen" in green text
+- Side-by-side layout
+
+### 4. **Vendor Scenario Dropdown**
+- Label: "VENDOR SCENARIO"
+- Current selection: "Clean Pass"
+- Full-width dropdown field
+
+### 5. **Submit Button**
+- Text: "SUBMIT DEPOSIT"
+- Outlined style with green border
+- Located at bottom left of form
+
+## Visual Hierarchy
+1. Main title (largest)
+2. Section labels and form fields (secondary)
+3. Input values and helper text (tertiary)
+4. Status messages and metadata (quaternary)
+
+## Spacing & Alignment
+- **Vertical spacing**: Consistent gaps between form sections
+- **Horizontal alignment**: Labels on left, inputs/controls on right (two-column layout)
+- **Padding**: Generous internal spacing within the form container
+- **Border**: Green left border (3-4px) frames the entire form
+
+## Design Quality
+- **Professional**: Clean, systematic interface suitable for financial operations
+- **Accessibility**: High contrast (dark/neon green)
+- **Consistency**: Uniform styling across all interactive elements
+- **Functionality**: Clear visual distinction between sections and input types
+
+## Notable Issues/Observations
+- File uploads show "No file chosen" status in green, which may be unclear (typically would use neutral color)
+- Form appears incomplete visually (significant whitespace below submit button)
+- All required fields appear to have values, making the form potentially submittable

@@ -1,0 +1,26 @@
+{
+  "Is there a \"Transfer Info\" panel showing ID, State badge, Amount, Account, and timestamps?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required Transfer Info elements are present and clearly displayed with proper labels and values",
+    "evidence": "Panel labeled 'TRANSFER INFO' visible with fields: ID 'ff866b72-47dd-4387-ae22-ce4527c3f7c', STATE 'FUNDSPOSTED', AMOUNT '$200.00', ACCOUNT '00000000-0000-0000-0000-000000001001', CORRESPONDENT '00000000-0000-0000-0000-000000000010', and timestamps 'CREATED 2026-03-07 22:35:57', 'UPDATED 2026-03-07 22:35:57'"
+  },
+  "Is there a \"Check Images\" panel with front and back image placeholders or images?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Check Images panel exists with both front and back image placeholders clearly labeled and accessible",
+    "evidence": "Section labeled 'CHECK IMAGES' with two image placeholder links visible: 'Front Check' and 'Back Check' with checkmark icons"
+  },
+  "Is there a \"Vendor Result\" panel showing decision details like IQA Status, MICR data, and Risk Score?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Vendor Result panel contains all required decision details including IQA Status, MICR data (routing, account, check number, confidence), and Risk Score",
+    "evidence": "Panel labeled 'VENDOR RESULT' showing DECISION 'PASS', IQA STATUS 'PASS', MICR ROUTING '821000021', MICR ACCOUNT '123456789', MICR CHECK # '0001', MICR CONFIDENCE '0.99', RISK SCORE '12', OCR AMOUNT '$200.00', AMOUNT MATCH 'Yes', DUPLICATE DETECTED 'No'"
+  },
+  "Is there an \"Audit Trail\" panel with a table of events showing Time, Event, From, To, and Actor columns?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Audit Trail panel with complete table structure showing all required columns and multiple event records in chronological order",
+    "evidence": "Panel labeled 'AUDIT TRAIL' with table containing columns TIME, EVENT, FROM, TO, ACTOR, DETAILS and four rows of STATE_TRANSITION events (Requested→Validating, Validating→Analyzing, Analyzing→Approved, Approved→FundsPosted), all timestamped '2026-03-07 22:35:57' with actor 'deposit-service'"
+  }
+}

@@ -1,0 +1,109 @@
+# Detailed Analysis of Transfer Detail Web Application
+
+## Overall Layout & Structure
+The interface uses a dark theme with a black background (#1a1a1a or similar) and employs a multi-section card-based layout. The page is organized into distinct collapsible/expandable sections with clear visual separation.
+
+## Color Scheme
+- **Primary Background**: Deep black/charcoal
+- **Text**: Light gray (#999999 for labels, white for values)
+- **Accents**: Green checkmarks and indicators (for "PASS" statuses)
+- **Highlights**: Minimal use of bright colors, reserved for status indicators
+
+## Typography
+- **Font Family**: Appears to be a monospace font (likely Monaco, Courier New, or similar), creating a technical/terminal-like aesthetic
+- **Font Sizes**: 
+  - Labels: Smaller (11-12px equivalent)
+  - Values: Slightly larger for emphasis
+  - Section Headers: Bold, all-caps
+- **Weight**: Mix of regular and bold text for hierarchy
+
+## Navigation Bar (Top)
+Horizontal navigation tabs in light gray:
+- APEX MCD (selected/active)
+- SIMULATE
+- TRANSFERS
+- REVIEW QUEUE
+- LEDGER
+- SETTLEMENT
+- RETURNS
+- **SYSTEM NOMINAL** (right-aligned)
+
+## Main Content Sections
+
+### 1. **TRANSFER INFO** Section
+Displays key transfer metadata in label-value pairs:
+- **ID**: `4f11abbc-8184-4e18-9556-d85d588cd92e`
+- **STATE**: `FUNDSPOSTED`
+- **AMOUNT**: `$200.00`
+- **ACCOUNT** & **CORRESPONDENT**: Long account numbers (masked format)
+- **SCENARIO**: `clean_pass`
+- **Dates**: Business, Submitted, Approved, Posted, Created, Updated timestamps
+
+**Spacing**: Generous left padding (approximately 15-20px) for label-value pairs
+
+### 2. **CHECK IMAGES** Section
+Contains two thumbnail images:
+- Front Check
+- Back Check
+(Displayed as small preview icons)
+
+### 3. **VENDOR RESULT** Section
+Structured results from external processing:
+- **Decision/IQA Status**: `PASS`
+- **MICR Routing**: `821000021`
+- **MICR Account**: `123456789`
+- **MICR Check #**: `0001`
+- **MICR Confidence**: `0.99`
+- **Risk Score**: `12`
+- **OCR Amount**: `$200.00`
+- **Amount Match**: `Yes`
+- **Duplicate Detected**: `No`
+
+Color coding: Green for passing items
+
+### 4. **RULE EVALUATIONS** Section
+Table format with columns:
+- **RULE** (left-aligned)
+- **OUTCOME** (center)
+- **DETAILS** (left-aligned, JSON-formatted)
+
+Rules evaluated:
+1. ACCOUNT_ELIGIBLE → PASS
+2. MAX_DEPOSIT_LIMIT → PASS
+3. CONTRIBUTION_TYPE_DEFAULT → PASS
+4. INTERNAL_DUPLICATE → PASS
+
+Details provided as structured JSON strings in brackets.
+
+### 5. **AUDIT TRAIL** Section
+Chronological timeline table with columns:
+- **TIME**: Timestamp (2026-03-07 22:32:27)
+- **EVENT**: Event type (STATE_TRANSITION)
+- **FROM**: Previous state
+- **TO**: New state
+- **ACTOR**: Service performing action
+- **DETAILS**: Additional context (shown as dashes)
+
+Four state transitions logged:
+1. Requested → Validating
+2. Validating → Analyzing
+3. Analyzing → Approved
+4. Approved → FundsPosted
+
+## Visual Hierarchy
+1. Section headers (all-caps, bold) - highest priority
+2. Label-value pairs - medium priority
+3. Detail text/JSON - lower priority
+4. Timestamps - contextual
+
+## Spacing & Alignment
+- **Horizontal Padding**: Consistent 15-20px from section edges
+- **Vertical Spacing**: Adequate gaps between sections (15-25px)
+- **Column Alignment**: Left-aligned for readability; numbers right-aligned where appropriate
+
+## Interactive Elements (Implied)
+- Section headers appear clickable/collapsible
+- Tabs at top for navigation
+- Likely additional interactions for image viewers
+
+##

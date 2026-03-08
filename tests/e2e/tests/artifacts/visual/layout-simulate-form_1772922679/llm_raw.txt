@@ -1,0 +1,30 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Navigation bar visible at top containing: APEX MCD, SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS",
+      "reason": "All required tab links are present and clearly visible in the top navigation bar"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Form contains fields labeled: INVESTOR ACCOUNT (showing 'INV-1001 (Clean Pass)'), AMOUNT (USD) (showing '500.00'), FRONT IMAGE (file upload), BACK IMAGE (file upload), VENDOR SCENARIO (showing 'Clean Pass'), and SUBMIT DEPOSIT button",
+      "reason": "All required form fields and submit button are present with appropriate labels and input mechanisms"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "The SIMULATE tab in the navigation bar is displayed in a lighter/brighter appearance compared to other tabs (TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS which appear grayed out)",
+      "reason": "The SIMULATE tab is visually distinguished from other tabs, indicating it is the active/selected section"
+    },
+    {
+      "id": 4,
+      "status": "pass",
+      "evidence": "Form elements display consistent green borders, regular vertical spacing between fields, aligned labels on the left, consistent padding within the form container, and clear visual hierarchy",
+      "reason": "The layout demonstrates clean organization with consistent spacing, alignment, and visual hierarchy throughout the interface"
+    }
+  ]
+}
+```

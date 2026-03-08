@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table headers visible: \"EXTERNAL ID\", \"NAME\", \"TYPE\", \"BALANCE\" displayed in gray text above the data rows",
+      "reason": "All four required columns are present and clearly labeled in the table header"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Table shows INV-1801 through INV-1807 (investor accounts), OMNI-ACME (omnibus account with OMNIBUS type), and FEE-REVENUE (fee revenue account with FEE_REVENUE type)",
+      "reason": "All three account types are present in the table with correct prefixes and type classifications"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Balance values displayed as \"$0.00\", \"$250.00\", and \"-$250.00\" with dollar sign and two decimal places",
+      "reason": "All currency amounts use proper formatting with dollar sign prefix and .00 decimal notation"
+    }
+  ]
+}
+```

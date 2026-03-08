@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table header row displays columns labeled: ID, ACCOUNT, AMOUNT, SCENARIO, CREATED, ACTION. Table is labeled 'PENDING REVIEWS' at the top.",
+      "reason": "All required columns are present and correctly labeled in the visible table structure."
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Single data row contains a green outlined button labeled 'REVIEW' in the ACTION column.",
+      "reason": "The table contains at least one complete row with a functional Review button visible."
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Navigation bar shows 'REVIEW QUEUE' tab highlighted in bright green color, indicating active state. Other tabs (SIMULATE, TRANSFERS, LEDGER, SETTLEMENT, RETURNS) appear in standard gray text.",
+      "reason": "The Review Queue tab is clearly distinguished with green highlighting, confirming it as the currently active navigation item."
+    }
+  ]
+}
+```

@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table header row clearly displays: ID | ACCOUNT | AMOUNT | SCENARIO | CREATED | ACTION",
+      "reason": "All required columns are present and visible in the Pending Reviews table"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Single data row contains a green-bordered 'REVIEW' button in the Action column",
+      "reason": "At least one row exists with a functional Review button"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "The 'REVIEW QUEUE' tab in the navigation bar is highlighted in bright green and underlined, clearly distinguishing it from other tabs",
+      "reason": "The active tab is visually emphasized with green color and underline styling"
+    }
+  ]
+}
+```

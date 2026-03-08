@@ -1,0 +1,20 @@
+{
+  "Is there a \"Transfer Info\" panel showing the transfer details including State badge and amounts?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Transfer Info panel with State badge and amounts is clearly present and prominently displayed",
+    "evidence": "Transfer Info panel visible at top-left showing ID, STATE: 'ANALYZING' (yellow badge), ACCOUNT, ENTERED AMOUNT: $500.00, DCA AMOUNT: $500.00, BUSINESS DATE, and CREATED timestamp"
+  },
+  "Are there two side-by-side or stacked sections: one for \"Approve\" with a notes textarea and approve button, and one for \"Reject\" with a notes textarea and reject button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Both Approve and Reject sections with textarea inputs and corresponding action buttons are present and properly structured",
+    "evidence": "Two side-by-side sections at bottom: left section labeled 'APPROVE' with 'OPERATOR NOTES' textarea and 'APPROVE' button; right section labeled 'REJECT' with 'REJECTION REASON' textarea and 'REJECT' button"
+  },
+  "Is there a \"Check Images\" panel showing front and back check images?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "Check Images panel displaying both front and back check images is clearly visible in the center and right sections",
+    "evidence": "Check Images panel visible with heading 'CHECK IMAGES' containing front check image showing 'FIRST NATIONAL BANK' check with full details, and back check image on right showing endorsement area with 'ENDORSE HERE' header"
+  }
+}

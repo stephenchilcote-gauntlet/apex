@@ -1,0 +1,73 @@
+# APEX MCD Review Queue - Detailed Analysis
+
+## Layout & Structure
+The interface uses a clean, dark-themed dashboard layout with:
+- **Top Navigation Bar**: Horizontal menu with multiple sections
+- **Main Content Area**: Single-column layout with a data table
+- **Header Section**: Title and status indicator
+
+## Color Scheme
+- **Background**: Very dark navy/black (#1a1a1a or similar)
+- **Text**: Light gray/white for readability
+- **Accents**: Bright green (#00ff00 or similar) for active states and highlights
+- **Status Indicators**: Green for amounts (#00ff00)
+- **Button**: Green outline for the REVIEW action
+
+## Typography
+- **Font Family**: Monospace/tech-oriented (appears to be a sans-serif)
+- **Header Text**: "REVIEW QUEUE" in bold, light gray
+- **Table Headers**: All caps (ID, ACCOUNT, AMOUNT, SCENARIO, CREATED, ACTION)
+- **Data Text**: Smaller, monospaced font for technical readability
+
+## Navigation
+Top menu items (left to right):
+- APEX MCD
+- SIMULATE
+- TRANSFERS
+- REVIEW QUEUE (currently active - highlighted in green)
+- LEDGER
+- SETTLEMENT
+- RETURNS
+- SYSTEM NOMINAL (right-aligned)
+
+## Table Components
+
+### Headers
+- Proper column alignment with adequate spacing
+- Green underline accent on the table
+
+### Data Row (Single Entry)
+| Field | Content |
+|-------|---------|
+| **ID** | 3c8ab32a... (truncated link in cyan) |
+| **Account** | 00000000-0000-0000-0000-000000001001 |
+| **Amount** | $500.00 (green text) |
+| **Scenario** | micr_failure |
+| **Created** | 2026-03-08 02:49:32 |
+| **Action** | REVIEW button (green outline) |
+
+## Visual Hierarchy
+1. Page title at top (largest)
+2. Table section with "PENDING REVIEWS" label
+3. Column headers
+4. Data rows
+5. Action buttons (interactive elements)
+
+## Spacing & Alignment
+- Generous padding around the table container
+- Vertical spacing between header and content
+- Horizontal alignment: Left-aligned text, right-aligned amounts and buttons
+- Grid-based alignment for tabular data
+
+## Interactive Elements
+- **Truncated ID**: Appears as a hyperlink (cyan color)
+- **REVIEW Button**: Outlined style with hover capability (implied)
+- Monospace font for IDs/account numbers suggests clickable elements
+
+## Overall Quality
+- **Professional**: Clean, organized interface suitable for financial/transaction management
+- **Accessibility**: High contrast dark theme with bright text
+- **Functionality**: Clear data presentation with actionable items
+- **Technical Aesthetic**: Monospace fonts and minimal design suggest a system administration tool
+
+The interface is minimal, focused, and follows modern dark-mode dashboard design patterns commonly seen in fintech and system management applications.

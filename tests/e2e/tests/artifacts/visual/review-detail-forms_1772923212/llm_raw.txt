@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "TRANSFER INFO section visible with ID, STATE (ANALYZING), ACCOUNT (00000000-0000-0000-0000-000000000001), ENTERED AMOUNT ($500.00), OCR AMOUNT ($585.00), BUSINESS DATE (2026-03-07T00:00:00Z), and CREATED (2026-03-07 22:39:56) fields displayed",
+      "reason": "Transfer Info panel is clearly present with all required transfer details including State badge showing 'ANALYZING' and both entered and OCR amounts"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Two-column layout at bottom with left column labeled APPROVE containing OPERATOR NOTES textarea and green APPROVE button, and right column labeled REJECT containing REJECTION REASON textarea and red REJECT button",
+      "reason": "Both Approve and Reject sections are present side-by-side with respective text areas and action buttons clearly visible"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "CHECK IMAGES section showing two linked items: 'Front Check' and 'Back Check' with image icons",
+      "reason": "Check Images panel is present displaying both front and back check image links as required"
+    }
+  ]
+}
+```

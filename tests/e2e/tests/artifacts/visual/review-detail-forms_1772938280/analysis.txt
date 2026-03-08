@@ -1,0 +1,84 @@
+# Detailed Analysis of Review Transfer Web Application
+
+## Overall Layout & Structure
+The interface follows a dark-themed dashboard design with a multi-column layout:
+- **Top Navigation**: Horizontal tab menu with "APEX MCD", "SIMULATE", "TRANSFERS", "REVIEW QUEUE" (active), "LEDGER", "SETTLEMENT", "RETURNS" and a system status indicator
+- **Main Content Area**: Split into left (70%) and right (30%) sections
+- **Left Panel**: Contains transfer details and check image
+- **Right Panel**: Contains endorsement area for the check
+
+## Color Scheme
+- **Primary Background**: Dark charcoal/black (#1a1a1a or similar)
+- **Accent Color**: Yellow/gold (#FFD700) for status indicators and headers
+- **Text**: Light gray and white for contrast
+- **Success Indicators**: Bright green (#00FF00) for "PASS" statuses
+- **Check Image**: Cream/off-white background (realistic check appearance)
+
+## Typography
+- **Font Family**: Monospace (likely Courier New or similar) for financial/technical data
+- **Font Sizes**: Hierarchical scaling from headings to body text
+- **Weight**: Regular weight throughout with bold applied to labels
+- **Letter-spacing**: Tight spacing on monospace elements
+
+## Transfer Info Section (Top-Left)
+**Labels and Values:**
+- **ID**: `0625d100-1366-4256-ac43-42c3db5626c8` (UUID format)
+- **STATE**: "ANALYZING" (highlighted in yellow)
+- **ACCOUNT**: `00000000-0000-0000-0000-000000001001`
+- **ENTERED AMOUNT**: `$500.00`
+- **DCA AMOUNT**: `$500.00` (highlighted in orange/red)
+- **BUSINESS DATE**: `2026-03-07T00:00:00Z`
+- **CREATED**: `2026-03-08 02:51:04`
+
+**Visual Design**: Information presented in a key-value format with right-aligned values, creating clear scanning paths.
+
+## Check Image Section (Center-Left)
+**Check Details Displayed:**
+- **Bank Name**: "FIRST NATIONAL BANK"
+- **Address**: 1200 Financial Plaza, New York, NY 10001
+- **Check Number**: 1042
+- **Payee**: "Apex Clearing Corporation"
+- **Amount**: $500.00 (prominently displayed in box)
+- **Date**: 03/07/2026
+- **Memo**: "Investment deposit"
+- **MICR Line**: `✴021000089✴ ↨11001042↨ 7829104538✴`
+
+**Check Appearance**: 
+- Realistic check layout with appropriate spacing
+- Professional typography matching actual banking standards
+- Clear visual hierarchy with amount emphasized
+
+## Endorsement Section (Right Panel)
+- **Header**: "ENDORSE HERE"
+- **Content Area**: Large blank space for check endorsement
+- **Footer Text**: "DO NOT WRITE, STAMP, OR SIGN BELOW THIS LINE"
+- **Mobile Deposit Note**: 
+  - "For Mobile Deposit Only"
+  - Account #7829104538
+- **Fine Print**: "FINANCIAL INSTITUTION USE ONLY"
+
+## Vendor Analysis Section (Below Transfer Info)
+**Decision & Routing Details:**
+| Parameter | Value |
+|-----------|-------|
+| DECISION | REVIEW |
+| QA STATUS | PASS |
+| MICR ROUTING | 021000021 |
+| MICR ACCOUNT | 123456789 |
+| MICR CHECK # | 8901 |
+| MICR CONFIDENCE | 0.99 |
+| RISK SCORE | 55 |
+| AMOUNT MATCH | No |
+| DUPLICATE DETECTED | No |
+
+**Design**: Dark table with right-aligned values, clear labels on left
+
+## Rule Evaluations Section
+**Rules Table with Results:**
+
+| Rule | Outcome | Details |
+|------|---------|---------|
+| ACCOUNT_ELIGIBLE | PASS | `("details":"account is ACTIVE")` |
+| MAX_DEPOSIT_LIMIT | PASS | `("details":"amount 5000 cents within limit")` |
+| CONTRIBUTION_TYPE_DEFAULT | PASS | `("details":"set contribution_type in account default INDIVIDUAL")` |
+| INTERNAL_

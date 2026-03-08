@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table header row displays columns: ID, ACCOUNT, AMOUNT, SCENARIO, CREATED, ACTION. Data row contains: PLTXRJL, 00000000-0000-0000-0000-000000001001, $500.00, mlcc_failure, 2025-03-07 22:39:44",
+      "reason": "All required columns are present and visible in the table structure with appropriate headers"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Single data row contains a 'REVIEW' button in the ACTION column on the right side of the row",
+      "reason": "At least one row is present with a clearly visible REVIEW button/link in the action column"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Navigation bar shows 'REVIEW QUEUE' tab among other tabs (SIMULATE, TRANSFERS, LEDGER, SETTLEMENT, RETURNS), and the page content displays the Review Queue interface",
+      "reason": "The Review Queue tab is active as evidenced by the displayed page content and tab position in the navigation"
+    }
+  ]
+}
+```

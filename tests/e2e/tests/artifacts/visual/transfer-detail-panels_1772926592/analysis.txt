@@ -1,0 +1,87 @@
+# Detailed Analysis of Transfer Detail Web Application
+
+## Overall Layout & Structure
+This is a dark-themed financial/banking web application displaying transfer details. The interface uses a multi-section layout with distinct information blocks arranged vertically, creating a comprehensive transaction review interface.
+
+## Color Scheme
+- **Primary Background**: Deep charcoal/black (#1a1a1a or similar)
+- **Text Color**: Light gray/white for primary content
+- **Accent Color**: Bright green (#00ff41 or similar) for status indicators and labels
+- **Check Image Background**: Off-white/cream (#f5f5f0)
+- **Secondary Text**: Muted gray for labels and metadata
+
+## Typography
+- **Font Family**: Monospace (likely Courier or similar) for data display, creating a technical/banking aesthetic
+- **Heading Style**: "TRANSFER DETAIL" uses serif typography (appears to be Georgia or similar)
+- **Size Hierarchy**: Labels are smaller (~11-12px), values are standard (~13-14px), main headings are larger
+
+## Navigation Bar (Top)
+Horizontal tab navigation with options:
+- SIMULATE (currently selected, underlined in green)
+- TRANSFERS
+- REVIEW QUEUE
+- LEDGER
+- SETTLEMENT
+- RETURNS
+- SYSTEM NOMINAL (right-aligned in green)
+
+## Main Content Sections
+
+### 1. Transfer Info Block (Left Column)
+**Labels on left, values on right:**
+- ID: `b8b1e1ec-2343-4a23-a66a-e68a6cf6858`
+- STATE: `TRANSPOSTED` (highlighted in green)
+- AMOUNT: `$200.00`
+- ACCOUNT: `00000000-0000-0000-0000-000000001001`
+- CORRESPONDENT: `00000000-0000-0000-0000-000000001010`
+- SCENARIO: `clean_pass`
+- BUSINESS DATE: `2026-03-07T00:00:00Z`
+- SUBMITTED: `2026-03-07 23:16:1s`
+- APPROVED: `2026-03-07 23:16:1s`
+- POSTED: `2026-03-07 23:16:1s`
+- COMPLETED: `-`
+- CREATED: `2026-03-07 23:16:1s`
+- UPDATED: `2026-03-07 23:16:1s`
+
+### 2. Check Images Section
+**Central Display Area:**
+Displays two check images side-by-side:
+
+**Left Check (Front):**
+- Bank: "FIRST NATIONAL BANK"
+- Address: "1200 Financial Plaza, New York, NY 10001"
+- Check Number: `1042`
+- Date: `03/07/2026`
+- Amount: `$500.00`
+- Payee: "Apex Clearing Corporation"
+- Amount in Words: "Five Hundred and 00/100 ___ DOLLARS"
+- Memo: "Investment deposit"
+- Routing/Account Numbers: `021000089` `110010042` `782910453`
+
+**Right Check (Back/Endorsement Side):**
+- "ENDORSE HERE" header
+- "For Mobile Deposit Only" text
+- Account: `#7829104538`
+- "FINANCIAL INSTITUTION USE ONLY" footer
+
+## Vendor Result Section
+**Structured data display:**
+- DECISION: `PASS`
+- DECISION_STATUS: `PASS`
+- MICR_ROUTING: `021000089`
+- MICR_ACCOUNT: `123456789`
+- MICR_CHECK_#: `6001`
+- MICR_COMPLIANCE: `0.99`
+- FLAG_ID: `25`
+- OUR_AMOUNT: `£200.00`
+- AMOUNT_MATCH: `Yes`
+- DUPLICATE_DETECTED: `No`
+
+## Rule Evaluations Section
+**Table Format:**
+| RULE | OUTCOME | DETAILS |
+|------|---------|---------|
+| ACCOUNT_ELIGIBLE | PASS | Details="account is active" |
+| MAX_DEPOSIT_LIMIT | PASS | Details="amount $800 cents within limit" |
+| CONTRIBUTION_TYPE_DEFAULT | PASS | Details="not contribution_type to account default [INDIVIDUAL]" |
+|

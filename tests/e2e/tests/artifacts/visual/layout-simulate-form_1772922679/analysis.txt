@@ -1,0 +1,106 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Structure
+The interface follows a dark-themed, professional financial application design with a clean left-to-right, top-to-bottom layout. It occupies a full browser window with a black background (#000000 or near-black).
+
+## Header Section
+- **Top Navigation Bar**: Contains multiple tabs in light gray text:
+  - APEX MCD (branding)
+  - SIMULATE (current active section)
+  - TRANSFERS
+  - REVIEW QUEUE
+  - LEDGER
+  - SETTLEMENT
+  - RETURNS
+- **Top Right Corner**: "SYSTEM NOMINAL" status indicator in light text
+- Navigation uses a monospace or technical font, consistent with a command-line aesthetic
+
+## Main Content Area
+
+### Title
+- **"SIMULATE DEPOSIT"** in large, bold green text (#00FF00 or bright green)
+- Creates visual hierarchy and clearly states the page purpose
+- Positioned prominently below the navigation bar
+
+### Form Section - "NEW DEPOSIT"
+The form is contained within a bordered box with a dark background and green accent borders.
+
+#### Field 1: Investor Account
+- **Label**: "INVESTOR ACCOUNT" in small caps, gray text
+- **Dropdown Input**: Shows "INV-1001 (Clean Pass)" 
+- Green border indicating an active/selected field
+- Dropdown arrow on the right
+
+#### Field 2: Amount (USD)
+- **Label**: "AMOUNT (USD)" in small caps, gray text
+- **Input Field**: Contains placeholder text "500.00"
+- Right-aligned numeric input
+- Green border matching the account field
+
+#### Field 3: Front Image
+- **Label**: "FRONT IMAGE" in small caps, gray text
+- **File Upload Button**: "Choose File" button with green text
+- Status message: "No file chosen" in green text
+- Green border around the upload area
+
+#### Field 4: Back Image
+- **Label**: "BACK IMAGE" in small caps, gray text
+- **File Upload Button**: "Choose File" button with green text
+- Status message: "No file chosen" in green text
+- Green border around the upload area
+
+#### Field 5: Vendor Scenario
+- **Label**: "VENDOR SCENARIO" in small caps, gray text
+- **Dropdown**: Shows "Clean Pass"
+- Green border indicating active state
+- Dropdown arrow on the right
+
+### Action Button
+- **"SUBMIT DEPOSIT"** button at the bottom
+- Gray text on dark background
+- Positioned at the bottom left of the form
+- Appears disabled or in a neutral state (not highlighted)
+
+## Color Scheme
+| Element | Color |
+|---------|-------|
+| Background | Pure Black (#000000) |
+| Text (Primary) | Light Gray |
+| Text (Accent) | Bright Green (#00FF00) |
+| Borders | Green (#00FF00) |
+| Status Indicators | Green |
+
+## Typography
+- **Font Family**: Appears to be a monospace font (likely "Courier New" or similar), reinforcing the technical/terminal aesthetic
+- **Font Sizes**: Clear hierarchy with titles larger than labels
+- **Font Weight**: Mix of regular and bold for emphasis
+- **Letter Spacing**: Increased spacing on small-cap labels
+
+## Spacing & Alignment
+- Generous padding within the form container
+- Consistent left-alignment for labels
+- Right-alignment for numeric input (500.00)
+- Vertical spacing creates clear sections between form fields
+- Horizontal spacing between labels and inputs is consistent
+
+## Visual Design Quality
+- **Professional**: Appropriate for a financial/banking application
+- **Accessibility**: High contrast between green text and black background
+- **Minimalist**: No unnecessary decoration; focuses on functionality
+- **Terminal Aesthetic**: Resembles a command-line interface, suggesting backend system interaction
+- **Consistency**: All interactive elements follow the same styling pattern
+
+## Interactive Elements
+- Dropdowns have arrows indicating expandable state
+- File upload buttons follow standard UI conventions
+- Input fields have visible borders when active
+- All buttons maintain consistent styling
+
+## Empty State
+The page is in an initial state with:
+- No files uploaded
+- Default amount placeholder value
+- "Clean Pass" scenario pre-selected
+- Ready for user input
+
+This interface demonstrates professional UI/UX design suitable for a specialized financial or cryptocurrency deposit simulation system.

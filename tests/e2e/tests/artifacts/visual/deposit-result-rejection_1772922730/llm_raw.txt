@@ -1,0 +1,18 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "The 'DEPOSIT RESULT' panel is visible at the top with 'STATE' field displaying 'REJECTED' in green text",
+      "reason": "The Deposit Result panel with Rejected state badge is clearly visible and prominently displayed"
+    },
+    {
+      "id": 2,
+      "status": "fail",
+      "evidence": "The rejection information shows 'VENDOR_REJECT: Vendor decision FAIL: IOA=FAIL_BLUR duplicate=false' - while 'FAIL_BLUR' is present, the main message states 'Deposit rejected by vendor analysis' with no explicit mention of 'blur' or 'image quality' in the MESSAGE field",
+      "reason": "Although FAIL_BLUR appears in the REJECTION field, the criterion specifically asks for rejection information mentioning blur or image quality in the displayed rejection information, and the primary MESSAGE field does not explicitly state this"
+    }
+  ]
+}
+```

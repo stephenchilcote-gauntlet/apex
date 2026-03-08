@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Navigation bar visible at top with tabs: APEX MCD, SIMULATE (green/active), TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS, and SYSTEM NOMINAL indicator",
+      "reason": "All required navigation tabs are present and clearly visible in the top navigation bar"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Form contains: INVESTOR ACCOUNT dropdown (INV-1001 Clean Pass), AMOUNT (USD) field (500.00), FRONT IMAGE file chooser, BACK IMAGE file chooser, VENDOR SCENARIO dropdown (Clean Pass), and SUBMIT DEPOSIT button",
+      "reason": "All required form fields and submit button are present and properly labeled"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Form maintains consistent vertical spacing between sections, clear label-above-input alignment, two-column layout for image uploads, and green left border accent on the form panel",
+      "reason": "Layout demonstrates professional spacing, proper field grouping, and visual hierarchy with no misalignment issues"
+    }
+  ]
+}
+```

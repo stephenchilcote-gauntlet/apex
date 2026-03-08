@@ -1,0 +1,99 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Structure
+The interface follows a clean, dark-themed dashboard design with a left-aligned form layout. The page is divided into a header navigation bar and a main content area containing a form for deposit simulation.
+
+## Header Navigation
+- **Background**: Dark navy/charcoal (#1a1d2e or similar)
+- **Logo/Title**: "APEX MCD" in white, left-aligned
+- **Navigation Tabs** (horizontally aligned):
+  - SIMULATE (active - highlighted in green)
+  - TRANSFERS
+  - REVIEW QUEUE
+  - LEDGER
+  - SETTLEMENT
+  - RETURNS
+- **Status Indicator**: "SYSTEM NOMINAL" in green on the far right
+- **Typography**: All caps, sans-serif font, regular weight
+
+## Main Content Area
+
+### Title Section
+- **Heading**: "SIMULATE DEPOSIT" in elegant serif font (likely Georgia or similar)
+- **Color**: White/light gray
+- **Size**: Large, prominent positioning
+- **Spacing**: Adequate padding below the heading
+
+### Form Container
+**Background**: Dark theme with a subtle green border on the left side (~4px accent line)
+**Border Color**: Teal/green accent (#00d084 or similar)
+
+### Form Fields (Top to Bottom)
+
+#### 1. **New Deposit Section**
+- Label: "NEW DEPOSIT" (small caps, muted gray)
+
+#### 2. **Investor Account**
+- **Label**: "INVESTOR ACCOUNT" (gray, small)
+- **Input Field**: Dropdown menu
+- **Content**: "INV-1001 (Clean Pass)"
+- **Styling**: Dark background with light text, proper contrast
+
+#### 3. **Amount (USD)**
+- **Label**: "AMOUNT (USD)" (aligned right, gray)
+- **Input Field**: Text input
+- **Value**: "$500.00" (appears to be a placeholder or default value)
+- **Styling**: Right-aligned input field with currency formatting
+
+#### 4. **Front Image**
+- **Label**: "FRONT IMAGE" (gray)
+- **Component**: File upload button
+- **State**: "Choose File" - "No file chosen" (inactive state)
+- **Styling**: Standard file input styling
+
+#### 5. **Back Image**
+- **Label**: "BACK IMAGE" (aligned right, gray)
+- **Component**: File upload button
+- **State**: "Choose File" - "No file chosen"
+- **Styling**: Matches front image input
+
+#### 6. **Vendor Scenario**
+- **Label**: "VENDOR SCENARIO" (gray)
+- **Dropdown**: "Clean Pass" (selected)
+- **Styling**: Full-width dropdown with dark theme
+
+### Action Button
+- **Button**: "SUBMIT DEPOSIT"
+- **Styling**: 
+  - Outlined button (not filled)
+  - Border color appears to be muted gray/teal
+  - Text in white/light color
+  - Positioned left-aligned below the form
+  - Typical button padding and hover-ready appearance
+
+## Color Palette
+- **Primary Background**: Very dark navy (#0f1117 or similar)
+- **Secondary Background**: Slightly lighter dark navy (#1a1d2e)
+- **Accent Color**: Bright teal/green (#00d084)
+- **Text - Primary**: White/light gray (#e8eaed)
+- **Text - Secondary/Labels**: Medium gray (#8b92a0)
+- **Border**: Muted gray with teal accents
+
+## Typography
+- **Headings**: Serif font (Georgia or equivalent) - elegant and professional
+- **Labels**: Sans-serif, all caps, small size, muted color
+- **Input Text**: Sans-serif, regular weight
+- **Navigation**: Sans-serif, all caps, small size
+
+## Spacing & Alignment
+- **Vertical Spacing**: Consistent padding between form sections (approximately 16-24px)
+- **Horizontal Alignment**: 
+  - Labels positioned above or to the left of inputs
+  - Right-aligned labels (Amount USD, Back Image) suggest a two-column layout
+  - Form fields align to a grid structure
+- **Left Padding**: Green accent border provides visual framing
+
+## Visual Hierarchy
+1. Page title ("SIMULATE DEPOSIT") - largest, serif, most prominent
+2. Section label ("NEW DEPOSIT") - smaller, all caps
+3

@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Section labeled 'TRANSFER INFO' is visible with fields: ID (e287fcb35-bf11-4d6f-b8f8-8972ebb0290d5), STATE (ANALYZING), ACCOUNT (00000000-0008-0000-0000-000000001001), ENTERED AMOUNT ($500.00), OCR AMOUNT ($585.00), BUSINESS DATE (2026-03-07T00:00:00Z), CREATED (2026-03-07 22:32:56)",
+      "reason": "Transfer Info panel is clearly present with all required details including state badge and amounts clearly displayed"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Two side-by-side columns at bottom: Left column labeled 'APPROVE' with 'OPERATOR NOTES' textarea and 'APPROVE' button; Right column labeled 'REJECT' with 'REJECTION REASON' textarea and 'REJECT' button",
+      "reason": "Both approval and rejection sections are present with textareas and action buttons in the expected layout"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Section labeled 'CHECK IMAGES' contains two image placeholders labeled 'Front Check' and 'Back Check'",
+      "reason": "Check Images panel is present with both front and back check image placeholders visible"
+    }
+  ]
+}
+```

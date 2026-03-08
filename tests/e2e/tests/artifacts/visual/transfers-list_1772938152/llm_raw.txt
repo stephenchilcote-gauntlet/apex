@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Table headers visible: ID, ACCOUNT, AMOUNT, STATE, SCENARIO, BUSINESS DATE, CREATED AT",
+      "reason": "All required column headers are present in the table structure"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Single data row contains: ID 'bde149da...' (blue hyperlink), Amount '$100.00' (green text), State 'FUNDSPOSTED' (green badge), and account number '00000000-0000-0000-0000-000000001001'",
+      "reason": "Table contains complete transfer data row with all required elements including clickable ID, dollar amount, and state indicator"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "TRANSFERS tab in top navigation is displayed in green color (#00ff00), matching the active state indicator, while other tabs (SIMULATE, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS) remain in gray",
+      "reason": "The Transfers tab is clearly highlighted/active in the navigation bar"
+    }
+  ]
+}
+```

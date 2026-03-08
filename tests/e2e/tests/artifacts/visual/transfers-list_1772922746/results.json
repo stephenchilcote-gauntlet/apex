@@ -1,0 +1,20 @@
+{
+  "Is there a table with column headers including \"ID\", \"Account\", \"Amount\", \"State\", and date-related columns?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required column headers including ID, Account, Amount, State, and date-related columns (BUSINESS DATE, CREATED AT) are clearly visible in the table",
+    "evidence": "Table headers visible: ID, ACCOUNT, AMOUNT, STATE, SCENARIO, BUSINESS DATE, CREATED AT"
+  },
+  "Does the table contain at least one row of transfer data with a clickable ID link, dollar amount, and state badge?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The table contains one data row with a clickable ID link in blue, a dollar amount displayed in green, and a state badge showing the transfer status",
+    "evidence": "Row contains: ID 'transfer1' (blue hyperlink), AMOUNT '$100.00' (green text), STATE 'FUNDSPOSTED' (badge)"
+  },
+  "Is the \"Transfers\" tab highlighted as active in the navigation?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The TRANSFERS tab is visually distinguished as the active/current tab in the top navigation menu",
+    "evidence": "TRANSFERS tab in navigation bar appears highlighted/active compared to other tabs (SIMULATE, REVIEW QUEUE, LEDGER, SETTLEMENT, RETURNS)"
+  }
+}

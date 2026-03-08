@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Transfer Info panel visible at top-left showing ID, STATE: 'ANALYZING' (yellow badge), ACCOUNT, ENTERED AMOUNT: $500.00, DCA AMOUNT: $500.00, BUSINESS DATE, and CREATED timestamp",
+      "reason": "Transfer Info panel with State badge and amounts is clearly present and prominently displayed"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Two side-by-side sections at bottom: left section labeled 'APPROVE' with 'OPERATOR NOTES' textarea and 'APPROVE' button; right section labeled 'REJECT' with 'REJECTION REASON' textarea and 'REJECT' button",
+      "reason": "Both Approve and Reject sections with textarea inputs and corresponding action buttons are present and properly structured"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Check Images panel visible with heading 'CHECK IMAGES' containing front check image showing 'FIRST NATIONAL BANK' check with full details, and back check image on right showing endorsement area with 'ENDORSE HERE' header",
+      "reason": "Check Images panel displaying both front and back check images is clearly visible in the center and right sections"
+    }
+  ]
+}
+```

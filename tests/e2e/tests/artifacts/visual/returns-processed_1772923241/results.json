@@ -1,0 +1,20 @@
+{
+  "Is there a \"Process Return\" form with fields for Transfer ID and Reason Code, plus a submit button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required form components are present and visible in the Process Return section",
+    "evidence": "Form contains 'TRANSFER ID' text input field, 'REASON CODE' dropdown currently set to 'NSF', and 'PROCESS RETURN' button with green border styling"
+  },
+  "Is there a \"Returned Transfer\" panel showing ID, State badge with \"Returned\", Amount, Return Reason \"NSF\", Return Fee, and Returned At timestamp?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required fields are present with correct values in the Returned Transfer panel",
+    "evidence": "Panel labeled 'RETURNED TRANSFER' displays: ID '9dcd2122-ede1-46ba-827b-5c9054911744', STATE 'RETURNED', AMOUNT '$400.00', RETURN REASON 'NSF', RETURN FEE '$30.00', RETURNED AT '2026-03-07 22:40:29'"
+  },
+  "Is the \"Returns\" tab highlighted as active in the navigation?": {
+    "passed": true,
+    "severity": "advisory",
+    "reason": "The Returns tab is visually distinguished as the active tab through text color differentiation",
+    "evidence": "The 'RETURNS' tab in the navigation menu appears in white/highlighted text while other tabs (SIMULATE, TRANSFERS, REVIEW QUEUE, LEDGER, SETTLEMENT) appear in gray"
+  }
+}

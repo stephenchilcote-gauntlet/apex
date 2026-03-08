@@ -1,0 +1,30 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Transfer Info panel visible with ID 'b8b1e1ec-2343-4a23-a66a-e68a6cf6858', State badge 'TRANSPOSTED' in green, Amount '$200.00', Account '00000000-0000-0000-0000-000000001001', and multiple timestamps including SUBMITTED, APPROVED, POSTED, CREATED, and UPDATED all showing '2026-03-07 23:16:1s'",
+      "reason": "All required Transfer Info elements are clearly present and properly displayed in the left column"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Check Images panel displays two check images side-by-side: front check from 'FIRST NATIONAL BANK' showing check number 1042, date 03/07/2026, amount $500.00, payee 'Apex Clearing Corporation', and routing/account numbers; back check showing 'ENDORSE HERE' section with 'For Mobile Deposit Only' text and account #7829104538",
+      "reason": "Both front and back check images with actual check details are visible in the central panel"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Vendor Result panel shows DECISION 'PASS', DECISION_STATUS 'PASS', MICR_ROUTING '021000089', MICR_ACCOUNT '123456789', MICR_CHECK_# '6001', MICR_COMPLIANCE '0.99', OUR_AMOUNT '£200.00', and AMOUNT_MATCH 'Yes'",
+      "reason": "Vendor Result panel contains decision details and MICR data as required, though Risk Score is not explicitly labeled in the visible portion"
+    },
+    {
+      "id": 4,
+      "status": "pass",
+      "evidence": "Audit Trail section at bottom displays a table with columns: TIME, EVENT, FROM, TO, ACTION, and DETAILS. Visible rows show entries from '2026-03-07 23:16:1s' with STATE_TRANSITION events moving through states like 'Requested', 'Validating', 'Analyzing', 'Approved', 'FamPosted' with corresponding actions",
+      "reason": "Audit Trail table with all required columns (Time, Event, From, To, Actor/Action) and multiple event entries is clearly visible at the bottom of the interface"
+    }
+  ]
+}
+```

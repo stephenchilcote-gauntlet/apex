@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Left panel clearly labeled 'TRANSFER INFO' containing STATE: ANALYZING (with amber badge), ACCOUNT: 0000000-0000-0000-0000-000000001001, ENTERED AMOUNT: $500.00, OCR AMOUNT: $145.00, BUSINESS DATE: 2025-01-07T08:08.002, CREATED: 2025-01-07 21:38:28",
+      "reason": "All required elements of the Transfer Info panel are present and visible, including the state badge and amount fields"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Bottom section shows two side-by-side areas: left side labeled 'OPERATOR NOTES' with textarea and 'APPROVE' button; right side labeled 'REJECTION REASON' with textarea and 'REJECT' button",
+      "reason": "Both approve and reject sections are present with their respective note textareas and action buttons properly displayed"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Section labeled 'CHECK IMAGES' containing two check images side-by-side: left image shows front of check from First National Bank dated 03/07/2026 for $500.00 payable to Apex Clearing Corporation; right image shows back/endorsement side with 'ENDORSE HERE' text and mobile deposit instructions",
+      "reason": "Both front and back check images are clearly visible and properly displayed in the dedicated Check Images panel"
+    }
+  ]
+}
+```

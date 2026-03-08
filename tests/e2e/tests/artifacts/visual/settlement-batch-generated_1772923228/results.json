@@ -1,0 +1,20 @@
+{
+  "Is there a \"Generate Settlement Batch\" button in an Actions panel?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The button is clearly present in an Actions panel with proper labeling and styling",
+    "evidence": "Green button labeled \"GENERATE SETTLEMENT BATCH\" is visible in the ACTIONS section with a left green border accent"
+  },
+  "Is there a Batches table with columns including ID, Business Date, Status, Items, Total Amount, and Action?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "All required columns (ID, Business Date, Status, Items, Total Amount) are present in the Batches table, plus additional columns",
+    "evidence": "Table headers visible include: ID, BUSINESS DATE, STATUS, ITEMS, TOTAL AMOUNT, FILE, CREATED, ACTION"
+  },
+  "Does the batch table have at least one row with a status badge showing \"GENERATED\" and an \"Acknowledge\" button?": {
+    "passed": true,
+    "severity": "critical",
+    "reason": "The batch row displays the GENERATED status badge and an ACKNOWLEDGE button in the Action column",
+    "evidence": "Single table row shows: ID '6fb49b06...', Status 'GENERATED', and Action column displays bright green 'ACKNOWLEDGE' button"
+  }
+}

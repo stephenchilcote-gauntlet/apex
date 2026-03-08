@@ -1,0 +1,87 @@
+# Detailed Analysis of APEX MCD Simulate Deposit Interface
+
+## Overall Layout & Structure
+The interface follows a dark theme with a professional financial application design. It's organized in a vertical, single-column layout with distinct sections separated by visual hierarchy.
+
+## Header Section
+- **Navigation Bar**: Top horizontal menu with tabs in all-caps: "APEX MCD", "SIMULATE", "TRANSFERS", "REVIEW QUEUE", "LEDGER", "SETTLEMENT", "RETURNS"
+- **Top Right**: "SYSTEM NOMINAL" label
+- Typography: Light gray, sans-serif font
+- Spacing: Evenly distributed across the width
+
+## Title Section
+- **"SIMULATE DEPOSIT"**: Large, bold white text (primary heading)
+- **"DEPOSIT RESULT"**: Smaller, gray subtitle
+- Clear visual hierarchy established
+
+## Deposit Result Box (REJECTED)
+Background: Dark with green left border accent
+Contains four information rows:
+- **TRANSFER ID**: `2855ae05-86bd-46B0-9c2c-8aa7a876e9b6` (monospace font)
+- **STATE**: "REJECTED" (red/critical status indicator)
+- **MESSAGE**: "Deposit rejected by vendor analysis"
+- **REJECTION**: `VENDOR_REJECT: Vendor decision FAIL: IOA=FAIL_BLUR duplicate=false` (technical error details)
+
+Typography is monospace for technical IDs, providing clarity for system data.
+
+## New Deposit Form Section
+**"NEW DEPOSIT"**: Section heading in gray
+
+### Form Fields (Left to Right / Top to Bottom):
+
+**Row 1:**
+- **INVESTOR ACCOUNT** (dropdown): 
+  - Selected value: `INV-1001 (Clean Pass)` with green highlight
+  - Custom dropdown styling
+- **AMOUNT (USD)** (text input):
+  - Value: `500.00`
+  - Right-aligned number input
+
+**Row 2:**
+- **FRONT IMAGE** (file upload):
+  - "Choose File" button with "No file chosen" message
+  - Gray text indicator
+- **BACK IMAGE** (file upload):
+  - Same styling as front image field
+  - Right-aligned on the page
+
+**Row 3:**
+- **VENDOR SCENARIO** (dropdown):
+  - Selected: `Clean Pass`
+  - Full-width dropdown
+
+**Row 4:**
+- **SUBMIT DEPOSIT** button
+  - Left-aligned
+  - Dark background with subtle border
+  - Green accent when focused/active
+
+## Color Scheme
+- **Background**: Pure black (#000000)
+- **Text**: White and light gray (#CCCCCC, #999999)
+- **Accent Colors**: 
+  - Green (#00FF00 or similar) - for success states, borders, highlights
+  - Red/Orange - for rejected/error states
+- **Input Fields**: Dark backgrounds with green borders when active
+
+## Typography
+- **Primary Font**: Sans-serif (appears to be a modern system font)
+- **Technical Data**: Monospace font for system IDs and error messages
+- **Sizes**: Clear hierarchy from headings to body text
+- **Weight**: Mix of regular and bold for emphasis
+
+## Spacing & Alignment
+- Generous padding around sections
+- Left-aligned labels with right-aligned form controls
+- Consistent vertical spacing between form rows
+- Proper field grouping with visual separation
+
+## Component Quality
+- Clean, minimal design
+- High contrast for accessibility
+- Professional appearance suitable for financial/technical application
+- Consistent styling across interactive elements
+- Clear visual feedback for form states
+
+## Visual Hierarchy Issues
+The rejected deposit result is clearly prioritized above the new deposit form, appropriately drawing attention to the previous failed transaction before allowing a new submission attempt.

@@ -1,0 +1,30 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "The left panel displays 'TRANSFER INFO' header with fields: ID (58edf5de-d780-4dfe-a3d6-54f1c7da700), STATE (FUNDED/POSTED in green), AMOUNT ($200.00), ACCOUNT (0000000-0000-0000-0000-0000000001001), and timestamps (SUBMITTED, APPROVED, POSTED, COMPLETED, CREATED, UPDATED all showing 2026-03-08 02:49:13)",
+      "reason": "All required Transfer Info panel elements are clearly visible and properly labeled"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Section labeled 'CHECK IMAGES' contains two check images side-by-side: left image shows front of check from 'FIRST NATIONAL BANK' with amount $500.00, payee 'Apex Clearing Corporation', and routing numbers; right image shows back with 'ENDORSE HERE' area and mobile deposit instructions",
+      "reason": "Both front and back check images are displayed with complete visual details"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "Section labeled 'VENDOR RESULT' displays: DECISION (PASS), QA STATUS (PASS), RESULT CODE (1500000021), MICR ROUTING (121545789), MICR AMOUNT (50000), MICR CONFIDENCE (8.99), RISK SCORE (12), OCR AMOUNT ($500.00), AMOUNT MATCH (Yes), DUPLICATE DETECTED (No)",
+      "reason": "All vendor result fields including IQA Status, MICR data, and Risk Score are present and visible"
+    },
+    {
+      "id": 4,
+      "status": "pass",
+      "evidence": "Section labeled 'AUDIT TRAIL' contains a table with columns TIME, EVENT, FROM, TO, ACTOR, DETAILS showing four entries: (1) 2026-03-08 02:49:13 STATE_TRANSITION Requested→Validating deposit-service, (2) Validating→Analyzing, (3) Analyzing→Approved, (4) Approved→FundsPosted",
+      "reason": "Audit Trail table with all required columns (Time, Event, From, To, Actor) and event entries is clearly displayed"
+    }
+  ]
+}
+```

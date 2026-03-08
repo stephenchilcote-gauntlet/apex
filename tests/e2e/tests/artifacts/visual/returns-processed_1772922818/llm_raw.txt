@@ -1,0 +1,24 @@
+```json
+{
+  "checks": [
+    {
+      "id": 1,
+      "status": "pass",
+      "evidence": "Form section labeled 'PROCESS RETURN' with 'TRANSFER ID' text field, 'REASON CODE' dropdown showing 'NSF', and 'PROCESS RETURN' submit button visible",
+      "reason": "All required form elements are present and properly labeled"
+    },
+    {
+      "id": 2,
+      "status": "pass",
+      "evidence": "Panel labeled 'RETURNED TRANSFER' displaying: ID '518cd168-c837-4d8c-987d-6bcb92fb53ef', STATE 'RETURNED', AMOUNT '$400.00', RETURN REASON 'NSF', RETURN FEE '$30.00', RETURNED AT '2026-03-07 22:33:25'",
+      "reason": "All required fields are present with correct values in the returned transfer panel"
+    },
+    {
+      "id": 3,
+      "status": "pass",
+      "evidence": "'RETURNS' tab is visible in the navigation menu at the top and appears to be the active/current section based on the page heading 'RETURNS' and the content displayed",
+      "reason": "The Returns tab is highlighted in the navigation bar and the page content confirms it is the active section"
+    }
+  ]
+}
+```

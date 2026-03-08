@@ -1,0 +1,117 @@
+# Detailed Analysis of the Review Transfer Web Application
+
+## Overall Layout and Structure
+The application uses a dark-themed interface with a multi-panel layout organized into distinct sections:
+- **Top Navigation Bar**: Horizontal tabs for different functions
+- **Main Content Area**: Left side displays transfer details and check image; right side shows endorsement section
+- **Lower Panels**: Vendor analysis, rule evaluations, and audit trail information
+
+## Color Scheme
+- **Background**: Dark charcoal/black (#1a1a1a approximate)
+- **Text**: Light gray and white for contrast
+- **Accents**: 
+  - Bright green (#00ff00 approximate) for "PASS" status indicators
+  - Golden/amber yellow for "ANALYZING" status badges
+  - Blue highlights for links and interactive elements
+
+## Typography
+- **Headers**: Serif font (appears to be Georgia or similar) in white
+- **Body Text**: Monospace font for technical data (likely Courier or Monaco)
+- **Labels**: Sans-serif in lighter gray tones
+- **Size Hierarchy**: Clear distinction between primary headers, secondary labels, and data values
+
+## Navigation and Tabs
+Top navigation includes:
+- APEX MCD (active home)
+- SIMULATE
+- TRANSFERS
+- **REVIEW QUEUE** (currently active, highlighted in green)
+- LEDGER
+- SETTLEMENT
+- RETURNS
+- SYSTEM NORMAL (top right)
+
+## Left Panel: Transfer Information
+**Section 1 - Transfer Info**:
+- ID: Contains encoded reference number
+- STATE: "ANALYZING" (amber badge)
+- ACCOUNT: Masked account number with dashes
+- ENTERED AMOUNT: $500.00
+- OCR AMOUNT: $145.00
+- BUSINESS DATE: Timestamp format
+- CREATED: Timestamp format
+
+**Section 2 - Check Images**:
+Displays two check images side-by-side:
+
+**Left Check**:
+- Bank: First National Bank
+- Location: 1200 Financial Plaza, New York, NY 10001
+- Check Number: 1042
+- Payee: Apex Clearing Corporation
+- Amount: $500.00
+- Date: 03/07/2026
+- Memo: Investment deposit
+- MICR numbers at bottom
+- Authorized signature line (blank)
+
+**Right Check (Endorsement Side)**:
+- Text: "ENDORSE HERE"
+- Instruction: "DO NOT WRITE, STAMP, OR SIGN BELOW THIS LINE"
+- Mobile deposit notation
+- Account number reference
+- Disclaimer text at bottom
+
+## Middle/Lower Panels: Data Analysis
+
+**Vendor Analysis Section**:
+| Field | Value |
+|-------|-------|
+| DECISION | REVIEW |
+| QA STATUS | PASS |
+| MICR ROUTING | 021000089 |
+| MICR ACCOUNT | 121556789 |
+| MICR CHECK # | 8881 |
+| MICR CONFIDENCE | 0.95 |
+| Risk Score | 55 |
+| AMOUNT MATCH | No |
+| DUPLICATE DETECTED | No |
+
+**Rule Evaluations**:
+Four rules displayed with PASS status:
+1. ACCOUNT_CLOSURE
+2. MAX_DEPOSIT_LIMIT
+3. DISTRIBUTION_TYPE_DEFAULT
+4. INTERNAL_DUPLICATE
+
+Each shows green "PASS" badge with associated validation details.
+
+**Audit Trail**:
+Timestamp-based transaction log showing:
+- STATE_TRANSITION events
+- VALIDATING and ANALYZING statuses
+- deposit-service actions
+- Timestamps: 2025-01-07 21:38:28
+
+## Bottom Action Section
+**Approve/Reject Controls**:
+- Left side: "OPERATOR NOTES" text area with "APPROVE" button
+- Right side: "REJECTION REASON" text area with "REJECT" button
+
+## Visual Hierarchy Quality
+**Strengths**:
+- Clear distinction between different data sections
+- Status indicators (PASS/ANALYZING) immediately visible
+- Check images prominent and easily readable
+- Monospace font for technical data ensures alignment
+
+**Typography Choices**:
+- Serif fonts for official document display (check images)
+- Monospace for data values ensures proper alignment
+- Mix of sans and serif fonts creates visual interest
+
+## Spacing and Alignment
+- Generous padding around sections
+- Left-aligned text with right-aligned values in data tables
+- Clean separator lines between major sections
+- Proper
