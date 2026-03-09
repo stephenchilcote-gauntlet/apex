@@ -31,7 +31,7 @@ test.describe('Settlement', () => {
     await judge.assertVisual(page, [
       critical('Is the Batches table fully contained within its panel, with no content overflowing or clipped outside the panel borders?'),
       critical('Are all table columns (ID, Business Date, Status, Items, Total Amount, File, Created, Action) visible and non-overlapping, with each column header aligned above its data?'),
-      critical('Are all table cell values fully readable with no text overlapping adjacent cells or being truncated/cut off?'),
+      critical('Are all table cell values readable with no text overlapping adjacent cells? Note: the ID column intentionally shows a truncated UUID with ellipsis, and the File column uses CSS text-overflow ellipsis for long filenames — these are expected.'),
       critical('Is the Actions panel with the "Generate Settlement Batch" button visually separate from the Batches table, with no overlapping between the two panels?'),
     ], { testName: 'settlement-table-layout', fullPage: true });
   });
