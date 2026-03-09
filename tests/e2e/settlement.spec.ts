@@ -1,4 +1,7 @@
 import { test, expect, submitDepositUI } from './fixtures';
+import { VisualJudge, critical } from './visual-judge';
+
+let judge: VisualJudge | undefined;
 
 test.describe('Settlement', () => {
   test('settlement page shows batch management', async ({ page }) => {
@@ -20,6 +23,17 @@ test.describe('Settlement', () => {
     await expect(batchRow.locator('[data-state]')).toContainText(/generated/i);
     await expect(batchRow).toContainText('1'); // 1 item
     await expect(batchRow).toContainText('$600.00');
+
+    // Visual layout checks — catch overlapping/overflow issues
+    if (!judge) {
+      judge = new VisualJudge({ artifactDir: 'tests/artifacts/visual' });
+    }
+    await judge.assertVisual(page, [
+      critical('Is the Batches table fully contained within its panel, with no content overflowing or clipped outside the panel borders?'),
+      critical('Are all table columns (ID, Business Date, Status, Items, Total Amount, File, Created, Action) visible and non-overlapping, with each column header aligned above its data?'),
+      critical('Are all table cell values fully readable with no text overlapping adjacent cells or being truncated/cut off?'),
+      critical('Is the Actions panel with the "Generate Settlement Batch" button visually separate from the Batches table, with no overlapping between the two panels?'),
+    ], { testName: 'settlement-table-layout', fullPage: true });
   });
 
   test('acknowledging batch moves transfers to Completed', async ({ page }) => {
