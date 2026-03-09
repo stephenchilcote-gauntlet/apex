@@ -20,6 +20,7 @@ const test = base.extend({});
 
 /** Full-width section banner at bottom of screen (title + subtitle). */
 async function announce(page: Page, title: string, subtitle?: string) {
+  await page.waitForLoadState('domcontentloaded');
   await page.evaluate(
     ({ title, subtitle }) => {
       let overlay = document.getElementById('tour-overlay');
@@ -55,6 +56,7 @@ async function announce(page: Page, title: string, subtitle?: string) {
 
 /** Smaller explanatory caption below the main banner — stays until cleared. */
 async function caption(page: Page, text: string, durationMs = 4000) {
+  await page.waitForLoadState('domcontentloaded');
   await page.evaluate(
     ({ text }) => {
       let cap = document.getElementById('tour-caption');
@@ -84,6 +86,7 @@ async function caption(page: Page, text: string, durationMs = 4000) {
 }
 
 async function clearOverlay(page: Page) {
+  await page.waitForLoadState('domcontentloaded');
   await page.evaluate(() => {
     const el = document.getElementById('tour-overlay');
     if (el) el.style.opacity = '0';
@@ -92,6 +95,7 @@ async function clearOverlay(page: Page) {
 }
 
 async function clearCaption(page: Page) {
+  await page.waitForLoadState('domcontentloaded');
   await page.evaluate(() => {
     const el = document.getElementById('tour-caption');
     if (el) el.style.opacity = '0';
@@ -577,8 +581,11 @@ test.describe('Video Tour', () => {
     await pause(page, 500);
     await page.locator('[data-action="reject"]').click();
     await clearHighlights(page);
-    await pause(page, 2000);
-    await clearCaption(page);
+    await pause(page, 1500);
+
+    await announce(page, 'Rejected',
+      'Transfer moves to Rejected state — investor notified, no funds posted');
+    await clearAll(page);
 
     // =======================================================================
     // SECTION 12 — HIGH-RISK REVIEW  (~8:00)
@@ -654,7 +661,8 @@ test.describe('Video Tour', () => {
     await caption(page,
       'Acknowledged. All deposits in this batch are now Completed.',
       3000);
-    await clearCaption(page);
+    await clearAll(page);
+    await pause(page, 500);
 
     // =======================================================================
     // SECTION 15 — RETURN / REVERSAL  (~10:00)
@@ -797,6 +805,8 @@ test.describe('Video Tour', () => {
     await pause(page, 500);
 
     // Quick drill into 2 transfer details
+    await caption(page, 'Drilling into individual transfers to show full audit trail per deposit.', 2500);
+    await clearCaption(page);
     const transferRows = page.locator('[data-transfer] a');
     const count = await transferRows.count();
     for (let i = 0; i < Math.min(count, 2); i++) {
@@ -813,6 +823,9 @@ test.describe('Video Tour', () => {
     // =======================================================================
     // SECTION 20 — DESIGN DECISIONS  (~14:00)
     // =======================================================================
+    await page.locator('a.nav-level-tab', { hasText: 'Simulate' }).click();
+    await page.waitForLoadState('domcontentloaded');
+
     await announce(page, '⑲ Key Design Decisions', 'Documented in docs/decision_log.md');
     await caption(page,
       'Go (single binary, fast compile) • SQLite (zero-ops) • HTMX (no JS build) • Separate vendor stub (mirrors production architecture)',
