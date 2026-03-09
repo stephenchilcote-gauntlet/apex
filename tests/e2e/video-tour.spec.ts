@@ -415,6 +415,7 @@ test.describe('Video Tour', () => {
     await clearAll(page);
 
     // -- IQA Blur --
+    await page.goto('/ui/simulate');
     await announce(page, 'IQA Blur → Rejected', 'Image quality failure — too blurry, prompt investor to retake');
     await clearOverlay(page);
     await submitDeposit(page, { accountId: 'INV-1002', amount: '200.00', scenario: 'iqa_blur' });
@@ -426,6 +427,7 @@ test.describe('Video Tour', () => {
     await clearAll(page);
 
     // -- IQA Glare --
+    await page.goto('/ui/simulate');
     await announce(page, 'IQA Glare → Rejected', 'Glare detected on check image');
     await clearOverlay(page);
     await submitDeposit(page, { accountId: 'INV-1003', amount: '300.00', scenario: 'iqa_glare' });
@@ -437,6 +439,7 @@ test.describe('Video Tour', () => {
     await clearAll(page);
 
     // -- Duplicate --
+    await page.goto('/ui/simulate');
     await announce(page, 'Duplicate Detected → Rejected', 'Vendor detects check was previously deposited');
     await clearOverlay(page);
     await submitDeposit(page, { accountId: 'INV-1004', amount: '150.00', scenario: 'duplicate_detected' });
