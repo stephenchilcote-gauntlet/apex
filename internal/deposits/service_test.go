@@ -5,11 +5,14 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
 	"runtime"
+	"sync"
+	"sync/atomic"
 	"testing"
 
 	"github.com/apex-checkout/mobile-check-deposit/internal/funding"
@@ -382,5 +385,67 @@ func TestDepositService_SubmitDeposit_InternalDuplicateFingerprint(t *testing.T)
 	}
 	if outcome != "FAIL" {
 		t.Errorf("INTERNAL_DUPLICATE outcome = %s, want FAIL", outcome)
+	}
+}
+
+func TestDepositService_ConcurrentDeposits_LedgerInvariant(t *testing.T) {
+	db := newTestDB(t)
+
+	var counter int64
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		n := atomic.AddInt64(&counter, 1)
+		resp := cleanPassResp()
+		resp.VendorTransactionID = fmt.Sprintf("vtx-concurrent-%d", n)
+		resp.MICR.Serial = fmt.Sprintf("%04d", n)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(resp)
+	}))
+	t.Cleanup(srv.Close)
+
+	svc := newDepositService(t, db, srv.URL)
+
+	const numDeposits = 20
+
+	type result struct {
+		idx int
+		err error
+	}
+	results := make(chan result, numDeposits)
+
+	var wg sync.WaitGroup
+	for i := 0; i < numDeposits; i++ {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			amount := int64(1000 + idx*100)
+			_, err := svc.SubmitDeposit(context.Background(), "INV-1001", amount, front(), back(), ptr("clean_pass"))
+			results <- result{idx: idx, err: err}
+		}(i)
+	}
+	wg.Wait()
+	close(results)
+
+	for r := range results {
+		if r.err != nil {
+			t.Errorf("deposit %d failed: %v", r.idx, r.err)
+		}
+	}
+
+	// Global ledger invariant: all entries must sum to zero (double-entry)
+	var globalSum int64
+	if err := db.QueryRow("SELECT COALESCE(SUM(signed_amount_cents), 0) FROM ledger_entries").Scan(&globalSum); err != nil {
+		t.Fatalf("query global ledger sum: %v", err)
+	}
+	if globalSum != 0 {
+		t.Errorf("global ledger sum = %d, want 0 (double-entry invariant violated)", globalSum)
+	}
+
+	// Exactly 20 DEPOSIT_POSTING journals
+	var journalCount int
+	if err := db.QueryRow("SELECT COUNT(*) FROM ledger_journals WHERE journal_type = 'DEPOSIT_POSTING'").Scan(&journalCount); err != nil {
+		t.Fatalf("query journal count: %v", err)
+	}
+	if journalCount != numDeposits {
+		t.Errorf("DEPOSIT_POSTING journals = %d, want %d", journalCount, numDeposits)
 	}
 }
