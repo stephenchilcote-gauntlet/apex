@@ -146,15 +146,17 @@ function applyBlur(html: string): string {
 }
 
 function applyGlare(html: string): string {
-  // Two overlapping hotspots to create a harsh, blown-out glare that obscures text
-  const glareDiv = `
-    <div style="position:absolute;top:10%;left:20%;width:70%;height:60%;
-      background: radial-gradient(ellipse, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 25%, rgba(255,255,255,0.6) 50%, transparent 75%);
-      pointer-events:none;transform:rotate(-10deg);z-index:999;"></div>
-    <div style="position:absolute;top:25%;left:40%;width:40%;height:35%;
-      background: radial-gradient(ellipse, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 70%);
-      pointer-events:none;transform:rotate(5deg);z-index:999;"></div>`;
-  return html.replace('</div>\n</body>', glareDiv + '\n</div>\n</body>');
+  // Extreme overexposure: high brightness destroys text contrast, then a white
+  // radial overlay simulates specular flash reflection in the center
+  let result = html.replace(
+    'overflow: hidden;',
+    'overflow: hidden; filter: brightness(4) contrast(0.15);'
+  );
+  const glareOverlay = `<div style="position:absolute;top:0;left:0;width:100%;height:100%;
+    background: radial-gradient(ellipse at 50% 50%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.7) 40%, rgba(255,255,255,0.3) 80%);
+    pointer-events:none;z-index:999;"></div>`;
+  result = result.replace('</div>\n</body>', glareOverlay + '\n</div>\n</body>');
+  return result;
 }
 
 function removeMICR(html: string): string {
@@ -162,6 +164,11 @@ function removeMICR(html: string): string {
     '⑈021000089⑈ ⑆1001042⑆ 7829104538⑈',
     ''
   );
+}
+
+function removeMICRBack(html: string): string {
+  // Remove the account number from the back so the LLM can't confuse it with MICR data
+  return html.replace('Account #7829104538', '');
 }
 
 function wrongAmount(html: string): string {
@@ -198,7 +205,7 @@ test('generate check images', async () => {
   const variants: Array<{name: string; transformFront: (h: string) => string; transformBack?: (h: string) => string}> = [
     { name: 'blurry', transformFront: applyBlur, transformBack: applyBlur },
     { name: 'glare', transformFront: applyGlare, transformBack: applyGlare },
-    { name: 'no-micr', transformFront: removeMICR },
+    { name: 'no-micr', transformFront: removeMICR, transformBack: removeMICRBack },
     { name: 'wrong-amount', transformFront: wrongAmount },
   ];
 

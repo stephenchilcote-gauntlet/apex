@@ -70,9 +70,9 @@ type anthropicResponse struct {
 
 const visionPrompt = `Analyze these check images. Front image is first, back image is second.
 Return ONLY a JSON object with this exact schema: {"imageQuality": {"frontReadable": bool, "backReadable": bool, "issues": [string]}, "micr": {"routing": string, "account": string, "serial": string, "readable": bool}, "amount": {"courtesyAmountCents": int|null, "writtenAmountText": string}, "endorsement": {"backEndorsed": bool}}
-For MICR: look for the machine-readable line at the bottom of the front image with routing/account/check numbers.
+For MICR: look ONLY at the very bottom edge of the FRONT image for the MICR encoding line — it uses special MICR font characters (⑈ ⑆ symbols or E13B font). This is a specific machine-readable line, NOT any other account numbers printed elsewhere on the check. If there is no MICR line at the bottom of the front image, set readable=false and leave routing/account/serial as empty strings.
 For amount: courtesyAmountCents is the numeric dollar amount in the box, converted to cents (e.g. $500.00 = 50000).
-For imageQuality.issues: list any of ["blur", "glare", "cropped", "dark", "skewed"] that apply. Empty array if none.`
+For imageQuality: set frontReadable/backReadable to false if significant portions of the text are obscured by blur, glare, or other defects. For issues, list any of ["blur", "glare", "cropped", "dark", "skewed"] that apply — include "glare" if bright white areas wash out text. Empty array if none.`
 
 // detectMediaType sniffs the media type from base64-encoded image data.
 func detectMediaType(b64 string) string {
