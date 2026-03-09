@@ -609,8 +609,14 @@ test.describe('Video Tour', () => {
     await pause(page, 1000);
     await page.locator('[data-review-item] a.btn', { hasText: 'Review' }).first().click();
     await pause(page, 1000);
+    await caption(page,
+      'Review detail shows vendor analysis and risk factors. Operator reviews all context before deciding.',
+      3000);
+    await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await pause(page, 500);
     await page.locator('#approve-notes').fill('High-risk but legitimate after manual review');
+    await pause(page, 500);
     await page.locator('[data-action="approve"]').click();
     await pause(page, 1500);
     await caption(page, 'Approved. This deposit is now FundsPosted and eligible for the next settlement batch.', 3500);
@@ -857,10 +863,10 @@ test.describe('Video Tour', () => {
     await caption(page,
       'Evaluate: state machine correctness • ledger integrity (all entries net to zero) • settlement accuracy (parse X9 ICL) • audit completeness',
       6000);
-    await clearAll(page);
+    await clearCaption(page);
 
-    await announce(page, 'APEX Mobile Check Deposit', 'github.com — Full source, docs, and tests');
-    await pause(page, 4000);
-    await clearAll(page);
+    // Final end card — stays visible until video ends
+    await announce(page, 'APEX Mobile Check Deposit', 'Thank you for reviewing');
+    await pause(page, 5000);
   });
 });
