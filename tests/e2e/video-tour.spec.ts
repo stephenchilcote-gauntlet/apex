@@ -34,7 +34,7 @@ async function caption(page: Page, text: string, durationMs = 4000) {
         cap = document.createElement('div');
         cap.id = 'tour-caption';
         cap.style.cssText = `
-          position: fixed; bottom: 0; left: 0; right: 0; z-index: 99998;
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 100000;
           background: rgba(0,10,20,0.88);
           border-top: 1px solid rgba(0,217,255,0.3);
           padding: 10px 40px;
