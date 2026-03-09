@@ -31,7 +31,7 @@ async function announce(page: Page, title: string, subtitle?: string) {
           position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
           background: linear-gradient(135deg, rgba(0,20,40,0.95), rgba(0,40,80,0.92));
           border-top: 3px solid #00d9ff;
-          padding: 18px 32px;
+          padding: 14px 32px;
           font-family: 'Share Tech Mono', 'Courier New', monospace;
           color: #00d9ff;
           text-align: center;
@@ -64,13 +64,13 @@ async function caption(page: Page, text: string, durationMs = 4000) {
         cap = document.createElement('div');
         cap.id = 'tour-caption';
         cap.style.cssText = `
-          position: fixed; bottom: 80px; left: 0; right: 0; z-index: 99998;
+          position: fixed; bottom: 72px; left: 0; right: 0; z-index: 99998;
           background: rgba(0,10,20,0.88);
           border-top: 1px solid rgba(0,217,255,0.3);
-          padding: 12px 40px;
+          padding: 10px 40px;
           font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
           color: #cce8ff;
-          font-size: 15px; line-height: 1.5;
+          font-size: 14px; line-height: 1.4;
           text-align: center;
           pointer-events: none;
           transition: opacity 0.3s ease;
@@ -222,6 +222,10 @@ test.describe('Video Tour', () => {
     // =======================================================================
     // SECTION 3 — STATE MACHINE EXPLANATION  (~0:40)
     // =======================================================================
+    // Navigate to Transfers page (neutral background for conceptual section)
+    await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
+    await page.waitForLoadState('domcontentloaded');
+
     await announce(page, '② Transfer State Machine',
       'Requested → Validating → Analyzing → Approved → FundsPosted → Completed');
     await caption(page,
@@ -327,17 +331,21 @@ test.describe('Video Tour', () => {
     // Rule Evaluations panel
     await page.evaluate(() => window.scrollBy(0, 300));
     await pause(page, 500);
+    await highlight(page, 'table');
     await caption(page,
       'Rule Evaluations: 4 business rules — account eligibility, $5K limit, contribution type, duplicate fingerprint. Each logged with pass/fail + details.',
       5000);
+    await clearHighlights(page);
     await clearCaption(page);
 
     // Audit Trail panel
     await page.evaluate(() => window.scrollBy(0, 300));
     await pause(page, 500);
+    await highlight(page, 'table');
     await caption(page,
       'Audit Trail: every state transition with timestamp, from/to state, actor, and event details. This is the complete decision trace.',
       5000);
+    await clearHighlights(page);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await pause(page, 500);
@@ -448,6 +456,11 @@ test.describe('Video Tour', () => {
       'Vendor-level duplicate detection (first layer). System also has internal SHA256 fingerprint detection (second layer).',
       5000);
     await clearHighlights(page);
+    await clearCaption(page);
+
+    await caption(page,
+      'Three vendor rejection scenarios shown. Each preserves its specific rejection code for investor messaging.',
+      3500);
     await clearAll(page);
 
     // =======================================================================
@@ -461,7 +474,20 @@ test.describe('Video Tour', () => {
       5000);
     await clearCaption(page);
 
-    await submitDeposit(page, { accountId: 'INV-1005', amount: '5500.00', scenario: 'clean_pass' });
+    // Show a persistent caption during form fill so there's no dead frame
+    await page.goto('/ui/simulate');
+    await page.waitForLoadState('domcontentloaded');
+    await caption(page, 'Submitting $5,500 deposit with Clean Pass vendor scenario — exceeds the $5,000 per-deposit limit.', 1000);
+    // submitDeposit navigates away, so we do the form fill inline
+    await page.locator('select[name="investorAccountId"]').selectOption({ value: 'INV-1005' });
+    await page.locator('input[name="amount"]').fill('5500.00');
+    await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
+    await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
+    await page.locator('select[name="vendorScenario"]').selectOption('clean_pass');
+    await pause(page, 500);
+    await page.locator('button[type="submit"]').click();
+    await page.locator('[data-transfer-id]').waitFor();
+    await clearCaption(page);
     await highlight(page, '[data-state]');
     await announce(page, '$5,500 → Rejected by MAX_DEPOSIT_LIMIT',
       'Vendor passed this check, but the $5,000 per-deposit business rule blocks it');
@@ -528,16 +554,22 @@ test.describe('Video Tour', () => {
       3500);
     await clearCaption(page);
 
-    // Approve
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    // Approve — scroll to show controls above the overlay area
+    await page.evaluate(() => {
+      const el = document.querySelector('[data-action="approve"]');
+      if (el) el.scrollIntoView({ block: 'center' });
+    });
     await pause(page, 500);
+    await clearCaption(page);
+
+    await highlight(page, '#approve-notes');
     await caption(page,
       'Approve with notes. The operator action is logged in operator_actions table + audit_events.',
       3500);
-    await highlight(page, '#approve-notes');
     await page.locator('#approve-notes').fill('MICR readable on manual inspection — approved');
     await pause(page, 800);
     await clearHighlights(page);
+    await clearCaption(page);
 
     await highlight(page, '[data-action="approve"]');
     await pause(page, 500);
@@ -569,16 +601,20 @@ test.describe('Video Tour', () => {
     await page.locator('[data-review-item] a.btn', { hasText: 'Review' }).first().click();
     await pause(page, 1000);
 
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.evaluate(() => {
+      const el = document.querySelector('[data-action="reject"]');
+      if (el) el.scrollIntoView({ block: 'center' });
+    });
     await pause(page, 500);
 
+    await highlight(page, '#reject-notes');
     await caption(page,
       'Rejecting with notes. Transfer goes to Rejected state — no ledger posting, no settlement.',
       3500);
-    await highlight(page, '#reject-notes');
     await page.locator('#reject-notes').fill('Amount discrepancy too large — rejecting');
     await pause(page, 800);
     await clearHighlights(page);
+    await clearCaption(page);
 
     await highlight(page, '[data-action="reject"]');
     await pause(page, 500);
@@ -616,11 +652,22 @@ test.describe('Video Tour', () => {
       'Review detail shows vendor analysis and risk factors. Operator reviews all context before deciding.',
       3000);
     await clearCaption(page);
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+
+    await page.evaluate(() => {
+      const el = document.querySelector('[data-action="approve"]');
+      if (el) el.scrollIntoView({ block: 'center' });
+    });
     await pause(page, 500);
+
+    await highlight(page, '#approve-notes');
     await page.locator('#approve-notes').fill('High-risk but legitimate after manual review');
+    await pause(page, 800);
+    await clearHighlights(page);
+
+    await highlight(page, '[data-action="approve"]');
     await pause(page, 500);
     await page.locator('[data-action="approve"]').click();
+    await clearHighlights(page);
     await pause(page, 1500);
     await caption(page, 'Approved. This deposit is now FundsPosted and eligible for the next settlement batch.', 3500);
     await clearCaption(page);
@@ -634,7 +681,7 @@ test.describe('Video Tour', () => {
     await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
     await page.locator('[data-transfer]').first().waitFor();
     await caption(page,
-      'Multiple deposit states visible: Completed, FundsPosted, Rejected, Returned. Each clickable for full detail.',
+      'Multiple deposit states visible: Completed, FundsPosted, Analyzing, Rejected. Each row clickable for full detail.',
       4500);
     await clearCaption(page);
     await pause(page, 1500);
@@ -752,14 +799,47 @@ test.describe('Video Tour', () => {
       4500);
     await clearCaption(page);
 
-    await page.evaluate(() => window.scrollBy(0, 400));
-    await pause(page, 1500);
+    // Scroll to vendor result
+    await page.evaluate(() => window.scrollBy(0, 350));
+    await pause(page, 1000);
+    await caption(page, 'Vendor result and rule evaluations preserved for full transparency.', 3000);
+    await clearCaption(page);
+
+    // Scroll down to audit trail — use scrollIntoView on the last table (audit trail)
+    await page.evaluate(() => {
+      const tables = document.querySelectorAll('.data-table');
+      const auditTable = tables[tables.length - 1];
+      if (auditTable) auditTable.scrollIntoView({ block: 'center' });
+    });
+    await pause(page, 500);
+    // Highlight the last table (audit trail, not rule evaluations)
+    await page.evaluate(() => {
+      document.querySelectorAll('.tour-highlight').forEach((e) => e.remove());
+      const tables = document.querySelectorAll('.data-table');
+      const el = tables[tables.length - 1];
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const ring = document.createElement('div');
+      ring.className = 'tour-highlight';
+      ring.style.cssText = `
+        position: fixed; z-index: 99998;
+        left: ${rect.left - 4}px; top: ${rect.top - 4}px;
+        width: ${rect.width + 8}px; height: ${rect.height + 8}px;
+        border: 2px solid #00d9ff;
+        border-radius: 6px;
+        box-shadow: 0 0 12px rgba(0,217,255,0.5);
+        pointer-events: none;
+        transition: all 0.3s ease;
+      `;
+      document.body.appendChild(ring);
+    });
+    await pause(page, 800);
     await caption(page,
       'Audit trail shows the complete journey: Requested → Validating → Analyzing → Approved → FundsPosted → Completed → Returned.',
       5000);
+    await clearHighlights(page);
     await clearCaption(page);
-    await page.evaluate(() => window.scrollBy(0, 400));
-    await pause(page, 2000);
+    await pause(page, 1000);
     await page.evaluate(() => window.scrollTo(0, 0));
 
     // =======================================================================
@@ -782,10 +862,34 @@ test.describe('Video Tour', () => {
     await pause(page, 1000);
 
     await page.locator('a.nav-level-tab', { hasText: 'Returns' }).click();
+    await page.waitForLoadState('domcontentloaded');
+    // Fill form FIRST so dropdown shows FRAUD, then show caption
     await page.locator('input[name="transferId"]').fill(fraudTransferId);
     await page.locator('select[name="reasonCode"]').selectOption('FRAUD');
+    await pause(page, 300);
+    await highlight(page, 'select[name="reasonCode"]');
+    await caption(page, 'Processing a FRAUD return on a different completed deposit.', 3000);
+    await clearHighlights(page);
+    await clearCaption(page);
     await page.locator('button[type="submit"]').click();
-    await pause(page, 1500);
+    await pause(page, 1000);
+
+    // Navigate to the returned transfer to show the FRAUD reason cleanly
+    await page.goto(`/ui/transfers/${fraudTransferId}`);
+    await page.locator('[data-state]').waitFor();
+    await pause(page, 500);
+
+    // Scroll down to show the Return panel with FRAUD reason code
+    await page.evaluate(() => {
+      const headers = document.querySelectorAll('.panel-header-title');
+      for (const h of headers) {
+        if (h.textContent?.trim() === 'Return') {
+          h.closest('.panel')?.scrollIntoView({ block: 'center' });
+          break;
+        }
+      }
+    });
+    await pause(page, 800);
 
     await highlight(page, '[data-state]');
     await caption(page,
@@ -807,69 +911,72 @@ test.describe('Video Tour', () => {
       5000);
     await clearCaption(page);
 
-    await pause(page, 1500);
+    await pause(page, 1000);
     await page.evaluate(() => window.scrollBy(0, 300));
-    await pause(page, 2000);
+    await pause(page, 1500);
     await page.evaluate(() => window.scrollTo(0, 0));
     await pause(page, 500);
-
-    // Quick drill into 2 transfer details
-    await caption(page, 'Drilling into individual transfers to show full audit trail per deposit.', 2500);
-    await clearCaption(page);
-    const transferRows = page.locator('[data-transfer] a');
-    const count = await transferRows.count();
-    for (let i = 0; i < Math.min(count, 2); i++) {
-      await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
-      await page.locator('[data-transfer]').first().waitFor();
-      await transferRows.nth(i).click();
-      await pause(page, 1500);
-      await page.evaluate(() => window.scrollBy(0, 500));
-      await pause(page, 1000);
-      await page.evaluate(() => window.scrollTo(0, 0));
-      await pause(page, 500);
-    }
 
     // =======================================================================
     // SECTION 20 — DESIGN DECISIONS  (~14:00)
     // =======================================================================
-    await page.locator('a.nav-level-tab', { hasText: 'Simulate' }).click();
+    // Show the ledger as a meaningful background for design decisions
+    await page.locator('a.nav-level-tab', { hasText: 'Ledger' }).click();
     await page.waitForLoadState('domcontentloaded');
+    await pause(page, 500);
 
     await announce(page, '⑲ Key Design Decisions', 'Documented in docs/decision_log.md');
     await caption(page,
       'Go (single binary, fast compile) • SQLite (zero-ops) • HTMX (no JS build) • Separate vendor stub (mirrors production architecture)',
-      5500);
+      4500);
     await clearCaption(page);
 
     await caption(page,
       'Real X9.37 ICL settlement via moov-io/imagecashletter • Centralized state machine validator • SHA256 duplicate fingerprinting',
-      5500);
+      4500);
     await clearCaption(page);
 
     await caption(page,
       'Testing: 14 Go tests (unit + integration) + 14 Playwright E2E specs. Settlement tests parse ICL files back and verify structure.',
-      5500);
-    await clearCaption(page);
+      4500);
+    await clearAll(page);
 
     // =======================================================================
     // SECTION 21 — END CARD  (~15:00)
     // =======================================================================
-    await page.locator('a.nav-level-tab', { hasText: 'Simulate' }).click();
-    await page.waitForLoadState('domcontentloaded');
-
-    await announce(page, 'Tour Complete', 'Mobile Check Deposit System — Full Lifecycle Demonstrated');
-    await caption(page,
-      'Happy path • 7 vendor scenarios • Business rule enforcement • Operator review (approve + reject) • Settlement • Return/reversal • Double-entry ledger',
-      6000);
-    await clearCaption(page);
-
-    await caption(page,
-      'Evaluate: state machine correctness • ledger integrity (all entries net to zero) • settlement accuracy (parse X9 ICL) • audit completeness',
-      6000);
-    await clearCaption(page);
-
-    // Final end card — stays visible until video ends
-    await announce(page, 'APEX Mobile Check Deposit', 'Thank you for reviewing');
-    await pause(page, 5000);
+    // Create a clean end card using a full-screen overlay instead of overlaying the app
+    await page.evaluate(() => {
+      const endCard = document.createElement('div');
+      endCard.id = 'tour-endcard';
+      endCard.style.cssText = `
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 100000;
+        background: linear-gradient(135deg, #001428 0%, #002040 40%, #001830 100%);
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        font-family: 'Share Tech Mono', 'Courier New', monospace;
+        color: #00d9ff;
+        text-align: center;
+        animation: fadeIn 0.5s ease;
+      `;
+      endCard.innerHTML = `
+        <div style="font-size:28px;font-weight:bold;letter-spacing:3px;text-transform:uppercase;margin-bottom:16px;text-shadow:0 0 20px rgba(0,217,255,0.5);">
+          APEX Mobile Check Deposit
+        </div>
+        <div style="width:200px;height:3px;background:linear-gradient(90deg,transparent,#00d9ff,transparent);margin-bottom:20px;"></div>
+        <div style="font-size:16px;color:#88ccee;letter-spacing:1px;margin-bottom:24px;">
+          Full Lifecycle Demonstrated
+        </div>
+        <div style="font-size:13px;color:#6699bb;line-height:2;letter-spacing:0.5px;">
+          <div>Happy path • 7 vendor scenarios • Business rule enforcement</div>
+          <div>Operator review (approve + reject) • X9.37 ICL settlement</div>
+          <div>Return/reversal with fees • Double-entry ledger</div>
+        </div>
+        <div style="margin-top:32px;width:200px;height:3px;background:linear-gradient(90deg,transparent,#00d9ff,transparent);"></div>
+        <div style="margin-top:16px;font-size:14px;color:#00d9ff;letter-spacing:2px;">
+          Thank you for reviewing
+        </div>
+      `;
+      document.body.appendChild(endCard);
+    });
+    await pause(page, 8000);
   });
 });
