@@ -140,6 +140,18 @@ body {
   border-bottom-color: var(--green-bright);
 }
 
+.review-badge {
+  background: var(--red);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 6px;
+  border-radius: 9px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
 .nav-status-strip {
   margin-left: auto;
   display: flex;

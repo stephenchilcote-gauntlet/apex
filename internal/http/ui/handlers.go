@@ -164,6 +164,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Get("/ui/transfers", h.transfersPage)
 	r.Get("/ui/transfers/{id}", h.transferDetailPage)
 	r.Get("/ui/review", h.reviewPage)
+	r.Get("/ui/review-count", h.reviewCountBadge)
 	r.Get("/ui/review/{id}", h.reviewDetailPage)
 	r.Post("/ui/review/{id}/approve", h.reviewApprove)
 	r.Post("/ui/review/{id}/reject", h.reviewReject)
@@ -358,6 +359,29 @@ func (h *UIHandlers) getRuleEvaluations(transferID string) ([]ruleEval, error) {
 // ---------------------------------------------------------------------------
 // Review
 // ---------------------------------------------------------------------------
+
+func (h *UIHandlers) reviewCountBadge(w http.ResponseWriter, r *http.Request) {
+	state := transfers.StateAnalyzing
+	reviewRequired := true
+	reviewStatus := "PENDING"
+
+	list, err := h.TransferSvc.List(h.DB, transfers.TransferFilters{
+		State:          &state,
+		ReviewRequired: &reviewRequired,
+		ReviewStatus:   &reviewStatus,
+	})
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+
+	count := len(list)
+	if count == 0 {
+		w.Write([]byte(""))
+		return
+	}
+	fmt.Fprintf(w, `<span class="review-badge">%d</span>`, count)
+}
 
 func (h *UIHandlers) reviewPage(w http.ResponseWriter, r *http.Request) {
 	state := transfers.StateAnalyzing

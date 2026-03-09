@@ -19,7 +19,7 @@
         <div class="nav-level-tabs">
           <a href="/ui/simulate" class="nav-level-tab" {{if eq .ActivePage "simulate"}}aria-selected="true"{{end}}>Simulate</a>
           <a href="/ui/transfers" class="nav-level-tab" {{if eq .ActivePage "transfers"}}aria-selected="true"{{end}}>Transfers</a>
-          <a href="/ui/review" class="nav-level-tab" {{if eq .ActivePage "review"}}aria-selected="true"{{end}}>Review Queue</a>
+          <a href="/ui/review" class="nav-level-tab" {{if eq .ActivePage "review"}}aria-selected="true"{{end}}>Review Queue <span id="review-count" hx-get="/ui/review-count" hx-trigger="load, every 5s" hx-swap="innerHTML"></span></a>
           <a href="/ui/ledger" class="nav-level-tab" {{if eq .ActivePage "ledger"}}aria-selected="true"{{end}}>Ledger</a>
           <a href="/ui/settlement" class="nav-level-tab" {{if eq .ActivePage "settlement"}}aria-selected="true"{{end}}>Settlement</a>
           <a href="/ui/returns" class="nav-level-tab" {{if eq .ActivePage "returns"}}aria-selected="true"{{end}}>Returns</a>
