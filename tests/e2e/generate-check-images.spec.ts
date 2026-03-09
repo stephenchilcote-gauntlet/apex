@@ -2,6 +2,7 @@
  * Generate realistic placeholder check images (front + back) using Playwright.
  * Run: npx playwright test generate-check-images.ts
  * Output: tests/e2e/tests/check-front.png, tests/e2e/tests/check-back.png
+ *         + defect variants: blurry, glare, no-micr, wrong-amount
  */
 import { test, chromium } from '@playwright/test';
 import * as fs from 'fs';
@@ -137,6 +138,33 @@ const BACK_HTML = `
 </html>
 `;
 
+function applyBlur(html: string): string {
+  return html.replace(
+    'overflow: hidden;',
+    'overflow: hidden; filter: blur(3px);'
+  );
+}
+
+function applyGlare(html: string): string {
+  const glareDiv = `<div style="position:absolute;top:20%;left:30%;width:50%;height:40%;
+    background: radial-gradient(ellipse, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 40%, transparent 70%);
+    pointer-events:none;transform:rotate(-15deg);"></div>`;
+  return html.replace('</div>\n</body>', glareDiv + '\n</div>\n</body>');
+}
+
+function removeMICR(html: string): string {
+  return html.replace(
+    '⑈021000089⑈ ⑆1001042⑆ 7829104538⑈',
+    ''
+  );
+}
+
+function wrongAmount(html: string): string {
+  return html
+    .replace('$500.00', '$750.00')
+    .replace('Five Hundred and 00/100', 'Seven Hundred Fifty and 00/100');
+}
+
 test('generate check images', async () => {
   const browser = await chromium.launch();
   const context = await browser.newContext({
@@ -160,6 +188,31 @@ test('generate check images', async () => {
   await backPage.locator('div').first().screenshot({
     path: path.join(outDir, 'check-back.png'),
   });
+
+  // Defect variants
+  const variants: Array<{name: string; transformFront: (h: string) => string; transformBack?: (h: string) => string}> = [
+    { name: 'blurry', transformFront: applyBlur, transformBack: applyBlur },
+    { name: 'glare', transformFront: applyGlare, transformBack: applyGlare },
+    { name: 'no-micr', transformFront: removeMICR },
+    { name: 'wrong-amount', transformFront: wrongAmount },
+  ];
+
+  for (const variant of variants) {
+    const vFrontHTML = variant.transformFront(FRONT_HTML);
+    const vBackHTML = variant.transformBack ? variant.transformBack(BACK_HTML) : BACK_HTML;
+
+    const vFrontPage = await context.newPage();
+    await vFrontPage.setContent(vFrontHTML, { waitUntil: 'load' });
+    await vFrontPage.locator('div').first().screenshot({
+      path: path.join(outDir, `check-front-${variant.name}.png`),
+    });
+
+    const vBackPage = await context.newPage();
+    await vBackPage.setContent(vBackHTML, { waitUntil: 'load' });
+    await vBackPage.locator('div').first().screenshot({
+      path: path.join(outDir, `check-back-${variant.name}.png`),
+    });
+  }
 
   await browser.close();
 });
