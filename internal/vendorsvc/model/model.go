@@ -7,6 +7,8 @@ type AnalyzeRequest struct {
 	AmountCents        int    `json:"amountCents"`
 	FrontImageSha256   string `json:"frontImageSha256"`
 	BackImageSha256    string `json:"backImageSha256"`
+	FrontImageBase64   string `json:"frontImageBase64,omitempty"`
+	BackImageBase64    string `json:"backImageBase64,omitempty"`
 }
 
 // MICRResult holds the MICR data extracted from a check image.

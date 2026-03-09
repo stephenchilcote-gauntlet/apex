@@ -28,7 +28,7 @@ func New(baseURL string) *VendorClient {
 }
 
 // Analyze calls POST /stub/v1/checks/analyze on the vendor stub.
-func (c *VendorClient) Analyze(ctx context.Context, req model.AnalyzeRequest, vendorScenario string) (*model.AnalyzeResponse, error) {
+func (c *VendorClient) Analyze(ctx context.Context, req model.AnalyzeRequest) (*model.AnalyzeResponse, error) {
 	body, err := json.Marshal(req)
 	if err != nil {
 		return nil, fmt.Errorf("marshal analyze request: %w", err)
@@ -39,9 +39,6 @@ func (c *VendorClient) Analyze(ctx context.Context, req model.AnalyzeRequest, ve
 		return nil, fmt.Errorf("create request: %w", err)
 	}
 	httpReq.Header.Set("Content-Type", "application/json")
-	if vendorScenario != "" {
-		httpReq.Header.Set("X-Vendor-Scenario", vendorScenario)
-	}
 
 	resp, err := c.HTTPClient.Do(httpReq)
 	if err != nil {

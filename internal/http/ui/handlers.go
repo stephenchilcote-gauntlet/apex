@@ -232,12 +232,7 @@ func (h *UIHandlers) simulateSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	defer backFile.Close()
 
-	var vendorScenario *string
-	if v := r.FormValue("vendorScenario"); v != "" {
-		vendorScenario = &v
-	}
-
-	result, err := h.DepositSvc.SubmitDeposit(r.Context(), investorAccountID, amountCents, frontFile, backFile, vendorScenario)
+	result, err := h.DepositSvc.SubmitDeposit(r.Context(), investorAccountID, amountCents, frontFile, backFile)
 	if err != nil {
 		h.render(w, "simulate", map[string]interface{}{
 			"ActivePage": "simulate",

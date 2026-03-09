@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"database/sql"
+	"encoding/base64"
 	"fmt"
 	"io"
 	"log/slog"
@@ -38,7 +39,7 @@ type DepositService struct {
 	ImageDir    string
 }
 
-func (s *DepositService) SubmitDeposit(ctx context.Context, investorAccountID string, amountCents int64, frontImage, backImage io.Reader, vendorScenario *string) (*SubmitResult, error) {
+func (s *DepositService) SubmitDeposit(ctx context.Context, investorAccountID string, amountCents int64, frontImage, backImage io.Reader) (*SubmitResult, error) {
 	accountID, correspondentID, omnibusAccountID, err := funding.ResolveAccounts(s.DB, investorAccountID)
 	if err != nil {
 		return nil, fmt.Errorf("resolve accounts: %w", err)
@@ -77,18 +78,31 @@ func (s *DepositService) SubmitDeposit(ctx context.Context, investorAccountID st
 		return nil, fmt.Errorf("transition to Validating: %w", err)
 	}
 
+	// Read saved images for vision analysis
+	var frontB64, backB64 string
+	frontPath := filepath.Join(s.ImageDir, t.ID, "FRONT.jpg")
+	backPath := filepath.Join(s.ImageDir, t.ID, "BACK.jpg")
+	if frontData, readErr := os.ReadFile(frontPath); readErr != nil {
+		slog.Warn("could not read front image for vision", "error", readErr)
+	} else {
+		frontB64 = base64.StdEncoding.EncodeToString(frontData)
+	}
+	if backData, readErr := os.ReadFile(backPath); readErr != nil {
+		slog.Warn("could not read back image for vision", "error", readErr)
+	} else {
+		backB64 = base64.StdEncoding.EncodeToString(backData)
+	}
+
 	analyzeReq := model.AnalyzeRequest{
 		TransferID:        t.ID,
 		InvestorAccountID: accountID,
 		AmountCents:       int(amountCents),
 		FrontImageSha256:  frontHash,
 		BackImageSha256:   backHash,
+		FrontImageBase64:  frontB64,
+		BackImageBase64:   backB64,
 	}
-	var scenario string
-	if vendorScenario != nil {
-		scenario = *vendorScenario
-	}
-	vendorResp, err := s.VendorClient.Analyze(ctx, analyzeReq, scenario)
+	vendorResp, err := s.VendorClient.Analyze(ctx, analyzeReq)
 	if err != nil {
 		return nil, fmt.Errorf("vendor analyze: %w", err)
 	}

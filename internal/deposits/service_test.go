@@ -77,7 +77,6 @@ func newDepositService(t *testing.T, db *sql.DB, vendorURL string) *DepositServi
 func front() *bytes.Reader { return bytes.NewReader([]byte("front-image-data")) }
 func back() *bytes.Reader  { return bytes.NewReader([]byte("back-image-data")) }
 
-func ptr(s string) *string { return &s }
 
 func mustGetTransfer(t *testing.T, db *sql.DB, id string) *transfers.Transfer {
 	t.Helper()
@@ -111,7 +110,7 @@ func TestDepositService_SubmitDeposit_CleanPass_E2E(t *testing.T) {
 	vendor := newVendorStub(t, cleanPassResp())
 	svc := newDepositService(t, db, vendor.URL)
 
-	res, err := svc.SubmitDeposit(context.Background(), "INV-1001", 12500, front(), back(), ptr("clean_pass"))
+	res, err := svc.SubmitDeposit(context.Background(), "INV-1001", 12500, front(), back())
 	if err != nil {
 		t.Fatalf("SubmitDeposit: %v", err)
 	}
@@ -244,7 +243,7 @@ func TestDepositService_SubmitDeposit_VendorScenarios(t *testing.T) {
 			vendor := newVendorStub(t, tc.resp)
 			svc := newDepositService(t, db, vendor.URL)
 
-			res, err := svc.SubmitDeposit(context.Background(), "INV-1001", 12500, front(), back(), ptr(tc.scenario))
+			res, err := svc.SubmitDeposit(context.Background(), "INV-1001", 12500, front(), back())
 			if err != nil {
 				t.Fatalf("SubmitDeposit: %v", err)
 			}
@@ -312,7 +311,7 @@ func TestDepositService_SubmitDeposit_FundingRuleRejections(t *testing.T) {
 			vendor := newVendorStub(t, cleanPassResp())
 			svc := newDepositService(t, db, vendor.URL)
 
-			res, err := svc.SubmitDeposit(context.Background(), tc.externalAcctID, tc.amount, front(), back(), ptr("clean_pass"))
+			res, err := svc.SubmitDeposit(context.Background(), tc.externalAcctID, tc.amount, front(), back())
 			if err != nil {
 				t.Fatalf("SubmitDeposit: %v", err)
 			}
@@ -349,7 +348,7 @@ func TestDepositService_SubmitDeposit_InternalDuplicateFingerprint(t *testing.T)
 	svc := newDepositService(t, db, vendor.URL)
 
 	// First deposit succeeds
-	first, err := svc.SubmitDeposit(context.Background(), "INV-1003", 25000, front(), back(), ptr("clean_pass"))
+	first, err := svc.SubmitDeposit(context.Background(), "INV-1003", 25000, front(), back())
 	if err != nil {
 		t.Fatalf("first deposit: %v", err)
 	}
@@ -363,7 +362,7 @@ func TestDepositService_SubmitDeposit_InternalDuplicateFingerprint(t *testing.T)
 	}
 
 	// Second deposit with same MICR+amount+account is rejected as duplicate
-	second, err := svc.SubmitDeposit(context.Background(), "INV-1003", 25000, front(), back(), ptr("clean_pass"))
+	second, err := svc.SubmitDeposit(context.Background(), "INV-1003", 25000, front(), back())
 	if err != nil {
 		t.Fatalf("second deposit: %v", err)
 	}
@@ -419,7 +418,7 @@ func TestDepositService_ConcurrentDeposits_LedgerInvariant(t *testing.T) {
 		go func(idx int) {
 			defer wg.Done()
 			amount := int64(1000 + idx*100)
-			_, err := svc.SubmitDeposit(context.Background(), "INV-1001", amount, front(), back(), ptr("clean_pass"))
+			_, err := svc.SubmitDeposit(context.Background(), "INV-1001", amount, front(), back())
 			results <- result{idx: idx, err: err}
 		}(i)
 	}
@@ -472,7 +471,7 @@ func TestLedgerGlobalZeroSumInvariant(t *testing.T) {
 
 	var transferIDs []string
 	for i, acct := range accounts {
-		res, err := svc.SubmitDeposit(context.Background(), acct, amounts[i], front(), back(), ptr("clean_pass"))
+		res, err := svc.SubmitDeposit(context.Background(), acct, amounts[i], front(), back())
 		if err != nil {
 			t.Fatalf("deposit %d: %v", i, err)
 		}

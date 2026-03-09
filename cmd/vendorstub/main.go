@@ -68,10 +68,7 @@ func loadConfig(path string) (*scenarioConfig, error) {
 	return &cfg, nil
 }
 
-func resolveScenario(req *model.AnalyzeRequest, header string, cfg *scenarioConfig) string {
-	if header != "" {
-		return header
-	}
+func resolveScenario(req *model.AnalyzeRequest, cfg *scenarioConfig) string {
 	acct := req.InvestorAccountID
 	if len(acct) >= 4 {
 		suffix := acct[len(acct)-4:]
@@ -90,7 +87,7 @@ func handleAnalyze(cfg *scenarioConfig) http.HandlerFunc {
 			return
 		}
 
-		scenario := resolveScenario(&req, r.Header.Get("X-Vendor-Scenario"), cfg)
+		scenario := resolveScenario(&req, cfg)
 		slog.Info("analyze request", "transferId", req.TransferID, "scenario", scenario, "amountCents", req.AmountCents)
 
 		resp, err := buildResponse(scenario, req.AmountCents)
