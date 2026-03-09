@@ -81,7 +81,7 @@ async function highlight(page: Page, selector: string) {
       const ring = document.createElement('div');
       ring.className = 'tour-highlight';
       ring.style.cssText = `
-        position: fixed; z-index: 99998;
+        position: fixed; z-index: 99997;
         left: ${rect.x - 4}px; top: ${rect.y - 4}px;
         width: ${rect.w + 8}px; height: ${rect.h + 8}px;
         border: 2px solid #00d9ff;
@@ -294,7 +294,7 @@ async function showArchitectureDiagram(page: Page) {
       </div>
     `;
     document.body.appendChild(overlay);
-    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+    setTimeout(() => { overlay.style.opacity = '1'; }, 50);
   });
   await page.waitForTimeout(500); // wait for fade-in
 }
@@ -400,7 +400,7 @@ async function showStateMachineDiagram(page: Page) {
       </div>
     `;
     document.body.appendChild(overlay);
-    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+    setTimeout(() => { overlay.style.opacity = '1'; }, 50);
   });
   await page.waitForTimeout(500); // wait for fade-in
 }
@@ -437,6 +437,8 @@ async function highlightDiagramPart(page: Page, targetId: string, captionText: s
       ring.setAttribute('width', String(box.width + pad * 2));
       ring.setAttribute('height', String(box.height + pad * 2));
       ring.setAttribute('visibility', 'visible');
+      // Re-append to ensure it paints on top
+      ring.parentElement?.appendChild(ring);
     }
   }, { targetId });
   await caption(page, captionText, durationMs);
@@ -647,13 +649,13 @@ test.describe('Video Tour', () => {
 
     // Check Images panel
     await page.evaluate(() => window.scrollBy(0, 350));
-    await pause(page, 500);
+    await pause(page, 800);
     await caption(page, 'Check images: front and back stored on disk, served for operator review.', 3000);
     await clearCaption(page);
 
     // Vendor Result panel
     await page.evaluate(() => window.scrollBy(0, 350));
-    await pause(page, 500);
+    await pause(page, 800);
     await caption(page,
       'Vendor Result: decision (PASS/FAIL/REVIEW), IQA status, MICR routing/account/serial, confidence score, risk score, amount match.',
       5000);
@@ -661,7 +663,7 @@ test.describe('Video Tour', () => {
 
     // Rule Evaluations panel
     await page.evaluate(() => window.scrollBy(0, 300));
-    await pause(page, 500);
+    await pause(page, 800);
     await highlight(page, 'table');
     await caption(page,
       'Rule Evaluations: 4 business rules — account eligibility, $5K limit, contribution type, duplicate fingerprint. Each logged with pass/fail + details.',
@@ -671,7 +673,7 @@ test.describe('Video Tour', () => {
 
     // Audit Trail panel
     await page.evaluate(() => window.scrollBy(0, 300));
-    await pause(page, 500);
+    await pause(page, 800);
     await highlight(page, 'table');
     await caption(page,
       'Audit Trail: every state transition with timestamp, from/to state, actor, and event details. This is the complete decision trace.',
@@ -679,7 +681,7 @@ test.describe('Video Tour', () => {
     await clearHighlights(page);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await pause(page, 500);
+    await pause(page, 800);
 
     // =======================================================================
     // SECTION 6 — LEDGER: DOUBLE-ENTRY BOOKKEEPING  (~2:45)
@@ -893,7 +895,7 @@ test.describe('Video Tour', () => {
     // Approve — scroll to show controls above the overlay area
     await page.evaluate(() => {
       const el = document.querySelector('[data-action="approve"]');
-      if (el) el.scrollIntoView({ block: 'center' });
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
     await pause(page, 500);
     await clearCaption(page);
@@ -937,7 +939,7 @@ test.describe('Video Tour', () => {
 
     await page.evaluate(() => {
       const el = document.querySelector('[data-action="reject"]');
-      if (el) el.scrollIntoView({ block: 'center' });
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
     await pause(page, 500);
 
@@ -987,7 +989,7 @@ test.describe('Video Tour', () => {
 
     await page.evaluate(() => {
       const el = document.querySelector('[data-action="approve"]');
-      if (el) el.scrollIntoView({ block: 'center' });
+      if (el) el.scrollIntoView({ block: 'center', behavior: 'smooth' });
     });
     await pause(page, 500);
 
@@ -1016,7 +1018,7 @@ test.describe('Video Tour', () => {
     await page.evaluate(() => window.scrollBy(0, 300));
     await pause(page, 2000);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await pause(page, 500);
+    await pause(page, 800);
 
     // =======================================================================
     // SECTION 14 — SETTLEMENT ROUND 2  (~9:15)
@@ -1136,7 +1138,7 @@ test.describe('Video Tour', () => {
     await page.evaluate(() => {
       const tables = document.querySelectorAll('.data-table');
       const auditTable = tables[tables.length - 1];
-      if (auditTable) auditTable.scrollIntoView({ block: 'center' });
+      if (auditTable) auditTable.scrollIntoView({ block: 'start', behavior: 'smooth' });
     });
     await pause(page, 500);
     // Highlight the last table (audit trail, not rule evaluations)
@@ -1149,7 +1151,7 @@ test.describe('Video Tour', () => {
       const ring = document.createElement('div');
       ring.className = 'tour-highlight';
       ring.style.cssText = `
-        position: fixed; z-index: 99998;
+        position: fixed; z-index: 99997;
         left: ${rect.left - 4}px; top: ${rect.top - 4}px;
         width: ${rect.width + 8}px; height: ${rect.height + 8}px;
         border: 2px solid #00d9ff;
@@ -1168,6 +1170,7 @@ test.describe('Video Tour', () => {
     await clearCaption(page);
     await pause(page, 1000);
     await page.evaluate(() => window.scrollTo(0, 0));
+    await pause(page, 800);
 
     // =======================================================================
     // SECTION 18 — SECOND RETURN (FRAUD)  (~12:15)
@@ -1211,7 +1214,7 @@ test.describe('Video Tour', () => {
       const headers = document.querySelectorAll('.panel-header-title');
       for (const h of headers) {
         if (h.textContent?.trim() === 'Return') {
-          h.closest('.panel')?.scrollIntoView({ block: 'center' });
+          h.closest('.panel')?.scrollIntoView({ block: 'center', behavior: 'smooth' });
           break;
         }
       }
@@ -1243,7 +1246,7 @@ test.describe('Video Tour', () => {
     await page.evaluate(() => window.scrollBy(0, 300));
     await pause(page, 1500);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await pause(page, 500);
+    await pause(page, 800);
 
     // =======================================================================
     // SECTION 20 — DESIGN DECISIONS  (~14:00)

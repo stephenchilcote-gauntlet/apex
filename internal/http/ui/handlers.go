@@ -130,7 +130,8 @@ func (h *UIHandlers) Init() error {
 			}
 			return i
 		},
-		"lower": strings.ToLower,
+		"lower":    strings.ToLower,
+		"basename": filepath.Base,
 	}
 
 	h.templates = make(map[string]*template.Template)
@@ -169,6 +170,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Get("/ui/settlement", h.settlementPage)
 	r.Post("/ui/settlement/generate", h.settlementGenerate)
 	r.Post("/ui/settlement/{id}/ack", h.settlementAck)
+	r.Get("/ui/settlement/{id}/download", h.settlementDownload)
 	r.Get("/ui/returns", h.returnsPage)
 	r.Post("/ui/returns", h.returnsSubmit)
 	r.Get("/ui/images/{transferId}/{side}", h.serveImage)
@@ -582,6 +584,18 @@ func (h *UIHandlers) settlementAck(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, "/ui/settlement?msg=Batch+acknowledged", http.StatusSeeOther)
+}
+
+func (h *UIHandlers) settlementDownload(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	batch, _, err := h.SettlementSvc.GetBatch(r.Context(), id)
+	if err != nil || batch == nil || batch.FilePath == nil {
+		http.Error(w, "batch not found", 404)
+		return
+	}
+	w.Header().Set("Content-Type", "application/octet-stream")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filepath.Base(*batch.FilePath)))
+	http.ServeFile(w, r, *batch.FilePath)
 }
 
 // ---------------------------------------------------------------------------
