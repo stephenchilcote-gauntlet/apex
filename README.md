@@ -80,6 +80,9 @@ make dev
 
 ## API Endpoints
 
+### Health
+- `GET /healthz` — Health check (pings SQLite and vendor stub)
+
 ### Deposits
 - `POST /api/v1/deposits` — Submit a deposit (multipart: frontImage, backImage, amount, investorAccountId, vendorScenario)
 - `GET /api/v1/deposits` — List deposits (filters: state, investorAccountId, reviewRequired, reviewStatus)

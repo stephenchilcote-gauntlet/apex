@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -82,6 +83,41 @@ func main() {
 	r.Use(middleware.RequestID)
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+
+	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
+		status := "ok"
+		httpStatus := http.StatusOK
+
+		dbStatus := "ok"
+		if err := db.Ping(); err != nil {
+			dbStatus = err.Error()
+			status = "degraded"
+			httpStatus = http.StatusServiceUnavailable
+		}
+
+		vendorStatus := "ok"
+		resp, err := http.Get(cfg.VendorStubURL + "/health")
+		if err != nil {
+			vendorStatus = err.Error()
+			status = "degraded"
+			httpStatus = http.StatusServiceUnavailable
+		} else {
+			resp.Body.Close()
+			if resp.StatusCode != http.StatusOK {
+				vendorStatus = fmt.Sprintf("HTTP %d", resp.StatusCode)
+				status = "degraded"
+				httpStatus = http.StatusServiceUnavailable
+			}
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(httpStatus)
+		json.NewEncoder(w).Encode(map[string]string{
+			"status": status,
+			"db":     dbStatus,
+			"vendor": vendorStatus,
+		})
+	})
 
 	// Register API routes directly on main router
 	apiHandlers.RegisterRoutes(r)
