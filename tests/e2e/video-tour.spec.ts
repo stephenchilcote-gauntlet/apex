@@ -40,7 +40,7 @@ async function caption(page: Page, text: string, durationMs = 4000) {
           padding: 10px 40px;
           font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
           color: #cce8ff;
-          font-size: 14px; line-height: 1.4;
+          font-size: 18px; line-height: 1.4;
           text-align: center;
           pointer-events: none;
           transition: opacity 0.3s ease;
@@ -121,7 +121,7 @@ async function initCursor(page: Page) {
     </svg>`;
     cur.style.cssText = `
       position: fixed; z-index: 100001; pointer-events: none;
-      left: 640px; top: 450px;
+      left: 960px; top: 540px;
       transition: left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1);
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
     `;
@@ -214,59 +214,12 @@ async function showArchitectureDiagram(page: Page) {
     `;
     overlay.innerHTML = `
       <div style="font-size:20px;color:#00d9ff;letter-spacing:2px;margin-bottom:28px;text-transform:uppercase;">System Architecture</div>
-      <svg viewBox="0 0 800 380" width="720" height="342" style="filter:drop-shadow(0 4px 20px rgba(0,217,255,0.15));">
-        <!-- Mobile App -->
-        <rect x="20" y="150" width="130" height="70" rx="8" fill="#0a1929" stroke="#00d9ff" stroke-width="1.5"/>
-        <text x="85" y="180" text-anchor="middle" fill="#cce8ff" font-size="13" font-weight="600">Mobile App</text>
-        <text x="85" y="198" text-anchor="middle" fill="#6699bb" font-size="10">(Simulated)</text>
-
-        <!-- App Server -->
-        <rect x="240" y="60" width="200" height="260" rx="10" fill="#0d2137" stroke="#00d9ff" stroke-width="2"/>
-        <text x="340" y="90" text-anchor="middle" fill="#00d9ff" font-size="14" font-weight="700">App Server :8080</text>
-        <rect x="260" y="105" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
-        <text x="340" y="127" text-anchor="middle" fill="#88ccee" font-size="11">REST API /api/v1/*</text>
-        <rect x="260" y="150" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
-        <text x="340" y="172" text-anchor="middle" fill="#88ccee" font-size="11">UI Server /ui/*</text>
-        <rect x="260" y="195" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
-        <text x="340" y="212" text-anchor="middle" fill="#88ccee" font-size="10">Funding Service</text>
-        <text x="340" y="224" text-anchor="middle" fill="#6699bb" font-size="9">State Machine • Rules</text>
-        <rect x="260" y="240" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
-        <text x="340" y="257" text-anchor="middle" fill="#88ccee" font-size="10">Settlement Engine</text>
-        <text x="340" y="269" text-anchor="middle" fill="#6699bb" font-size="9">X9.37 ICL Generation</text>
-        <rect x="260" y="285" width="160" height="25" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
-        <text x="340" y="302" text-anchor="middle" fill="#88ccee" font-size="10">Ledger (Double-Entry)</text>
-
-        <!-- Arrow: Mobile → App -->
-        <line x1="150" y1="185" x2="238" y2="185" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#arrowhead)"/>
-        <text x="194" y="178" text-anchor="middle" fill="#6699bb" font-size="9">HTTP POST</text>
-
-        <!-- Vendor Stub -->
-        <rect x="540" y="120" width="160" height="70" rx="8" fill="#0a1929" stroke="#ff9500" stroke-width="1.5"/>
-        <text x="620" y="150" text-anchor="middle" fill="#ffbb44" font-size="13" font-weight="600">Vendor Stub :8081</text>
-        <text x="620" y="170" text-anchor="middle" fill="#6699bb" font-size="10">IQA • MICR • Risk</text>
-
-        <!-- Arrow: App → Vendor -->
-        <line x1="440" y1="155" x2="538" y2="155" stroke="#ff9500" stroke-width="1.5" marker-end="url(#arrowhead-orange)"/>
-        <text x="489" y="148" text-anchor="middle" fill="#6699bb" font-size="9">Analyze</text>
-
-        <!-- SQLite -->
-        <rect x="540" y="240" width="160" height="60" rx="8" fill="#0a1929" stroke="#44cc88" stroke-width="1.5"/>
-        <text x="620" y="266" text-anchor="middle" fill="#66eebb" font-size="13" font-weight="600">SQLite</text>
-        <text x="620" y="284" text-anchor="middle" fill="#6699bb" font-size="10">Transfers • Ledger • Audit</text>
-
-        <!-- Arrow: App → SQLite -->
-        <line x1="440" y1="275" x2="538" y2="275" stroke="#44cc88" stroke-width="1.5" marker-end="url(#arrowhead-green)"/>
-
-        <!-- ICL Files -->
-        <rect x="540" y="40" width="160" height="50" rx="8" fill="#0a1929" stroke="#aa66ff" stroke-width="1.5"/>
-        <text x="620" y="62" text-anchor="middle" fill="#cc88ff" font-size="12" font-weight="600">X9.37 ICL Files</text>
-        <text x="620" y="78" text-anchor="middle" fill="#6699bb" font-size="10">Binary Settlement</text>
-
-        <!-- Arrow: App → ICL -->
-        <line x1="420" y1="60" x2="538" y2="60" stroke="#aa66ff" stroke-width="1.5" marker-end="url(#arrowhead-purple)"/>
-
-        <!-- Arrowhead markers -->
+      <svg viewBox="0 0 800 380" width="1100" height="522" style="filter:drop-shadow(0 4px 20px rgba(0,217,255,0.15));">
         <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
           <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
             <path d="M0,0 L8,3 L0,6" fill="#00d9ff"/>
           </marker>
@@ -280,6 +233,61 @@ async function showArchitectureDiagram(page: Page) {
             <path d="M0,0 L8,3 L0,6" fill="#aa66ff"/>
           </marker>
         </defs>
+        <style>
+          .diagram-part { transition: opacity 0.4s ease; }
+        </style>
+
+        <g id="arch-mobile" class="diagram-part">
+          <rect x="20" y="150" width="130" height="70" rx="8" fill="#0a1929" stroke="#00d9ff" stroke-width="1.5"/>
+          <text x="85" y="180" text-anchor="middle" fill="#cce8ff" font-size="13" font-weight="600">Mobile App</text>
+          <text x="85" y="198" text-anchor="middle" fill="#6699bb" font-size="10">(Simulated)</text>
+        </g>
+
+        <g id="arch-arrows" class="diagram-part">
+          <line x1="150" y1="185" x2="238" y2="185" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#arrowhead)"/>
+          <text x="194" y="175" text-anchor="middle" fill="#6699bb" font-size="9">HTTP POST</text>
+          <line x1="440" y1="155" x2="538" y2="155" stroke="#ff9500" stroke-width="1.5" marker-end="url(#arrowhead-orange)"/>
+          <text x="489" y="145" text-anchor="middle" fill="#6699bb" font-size="9">Analyze</text>
+          <line x1="440" y1="275" x2="538" y2="275" stroke="#44cc88" stroke-width="1.5" marker-end="url(#arrowhead-green)"/>
+          <line x1="420" y1="60" x2="538" y2="60" stroke="#aa66ff" stroke-width="1.5" marker-end="url(#arrowhead-purple)"/>
+        </g>
+
+        <g id="arch-server" class="diagram-part">
+          <rect x="240" y="60" width="200" height="260" rx="10" fill="#0d2137" stroke="#00d9ff" stroke-width="2"/>
+          <text x="340" y="90" text-anchor="middle" fill="#00d9ff" font-size="14" font-weight="700">App Server :8080</text>
+          <rect x="260" y="105" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
+          <text x="340" y="127" text-anchor="middle" fill="#88ccee" font-size="11">REST API /api/v1/*</text>
+          <rect x="260" y="150" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
+          <text x="340" y="172" text-anchor="middle" fill="#88ccee" font-size="11">UI Server /ui/*</text>
+          <rect x="260" y="195" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
+          <text x="340" y="212" text-anchor="middle" fill="#88ccee" font-size="10">Funding Service</text>
+          <text x="340" y="224" text-anchor="middle" fill="#6699bb" font-size="9">State Machine • Rules</text>
+          <rect x="260" y="240" width="160" height="35" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
+          <text x="340" y="257" text-anchor="middle" fill="#88ccee" font-size="10">Settlement Engine</text>
+          <text x="340" y="269" text-anchor="middle" fill="#6699bb" font-size="9">X9.37 ICL Generation</text>
+          <rect x="260" y="285" width="160" height="25" rx="5" fill="#112a40" stroke="#335577" stroke-width="1"/>
+          <text x="340" y="302" text-anchor="middle" fill="#88ccee" font-size="10">Ledger (Double-Entry)</text>
+        </g>
+
+        <g id="arch-vendor" class="diagram-part">
+          <rect x="540" y="120" width="160" height="70" rx="8" fill="#0a1929" stroke="#ff9500" stroke-width="1.5"/>
+          <text x="620" y="150" text-anchor="middle" fill="#ffbb44" font-size="13" font-weight="600">Vendor Stub :8081</text>
+          <text x="620" y="170" text-anchor="middle" fill="#6699bb" font-size="10">IQA • MICR • Risk</text>
+        </g>
+
+        <g id="arch-sqlite" class="diagram-part">
+          <rect x="540" y="240" width="160" height="60" rx="8" fill="#0a1929" stroke="#44cc88" stroke-width="1.5"/>
+          <text x="620" y="266" text-anchor="middle" fill="#66eebb" font-size="13" font-weight="600">SQLite</text>
+          <text x="620" y="284" text-anchor="middle" fill="#6699bb" font-size="10">Transfers • Ledger • Audit</text>
+        </g>
+
+        <g id="arch-icl" class="diagram-part">
+          <rect x="540" y="40" width="160" height="50" rx="8" fill="#0a1929" stroke="#aa66ff" stroke-width="1.5"/>
+          <text x="620" y="62" text-anchor="middle" fill="#cc88ff" font-size="12" font-weight="600">X9.37 ICL Files</text>
+          <text x="620" y="78" text-anchor="middle" fill="#6699bb" font-size="10">Binary Settlement</text>
+        </g>
+
+        <rect id="focus-ring" visibility="hidden" rx="10" ry="10" fill="none" stroke="#ffd54f" stroke-width="3" vector-effect="non-scaling-stroke" filter="url(#glow)"/>
       </svg>
       <div style="margin-top:20px;color:#6699bb;font-size:11px;letter-spacing:0.5px;">
         Single Go binary (app) + separate vendor stub binary — mirrors production topology
@@ -288,6 +296,7 @@ async function showArchitectureDiagram(page: Page) {
     document.body.appendChild(overlay);
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
   });
+  await page.waitForTimeout(500); // wait for fade-in
 }
 
 /** Show the state machine diagram as a full-screen overlay. */
@@ -304,69 +313,12 @@ async function showStateMachineDiagram(page: Page) {
     `;
     overlay.innerHTML = `
       <div style="font-size:20px;color:#00d9ff;letter-spacing:2px;margin-bottom:24px;text-transform:uppercase;">Transfer State Machine</div>
-      <svg viewBox="0 0 850 380" width="765" height="342" style="filter:drop-shadow(0 4px 20px rgba(0,217,255,0.15));">
-        <!-- Happy path states -->
-        <rect x="20" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
-        <text x="70" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Requested</text>
-
-        <rect x="170" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
-        <text x="220" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Validating</text>
-
-        <rect x="320" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
-        <text x="370" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Analyzing</text>
-
-        <rect x="470" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
-        <text x="520" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Approved</text>
-
-        <rect x="620" y="155" width="110" height="40" rx="6" fill="#0d3320" stroke="#44cc88" stroke-width="1.5"/>
-        <text x="675" y="180" text-anchor="middle" fill="#66eebb" font-size="11" font-weight="600">FundsPosted</text>
-
-        <rect x="780" y="155" width="100" height="40" rx="6" fill="#0d3320" stroke="#44cc88" stroke-width="2"/>
-        <text x="830" y="175" text-anchor="middle" fill="#66eebb" font-size="12" font-weight="700">✓</text>
-        <text x="830" y="190" text-anchor="middle" fill="#66eebb" font-size="10">Completed</text>
-
-        <!-- Happy path arrows -->
-        <line x1="120" y1="175" x2="168" y2="175" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#sm-arrow)"/>
-        <line x1="270" y1="175" x2="318" y2="175" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#sm-arrow)"/>
-        <line x1="420" y1="175" x2="468" y2="175" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#sm-arrow)"/>
-        <line x1="570" y1="175" x2="618" y2="175" stroke="#44cc88" stroke-width="1.5" marker-end="url(#sm-arrow-green)"/>
-        <line x1="730" y1="175" x2="778" y2="175" stroke="#44cc88" stroke-width="1.5" marker-end="url(#sm-arrow-green)"/>
-
-        <!-- Labels on arrows -->
-        <text x="145" y="168" text-anchor="middle" fill="#4488aa" font-size="8">submit</text>
-        <text x="295" y="168" text-anchor="middle" fill="#4488aa" font-size="8">vendor</text>
-        <text x="445" y="165" text-anchor="middle" fill="#4488aa" font-size="8">rules pass</text>
-        <text x="445" y="175" text-anchor="middle" fill="#4488aa" font-size="7">or operator</text>
-        <text x="595" y="168" text-anchor="middle" fill="#4488aa" font-size="8">ledger post</text>
-        <text x="755" y="168" text-anchor="middle" fill="#4488aa" font-size="8">settle</text>
-
-        <!-- Rejected state -->
-        <rect x="230" y="290" width="110" height="40" rx="6" fill="#2d1010" stroke="#ff4444" stroke-width="1.5"/>
-        <text x="285" y="310" text-anchor="middle" fill="#ff6666" font-size="11" font-weight="600">✗ Rejected</text>
-
-        <!-- Arrows to Rejected -->
-        <line x1="220" y1="195" x2="270" y2="288" stroke="#ff4444" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-red)"/>
-        <text x="225" y="245" fill="#884444" font-size="8">vendor fail</text>
-        <line x1="370" y1="195" x2="300" y2="288" stroke="#ff4444" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-red)"/>
-        <text x="355" y="245" fill="#884444" font-size="8">rule fail</text>
-
-        <!-- Returned state -->
-        <rect x="680" y="290" width="110" height="40" rx="6" fill="#2d1d00" stroke="#ff9500" stroke-width="1.5"/>
-        <text x="735" y="310" text-anchor="middle" fill="#ffbb44" font-size="11" font-weight="600">↩ Returned</text>
-
-        <!-- Arrows to Returned -->
-        <line x1="675" y1="195" x2="720" y2="288" stroke="#ff9500" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-orange)"/>
-        <line x1="830" y1="195" x2="750" y2="288" stroke="#ff9500" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-orange)"/>
-        <text x="745" y="245" fill="#886633" font-size="8">bounced check</text>
-
-        <!-- Review path label -->
-        <rect x="320" y="60" width="100" height="32" rx="5" fill="#1a1a30" stroke="#aa66ff" stroke-width="1"/>
-        <text x="370" y="76" text-anchor="middle" fill="#cc88ff" font-size="10">Operator</text>
-        <text x="370" y="87" text-anchor="middle" fill="#cc88ff" font-size="10">Review</text>
-        <path d="M370,155 L370,92" stroke="#aa66ff" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#sm-arrow-purple)"/>
-        <text x="388" y="125" fill="#7755aa" font-size="8">review_required</text>
-
+      <svg viewBox="0 0 910 380" width="1140" height="476" style="filter:drop-shadow(0 4px 20px rgba(0,217,255,0.15));">
         <defs>
+          <filter id="sm-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="4" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
           <marker id="sm-arrow" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
             <path d="M0,0 L8,3 L0,6" fill="#00d9ff"/>
           </marker>
@@ -383,6 +335,62 @@ async function showStateMachineDiagram(page: Page) {
             <path d="M0,0 L8,3 L0,6" fill="#aa66ff"/>
           </marker>
         </defs>
+        <style>
+          .diagram-part { transition: opacity 0.4s ease; }
+        </style>
+
+        <g id="sm-happy" class="diagram-part">
+          <rect x="20" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
+          <text x="70" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Requested</text>
+          <rect x="170" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
+          <text x="220" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Validating</text>
+          <rect x="320" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
+          <text x="370" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Analyzing</text>
+          <rect x="470" y="155" width="100" height="40" rx="6" fill="#112a40" stroke="#00d9ff" stroke-width="1.5"/>
+          <text x="520" y="180" text-anchor="middle" fill="#cce8ff" font-size="11" font-weight="600">Approved</text>
+          <rect x="620" y="155" width="110" height="40" rx="6" fill="#0d3320" stroke="#44cc88" stroke-width="1.5"/>
+          <text x="675" y="180" text-anchor="middle" fill="#66eebb" font-size="11" font-weight="600">FundsPosted</text>
+          <rect x="780" y="155" width="100" height="40" rx="6" fill="#0d3320" stroke="#44cc88" stroke-width="2"/>
+          <text x="830" y="175" text-anchor="middle" fill="#66eebb" font-size="12" font-weight="700">✓</text>
+          <text x="830" y="190" text-anchor="middle" fill="#66eebb" font-size="10">Completed</text>
+          <line x1="120" y1="175" x2="168" y2="175" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#sm-arrow)"/>
+          <line x1="270" y1="175" x2="318" y2="175" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#sm-arrow)"/>
+          <line x1="420" y1="175" x2="468" y2="175" stroke="#00d9ff" stroke-width="1.5" marker-end="url(#sm-arrow)"/>
+          <line x1="570" y1="175" x2="618" y2="175" stroke="#44cc88" stroke-width="1.5" marker-end="url(#sm-arrow-green)"/>
+          <line x1="730" y1="175" x2="778" y2="175" stroke="#44cc88" stroke-width="1.5" marker-end="url(#sm-arrow-green)"/>
+          <text x="145" y="166" text-anchor="middle" fill="#4488aa" font-size="8">submit</text>
+          <text x="295" y="166" text-anchor="middle" fill="#4488aa" font-size="8">vendor</text>
+          <text x="445" y="166" text-anchor="middle" fill="#4488aa" font-size="8">rules pass</text>
+          <text x="595" y="166" text-anchor="middle" fill="#4488aa" font-size="8">ledger post</text>
+          <text x="755" y="166" text-anchor="middle" fill="#4488aa" font-size="8">settle</text>
+        </g>
+
+        <g id="sm-rejected" class="diagram-part">
+          <rect x="230" y="290" width="110" height="40" rx="6" fill="#2d1010" stroke="#ff4444" stroke-width="1.5"/>
+          <text x="285" y="315" text-anchor="middle" fill="#ff6666" font-size="11" font-weight="600">✗ Rejected</text>
+          <line x1="220" y1="195" x2="270" y2="288" stroke="#ff4444" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-red)"/>
+          <text x="222" y="248" fill="#bb5555" font-size="8">vendor fail</text>
+          <line x1="370" y1="195" x2="300" y2="288" stroke="#ff4444" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-red)"/>
+          <text x="358" y="248" fill="#bb5555" font-size="8">rule fail</text>
+        </g>
+
+        <g id="sm-returned" class="diagram-part">
+          <rect x="680" y="290" width="110" height="40" rx="6" fill="#2d1d00" stroke="#ff9500" stroke-width="1.5"/>
+          <text x="735" y="315" text-anchor="middle" fill="#ffbb44" font-size="11" font-weight="600">↩ Returned</text>
+          <line x1="675" y1="195" x2="720" y2="288" stroke="#ff9500" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-orange)"/>
+          <line x1="830" y1="195" x2="750" y2="288" stroke="#ff9500" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#sm-arrow-orange)"/>
+          <text x="760" y="248" fill="#bb8833" font-size="8">bounced check</text>
+        </g>
+
+        <g id="sm-review" class="diagram-part">
+          <rect x="320" y="55" width="100" height="32" rx="5" fill="#1a1a30" stroke="#aa66ff" stroke-width="1"/>
+          <text x="370" y="71" text-anchor="middle" fill="#cc88ff" font-size="10">Operator</text>
+          <text x="370" y="82" text-anchor="middle" fill="#cc88ff" font-size="10">Review</text>
+          <path d="M370,155 L370,87" stroke="#aa66ff" stroke-width="1" stroke-dasharray="3,3" marker-end="url(#sm-arrow-purple)"/>
+          <text x="392" y="125" fill="#9966cc" font-size="8">review</text>
+        </g>
+
+        <rect id="focus-ring" visibility="hidden" rx="8" ry="8" fill="none" stroke="#ffd54f" stroke-width="3" vector-effect="non-scaling-stroke" filter="url(#sm-glow)"/>
       </svg>
       <div style="display:flex;gap:24px;margin-top:18px;font-size:10px;color:#6699bb;">
         <span><span style="color:#00d9ff;">━━</span> Happy path</span>
@@ -394,6 +402,7 @@ async function showStateMachineDiagram(page: Page) {
     document.body.appendChild(overlay);
     requestAnimationFrame(() => { overlay.style.opacity = '1'; });
   });
+  await page.waitForTimeout(500); // wait for fade-in
 }
 
 /** Remove a full-screen diagram overlay by ID. */
@@ -406,6 +415,45 @@ async function removeDiagram(page: Page, id: string) {
     }
   }, id);
   await page.waitForTimeout(500);
+}
+
+/** Highlight one part of a diagram, dimming all others. */
+async function highlightDiagramPart(page: Page, targetId: string, captionText: string, durationMs = 4000) {
+  await page.evaluate(({ targetId }) => {
+    const svg = document.querySelector('[id^="tour-"] svg') as SVGSVGElement;
+    if (!svg) return;
+    // Dim all parts, un-dim target
+    svg.querySelectorAll('.diagram-part').forEach(el => {
+      (el as SVGElement).style.opacity = el.id === targetId ? '1' : '0.2';
+    });
+    // Move focus ring
+    const target = svg.querySelector(`#${targetId}`) as SVGGraphicsElement;
+    const ring = svg.querySelector('#focus-ring') as SVGRectElement;
+    if (target && ring) {
+      const box = target.getBBox();
+      const pad = 6;
+      ring.setAttribute('x', String(box.x - pad));
+      ring.setAttribute('y', String(box.y - pad));
+      ring.setAttribute('width', String(box.width + pad * 2));
+      ring.setAttribute('height', String(box.height + pad * 2));
+      ring.setAttribute('visibility', 'visible');
+    }
+  }, { targetId });
+  await caption(page, captionText, durationMs);
+}
+
+/** Reset diagram highlighting — all parts fully visible, ring hidden. */
+async function resetDiagramHighlight(page: Page) {
+  await page.evaluate(() => {
+    const svg = document.querySelector('[id^="tour-"] svg') as SVGSVGElement;
+    if (!svg) return;
+    svg.querySelectorAll('.diagram-part').forEach(el => {
+      (el as SVGElement).style.opacity = '1';
+    });
+    const ring = svg.querySelector('#focus-ring') as SVGRectElement;
+    if (ring) ring.setAttribute('visibility', 'hidden');
+  });
+  await clearCaption(page);
 }
 
 // Reusable submit helper
@@ -435,8 +483,8 @@ async function submitDeposit(
 // ===========================================================================
 
 test.use({
-  video: { mode: 'on', size: { width: 1280, height: 900 } },
-  viewport: { width: 1280, height: 900 },
+  video: { mode: 'on', size: { width: 1920, height: 1080 } },
+  viewport: { width: 1920, height: 1080 },
 });
 
 test.describe('Video Tour', () => {
@@ -468,13 +516,22 @@ test.describe('Video Tour', () => {
     await hideCursor(page);
     await showArchitectureDiagram(page);
     await caption(page,
-      '① System Architecture — Two Go binaries: the App Server handles API, UI, rules, ledger, and settlement. The Vendor Stub simulates a third-party image analysis service.',
-      6000);
+      '① System Architecture — Two Go binaries working together to process mobile check deposits.',
+      4000);
     await clearCaption(page);
-    await caption(page,
-      'The app serves both a REST API (/api/v1/…) and a server-rendered HTMX UI (/ui/…). SQLite stores all state. Settlement produces real X9.37 ICL binary files.',
-      6000);
-    await clearCaption(page);
+
+    // Walk through each component
+    await highlightDiagramPart(page, 'arch-mobile',
+      'Mobile App — Simulated via the UI. Captures front/back check images and submits deposits via HTTP POST.', 4000);
+    await highlightDiagramPart(page, 'arch-server',
+      'App Server (:8080) — The core Go binary. Hosts the REST API, HTMX UI, funding service (state machine + business rules), settlement engine (X9.37 ICL), and double-entry ledger.', 5500);
+    await highlightDiagramPart(page, 'arch-vendor',
+      'Vendor Stub (:8081) — Separate Go binary simulating a third-party image analysis service. Returns IQA, MICR, and risk scoring results.', 4500);
+    await highlightDiagramPart(page, 'arch-sqlite',
+      'SQLite — Single-file database storing transfers, ledger entries, audit trail, and settlement batches.', 4000);
+    await highlightDiagramPart(page, 'arch-icl',
+      'X9.37 ICL Files — Real binary settlement files with proper record types and embedded check images. Generated by the settlement engine.', 4000);
+    await resetDiagramHighlight(page);
     await removeDiagram(page, 'tour-arch-diagram');
 
     // Flash through every tab so the viewer sees the full UI surface
@@ -505,17 +562,20 @@ test.describe('Video Tour', () => {
     await hideCursor(page);
     await showStateMachineDiagram(page);
     await caption(page,
-      '② Transfer State Machine — Every deposit follows this lifecycle. The happy path flows left to right through 6 states.',
-      6000);
+      '② Transfer State Machine — Every deposit follows this lifecycle. All transitions are enforced by a centralized validator.',
+      4000);
     await clearCaption(page);
-    await caption(page,
-      'Vendor failures or business rule violations → Rejected (red). Bounced checks after settlement → Returned with reversal + $30 fee (orange). All transitions enforced by a centralized validator.',
-      6000);
-    await clearCaption(page);
-    await caption(page,
-      'When the vendor returns REVIEW instead of PASS/FAIL, the deposit enters the operator review queue (purple). A human approves or rejects.',
-      5000);
-    await clearCaption(page);
+
+    // Walk through each path
+    await highlightDiagramPart(page, 'sm-happy',
+      'Happy Path (blue → green): Requested → Validating → Analyzing → Approved → FundsPosted → Completed. Six states, left to right.', 5500);
+    await highlightDiagramPart(page, 'sm-rejected',
+      'Rejected (red): Vendor failures (bad IQA, MICR errors) or business rule violations (over limit, duplicate) route here. Terminal state.', 5000);
+    await highlightDiagramPart(page, 'sm-review',
+      'Operator Review (purple): When the vendor returns REVIEW instead of PASS/FAIL, a human operator must approve or reject.', 4500);
+    await highlightDiagramPart(page, 'sm-returned',
+      'Returned (orange): Post-settlement bounced checks. Triggers ledger reversal of the original credit plus a $30 return fee.', 4500);
+    await resetDiagramHighlight(page);
     await removeDiagram(page, 'tour-sm-diagram');
     await showCursor(page);
 

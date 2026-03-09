@@ -27,7 +27,6 @@
           <th>Status</th>
           <th>Items</th>
           <th>Total Amount</th>
-          <th>File</th>
           <th>Created</th>
           <th>Action</th>
         </tr>
@@ -40,7 +39,6 @@
           <td><span class="badge badge--{{.Status}}" data-state>{{.Status}}</span></td>
           <td>{{.TotalItems}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .TotalAmountCents}}</span></td>
-          <td>{{if .FilePath}}{{deref .FilePath}}{{else}}—{{end}}</td>
           <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
           <td>
             {{if eq .Status "GENERATED"}}
@@ -53,7 +51,7 @@
           </td>
         </tr>
         {{else}}
-        <tr><td colspan="8" style="text-align:center;">No batches found</td></tr>
+        <tr><td colspan="7" style="text-align:center;">No batches found</td></tr>
         {{end}}
       </tbody>
     </table>

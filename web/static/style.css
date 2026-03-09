@@ -214,6 +214,7 @@ body {
 
 .panel-body {
   padding: 12px;
+  overflow-x: auto;
 }
 
 .panel[data-status="caution"] {
@@ -242,6 +243,7 @@ body {
   border-spacing: 0;
   font-family: var(--font-data);
   font-size: 12px;
+  max-width: 100%;
 }
 
 .data-table th {
@@ -588,12 +590,14 @@ label,
 .check-image {
   border: 1px solid var(--border-subtle);
   max-width: 100%;
+  min-width: 0;
   display: block;
 }
 
 .check-images {
   display: flex;
   gap: 8px;
+  overflow: hidden;
 }
 
 /* --------------------------------------------------------------------------
