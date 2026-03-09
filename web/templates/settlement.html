@@ -19,24 +19,24 @@
 <div class="panel">
   <div class="panel-header"><span class="panel-header-title">Batches</span></div>
   <div class="panel-body">
-    <table class="data-table">
+    <table class="data-table" style="table-layout:fixed;">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Business Date</th>
-          <th>Status</th>
-          <th>Items</th>
-          <th>Total Amount</th>
+          <th style="width:72px;">ID</th>
+          <th style="width:100px;">Business Date</th>
+          <th style="width:100px;">Status</th>
+          <th style="width:48px;">Items</th>
+          <th style="width:110px;">Total Amount</th>
           <th>File</th>
-          <th>Created</th>
-          <th>Action</th>
+          <th style="width:140px;">Created</th>
+          <th style="width:100px;">Action</th>
         </tr>
       </thead>
       <tbody>
         {{range .Batches}}
         <tr>
           <td>{{slice .ID 0 8}}…</td>
-          <td>{{.BusinessDateCT}}</td>
+          <td>{{slice .BusinessDateCT 0 10}}</td>
           <td><span class="badge badge--{{.Status}}" data-state>{{.Status}}</span></td>
           <td>{{.TotalItems}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .TotalAmountCents}}</span></td>

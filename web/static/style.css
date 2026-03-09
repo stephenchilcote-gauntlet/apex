@@ -647,12 +647,11 @@ a:hover {
 
 /* Settlement ICL filename — truncated */
 .icl-filename {
-  display: inline-block;
-  max-width: 120px;
+  display: block;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  vertical-align: middle;
   font-family: var(--font-data);
   font-size: 11px;
   letter-spacing: -0.02em;
