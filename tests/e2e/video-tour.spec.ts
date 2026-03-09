@@ -18,43 +18,13 @@ const test = base.extend({});
 // Annotation helpers
 // ---------------------------------------------------------------------------
 
-/** Full-width section banner at bottom of screen (title + subtitle). */
+/** Section heading shown as a caption with title + subtitle. */
 async function announce(page: Page, title: string, subtitle?: string) {
-  await page.waitForLoadState('domcontentloaded');
-  await page.evaluate(
-    ({ title, subtitle }) => {
-      let overlay = document.getElementById('tour-overlay');
-      if (!overlay) {
-        overlay = document.createElement('div');
-        overlay.id = 'tour-overlay';
-        overlay.style.cssText = `
-          position: fixed; bottom: 0; left: 0; right: 0; z-index: 99999;
-          background: linear-gradient(135deg, rgba(0,20,40,0.95), rgba(0,40,80,0.92));
-          border-top: 3px solid #00d9ff;
-          padding: 14px 32px;
-          font-family: 'Share Tech Mono', 'Courier New', monospace;
-          color: #00d9ff;
-          text-align: center;
-          box-shadow: 0 -4px 30px rgba(0,217,255,0.3);
-          pointer-events: none;
-          transition: opacity 0.3s ease;
-        `;
-        document.body.appendChild(overlay);
-      }
-      overlay.innerHTML = `
-        <div style="font-size:22px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;margin-bottom:${subtitle ? '6' : '0'}px;">
-          ${title}
-        </div>
-        ${subtitle ? `<div style="font-size:14px;color:#88ccee;letter-spacing:1px;">${subtitle}</div>` : ''}
-      `;
-      overlay.style.opacity = '1';
-    },
-    { title, subtitle },
-  );
-  await page.waitForTimeout(3000);
+  const text = subtitle ? `${title} — ${subtitle}` : title;
+  await caption(page, text, 3000);
 }
 
-/** Smaller explanatory caption below the main banner — stays until cleared. */
+/** On-screen caption at bottom of screen — stays until cleared or replaced. */
 async function caption(page: Page, text: string, durationMs = 4000) {
   await page.waitForLoadState('domcontentloaded');
   await page.evaluate(
@@ -64,7 +34,7 @@ async function caption(page: Page, text: string, durationMs = 4000) {
         cap = document.createElement('div');
         cap.id = 'tour-caption';
         cap.style.cssText = `
-          position: fixed; bottom: 72px; left: 0; right: 0; z-index: 99998;
+          position: fixed; bottom: 0; left: 0; right: 0; z-index: 99998;
           background: rgba(0,10,20,0.88);
           border-top: 1px solid rgba(0,217,255,0.3);
           padding: 10px 40px;
@@ -86,12 +56,7 @@ async function caption(page: Page, text: string, durationMs = 4000) {
 }
 
 async function clearOverlay(page: Page) {
-  await page.waitForLoadState('domcontentloaded');
-  await page.evaluate(() => {
-    const el = document.getElementById('tour-overlay');
-    if (el) el.style.opacity = '0';
-  });
-  await page.waitForTimeout(300);
+  await clearCaption(page);
 }
 
 async function clearCaption(page: Page) {
@@ -100,10 +65,10 @@ async function clearCaption(page: Page) {
     const el = document.getElementById('tour-caption');
     if (el) el.style.opacity = '0';
   });
+  await page.waitForTimeout(300);
 }
 
 async function clearAll(page: Page) {
-  await clearOverlay(page);
   await clearCaption(page);
 }
 
