@@ -17,6 +17,7 @@ import (
 
 	"github.com/apex-checkout/mobile-check-deposit/internal/funding"
 	"github.com/apex-checkout/mobile-check-deposit/internal/ledger"
+	"github.com/apex-checkout/mobile-check-deposit/internal/returns"
 	"github.com/apex-checkout/mobile-check-deposit/internal/transfers"
 	vendorclient "github.com/apex-checkout/mobile-check-deposit/internal/vendorsvc/client"
 	"github.com/apex-checkout/mobile-check-deposit/internal/vendorsvc/model"
@@ -447,5 +448,65 @@ func TestDepositService_ConcurrentDeposits_LedgerInvariant(t *testing.T) {
 	}
 	if journalCount != numDeposits {
 		t.Errorf("DEPOSIT_POSTING journals = %d, want %d", journalCount, numDeposits)
+	}
+}
+
+func TestLedgerGlobalZeroSumInvariant(t *testing.T) {
+	db := newTestDB(t)
+
+	var counter int64
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		n := atomic.AddInt64(&counter, 1)
+		resp := cleanPassResp()
+		resp.VendorTransactionID = fmt.Sprintf("vtx-invariant-%d", n)
+		resp.MICR.Serial = fmt.Sprintf("%04d", n)
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(resp)
+	}))
+	t.Cleanup(srv.Close)
+
+	svc := newDepositService(t, db, srv.URL)
+
+	accounts := []string{"INV-1001", "INV-1002", "INV-1003"}
+	amounts := []int64{10000, 20000, 30000}
+
+	var transferIDs []string
+	for i, acct := range accounts {
+		res, err := svc.SubmitDeposit(context.Background(), acct, amounts[i], front(), back(), ptr("clean_pass"))
+		if err != nil {
+			t.Fatalf("deposit %d: %v", i, err)
+		}
+		if res.State != transfers.StateFundsPosted {
+			t.Fatalf("deposit %d state = %s, want FundsPosted", i, res.State)
+		}
+		transferIDs = append(transferIDs, res.TransferID)
+	}
+
+	// Process a return on the first deposit
+	returnsSvc := &returns.ReturnsService{
+		DB:          db,
+		TransferSvc: &transfers.TransferService{},
+		LedgerSvc:   &ledger.LedgerService{},
+	}
+	if err := returnsSvc.ProcessReturn(context.Background(), transferIDs[0], "R01", "NSF"); err != nil {
+		t.Fatalf("ProcessReturn: %v", err)
+	}
+
+	// Assert global double-entry invariant: all ledger entries sum to zero
+	var globalSum int64
+	if err := db.QueryRow("SELECT COALESCE(SUM(signed_amount_cents), 0) FROM ledger_entries").Scan(&globalSum); err != nil {
+		t.Fatalf("query global ledger sum: %v", err)
+	}
+	if globalSum != 0 {
+		t.Errorf("global ledger sum = %d, want 0 (double-entry invariant violated)", globalSum)
+	}
+
+	// Assert expected journal counts: 3 DEPOSIT_POSTING + 1 RETURN_REVERSAL + 1 RETURN_FEE = 5
+	var totalJournals int
+	if err := db.QueryRow("SELECT COUNT(*) FROM ledger_journals").Scan(&totalJournals); err != nil {
+		t.Fatalf("query total journals: %v", err)
+	}
+	if totalJournals != 5 {
+		t.Errorf("total journals = %d, want 5 (3 DEPOSIT_POSTING + 1 RETURN_REVERSAL + 1 RETURN_FEE)", totalJournals)
 	}
 }
