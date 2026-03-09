@@ -146,9 +146,14 @@ function applyBlur(html: string): string {
 }
 
 function applyGlare(html: string): string {
-  const glareDiv = `<div style="position:absolute;top:20%;left:30%;width:50%;height:40%;
-    background: radial-gradient(ellipse, rgba(255,255,255,0.85) 0%, rgba(255,255,255,0.4) 40%, transparent 70%);
-    pointer-events:none;transform:rotate(-15deg);"></div>`;
+  // Two overlapping hotspots to create a harsh, blown-out glare that obscures text
+  const glareDiv = `
+    <div style="position:absolute;top:10%;left:20%;width:70%;height:60%;
+      background: radial-gradient(ellipse, rgba(255,255,255,1) 0%, rgba(255,255,255,0.95) 25%, rgba(255,255,255,0.6) 50%, transparent 75%);
+      pointer-events:none;transform:rotate(-10deg);z-index:999;"></div>
+    <div style="position:absolute;top:25%;left:40%;width:40%;height:35%;
+      background: radial-gradient(ellipse, rgba(255,255,255,1) 0%, rgba(255,255,255,0.8) 40%, transparent 70%);
+      pointer-events:none;transform:rotate(5deg);z-index:999;"></div>`;
   return html.replace('</div>\n</body>', glareDiv + '\n</div>\n</body>');
 }
 

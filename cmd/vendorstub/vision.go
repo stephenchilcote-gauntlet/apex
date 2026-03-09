@@ -74,6 +74,23 @@ For MICR: look for the machine-readable line at the bottom of the front image wi
 For amount: courtesyAmountCents is the numeric dollar amount in the box, converted to cents (e.g. $500.00 = 50000).
 For imageQuality.issues: list any of ["blur", "glare", "cropped", "dark", "skewed"] that apply. Empty array if none.`
 
+// detectMediaType sniffs the media type from base64-encoded image data.
+func detectMediaType(b64 string) string {
+	// PNG starts with \x89PNG (\x89\x50\x4e\x47), base64: "iVBOR"
+	if strings.HasPrefix(b64, "iVBOR") {
+		return "image/png"
+	}
+	// JPEG starts with \xff\xd8, base64: "/9j/"
+	if strings.HasPrefix(b64, "/9j/") {
+		return "image/jpeg"
+	}
+	// WebP starts with RIFF....WEBP, base64: "UklGR"
+	if strings.HasPrefix(b64, "UklGR") {
+		return "image/webp"
+	}
+	return "image/jpeg"
+}
+
 func analyzeWithVision(apiKey string, frontB64, backB64 string) (*VisionEvidence, error) {
 	if apiKey == "" {
 		return nil, fmt.Errorf("anthropic API key is empty")
@@ -90,7 +107,7 @@ func analyzeWithVision(apiKey string, frontB64, backB64 string) (*VisionEvidence
 						Type: "image",
 						Source: &imageSource{
 							Type:      "base64",
-							MediaType: "image/jpeg",
+							MediaType: detectMediaType(frontB64),
 							Data:      frontB64,
 						},
 					},
@@ -98,7 +115,7 @@ func analyzeWithVision(apiKey string, frontB64, backB64 string) (*VisionEvidence
 						Type: "image",
 						Source: &imageSource{
 							Type:      "base64",
-							MediaType: "image/jpeg",
+							MediaType: detectMediaType(backB64),
 							Data:      backB64,
 						},
 					},
