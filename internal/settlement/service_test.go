@@ -89,7 +89,7 @@ func mustSubmitDeposit(t *testing.T, db *sql.DB, vendorURL, imageDir, externalAc
 		ImageDir:     imageDir,
 	}
 	res, err := depSvc.SubmitDeposit(context.Background(), externalAcctID, amount,
-		bytes.NewReader([]byte("front")), bytes.NewReader([]byte("back")), ptr("clean_pass"))
+		bytes.NewReader([]byte("front")), bytes.NewReader([]byte("back")))
 	if err != nil {
 		t.Fatalf("submit deposit: %v", err)
 	}

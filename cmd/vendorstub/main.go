@@ -36,6 +36,16 @@ func main() {
 		port = "8081"
 	}
 
+	visionMode := os.Getenv("VENDOR_VISION_MODE") == "true"
+	apiKey := os.Getenv("ANTHROPIC_API_KEY")
+	if visionMode && apiKey == "" {
+		slog.Error("VENDOR_VISION_MODE=true but ANTHROPIC_API_KEY not set")
+		os.Exit(1)
+	}
+	if visionMode {
+		slog.Info("vision mode enabled")
+	}
+
 	cfgPath := "config/vendor_scenarios.yaml"
 	cfg, err := loadConfig(cfgPath)
 	if err != nil {
@@ -45,7 +55,7 @@ func main() {
 	slog.Info("loaded scenario config", "default", cfg.Default, "suffixes", len(cfg.AccountSuffixMap))
 
 	r := chi.NewRouter()
-	r.Post("/stub/v1/checks/analyze", handleAnalyze(cfg))
+	r.Post("/stub/v1/checks/analyze", handleAnalyze(cfg, visionMode, apiKey))
 	r.Get("/stub/v1/scenarios", handleScenarios())
 
 	addr := ":" + port
@@ -79,7 +89,7 @@ func resolveScenario(req *model.AnalyzeRequest, cfg *scenarioConfig) string {
 	return cfg.Default
 }
 
-func handleAnalyze(cfg *scenarioConfig) http.HandlerFunc {
+func handleAnalyze(cfg *scenarioConfig, visionMode bool, apiKey string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req model.AnalyzeRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -87,8 +97,22 @@ func handleAnalyze(cfg *scenarioConfig) http.HandlerFunc {
 			return
 		}
 
+		// Try vision mode if enabled and images are present
+		if visionMode && req.FrontImageBase64 != "" && req.BackImageBase64 != "" {
+			slog.Info("using vision analysis", "transferId", req.TransferID, "amountCents", req.AmountCents)
+			resp, err := analyzeWithVisionAndMap(apiKey, &req)
+			if err != nil {
+				slog.Warn("vision analysis failed, falling back to scenario", "error", err)
+			} else {
+				slog.Info("vision analysis complete", "transferId", req.TransferID, "decision", resp.Decision, "iqaStatus", resp.IQAStatus)
+				writeJSON(w, http.StatusOK, resp)
+				return
+			}
+		}
+
+		// Scenario mode (default/fallback)
 		scenario := resolveScenario(&req, cfg)
-		slog.Info("analyze request", "transferId", req.TransferID, "scenario", scenario, "amountCents", req.AmountCents)
+		slog.Info("using scenario mode", "transferId", req.TransferID, "scenario", scenario, "amountCents", req.AmountCents)
 
 		resp, err := buildResponse(scenario, req.AmountCents)
 		if err != nil {
