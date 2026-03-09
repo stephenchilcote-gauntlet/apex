@@ -17,7 +17,7 @@ test.describe('Visual Regression', () => {
     await page.goto('/ui/simulate');
     await judge.assertVisual(page, [
       critical('Is there a navigation bar at the top with multiple tab links including "Simulate", "Transfers", "Review Queue", "Ledger", "Settlement", and "Returns"?'),
-      critical('Is there a form with labeled fields for investor account, amount, front image, back image, vendor scenario, and a submit button?'),
+      critical('Is there a form with labeled fields for investor account, amount, front image, back image, and a submit button?'),
       advisory('Is the overall layout clean with consistent spacing and alignment?'),
     ], { testName: 'layout-simulate-form', fullPage: true });
   });

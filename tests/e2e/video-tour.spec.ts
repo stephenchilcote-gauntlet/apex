@@ -458,14 +458,24 @@ async function resetDiagramHighlight(page: Page) {
   await clearCaption(page);
 }
 
+const SCENARIO_ACCOUNT_MAP: Record<string, string> = {
+  'clean_pass': 'INV-1001',
+  'iqa_blur': 'INV-1002',
+  'iqa_glare': 'INV-1003',
+  'micr_failure': 'INV-1004',
+  'duplicate_detected': 'INV-1005',
+  'amount_mismatch': 'INV-1006',
+  'iqa_pass_review': 'INV-1007',
+};
+
 // Reusable submit helper
 async function submitDeposit(
   page: Page,
   opts: { accountId?: string; amount?: string; scenario?: string } = {},
 ) {
-  const accountId = opts.accountId ?? 'INV-1001';
-  const amount = opts.amount ?? '500.00';
   const scenario = opts.scenario ?? 'clean_pass';
+  const accountId = opts.accountId ?? SCENARIO_ACCOUNT_MAP[scenario] ?? 'INV-1001';
+  const amount = opts.amount ?? '500.00';
 
   await page.goto('/ui/simulate');
   await pause(page, 500);
@@ -473,7 +483,6 @@ async function submitDeposit(
   await page.locator('input[name="amount"]').fill(amount);
   await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
   await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
-  await page.locator('select[name="vendorScenario"]').selectOption(scenario);
   await page.locator('button[type="submit"]').click();
   await page.locator('[data-transfer-id]').waitFor();
   const transferId = await page.locator('[data-transfer-id]').getAttribute('data-transfer-id');
@@ -602,9 +611,6 @@ test.describe('Video Tour', () => {
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     await caption(page, 'Front and back check images uploaded. The system computes SHA256 hashes for duplicate detection.', 2500);
     await clearCaption(page);
-
-    await caption(page, 'Vendor scenario: Clean Pass — vendor will validate image quality, read MICR line, and assess risk.', 3000);
-    await cursorSelect(page, 'select[name="vendorScenario"]', 'clean_pass');
 
     await caption(page, 'Submitting — this single API call triggers: image save → vendor call → 4 business rules → ledger posting.', 3500);
     await cursorClick(page, 'button[type="submit"]');
@@ -815,7 +821,6 @@ test.describe('Video Tour', () => {
     await page.locator('input[name="amount"]').fill('5500.00');
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
-    await page.locator('select[name="vendorScenario"]').selectOption('clean_pass');
     await pause(page, 500);
     await page.locator('button[type="submit"]').click();
     await page.locator('[data-transfer-id]').waitFor();

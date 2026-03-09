@@ -13,7 +13,6 @@ test.describe('Deposit Submission', () => {
     await expect(page.locator('input[name="amount"]')).toBeVisible();
     await expect(page.locator('input[name="frontImage"]')).toBeVisible();
     await expect(page.locator('input[name="backImage"]')).toBeVisible();
-    await expect(page.locator('select[name="vendorScenario"]')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
   });
 
@@ -28,7 +27,6 @@ test.describe('Deposit Submission', () => {
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
 
-    await page.locator('select[name="vendorScenario"]').selectOption('clean_pass');
     await page.locator('button[type="submit"]').click();
 
     // Should see confirmation with transfer ID and status
