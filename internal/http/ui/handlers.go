@@ -2,6 +2,7 @@ package ui
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log/slog"
@@ -336,8 +337,18 @@ func (h *UIHandlers) getRuleEvaluations(transferID string) ([]ruleEval, error) {
 	var evals []ruleEval
 	for rows.Next() {
 		var e ruleEval
-		if err := rows.Scan(&e.RuleName, &e.Outcome, &e.DetailsJSON); err != nil {
+		var raw string
+		if err := rows.Scan(&e.RuleName, &e.Outcome, &raw); err != nil {
 			return nil, err
+		}
+		// Extract just the "details" text from the JSON wrapper
+		var parsed map[string]string
+		if raw != "" && json.Unmarshal([]byte(raw), &parsed) == nil {
+			if d, ok := parsed["details"]; ok {
+				e.DetailsJSON = d
+			} else {
+				e.DetailsJSON = raw
+			}
 		}
 		evals = append(evals, e)
 	}
