@@ -19,6 +19,7 @@ make dev
 |---------|-------------|
 | `make test` | Run all Go unit/integration tests |
 | `make test-e2e` | Run Playwright end-to-end tests |
+| `make demo` | Run all-scenarios demo (starts servers, exercises all paths, tears down) |
 | `make reset` | Delete database, images, and settlement files |
 | `make build` | Build both binaries to `bin/` |
 | `make clean` | Remove all generated artifacts |
@@ -143,12 +144,12 @@ All transitions are validated by a centralized function in `internal/transfers/s
 
 ## Testing
 
-**Go tests (14 test functions across 5 packages):**
+**Go tests (17 test functions across 5 packages):**
 ```bash
 make test
 ```
 
-Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections, duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment, return processing with fee calculation.
+Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections, duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment, return processing with fee calculation, global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines).
 
 **Playwright E2E tests (14 spec files):**
 ```bash
@@ -225,6 +226,19 @@ apex/
 ├── Makefile
 └── README.md
 ```
+
+## Screenshots
+
+| Page | Screenshot |
+|------|------------|
+| Deposit Simulator | ![Deposit Simulator](docs/screenshots/01-deposit-simulator.png) |
+| Deposit Result | ![Deposit Result](docs/screenshots/02-deposit-result.png) |
+| Transfers List | ![Transfers List](docs/screenshots/03-transfers-list.png) |
+| Transfer Detail | ![Transfer Detail](docs/screenshots/04-transfer-detail.png) |
+| Operator Review | ![Operator Review](docs/screenshots/05-operator-review.png) |
+| Ledger | ![Ledger](docs/screenshots/06-ledger.png) |
+| Settlement | ![Settlement](docs/screenshots/07-settlement.png) |
+| Returns | ![Returns](docs/screenshots/08-returns.png) |
 
 ## Disclaimers
 

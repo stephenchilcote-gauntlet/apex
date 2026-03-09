@@ -1,4 +1,4 @@
-.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux
+.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux clean
 
 build:
 	go build -o bin/app ./cmd/app
@@ -38,6 +38,19 @@ docker-dev: build-linux
 build-linux:
 	CGO_ENABLED=1 GOOS=linux GOARCH=amd64 go build -o bin/app ./cmd/app
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/vendorstub ./cmd/vendorstub
+
+demo:
+	@echo "Starting vendor stub..."
+	@go run ./cmd/vendorstub & echo $$! > .vendorstub.pid
+	@sleep 1
+	@echo "Starting app..."
+	@go run ./cmd/app & echo $$! >> .vendorstub.pid
+	@sleep 2
+	@echo "Running all-scenarios demo..."
+	@bash scripts/demo_all_scenarios.sh || true
+	@echo "Shutting down..."
+	@cat .vendorstub.pid | xargs kill 2>/dev/null || true
+	@rm -f .vendorstub.pid
 
 clean:
 	rm -rf bin/ data/sqlite/ data/images/ reports/settlement/ .vendorstub.pid
