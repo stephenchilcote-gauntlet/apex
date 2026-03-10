@@ -686,7 +686,23 @@ func (h *UIHandlers) serveImage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	http.ServeFile(w, r, filePath)
+	// Resolve symlinks and ensure the file is within the expected image directory.
+	absImage, err := filepath.EvalSymlinks(filepath.Clean(filePath))
+	if err != nil {
+		http.Error(w, "image not found", 404)
+		return
+	}
+	absDir, err := filepath.EvalSymlinks(filepath.Clean(h.ImageDir))
+	if err != nil {
+		http.Error(w, "image not found", 404)
+		return
+	}
+	if !strings.HasPrefix(absImage, absDir+string(filepath.Separator)) {
+		http.Error(w, "forbidden", http.StatusForbidden)
+		return
+	}
+
+	http.ServeFile(w, r, absImage)
 }
 
 // ---------------------------------------------------------------------------
@@ -696,7 +712,15 @@ func (h *UIHandlers) serveImage(w http.ResponseWriter, r *http.Request) {
 func parseCents(s string) (int64, error) {
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("parse amount %q: %w", s, err)
 	}
-	return int64(math.Round(f * 100)), nil
+	cents := int64(math.Round(f * 100))
+	if cents <= 0 {
+		return 0, fmt.Errorf("amount must be positive")
+	}
+	const maxCents = 10_000_000 // $100,000.00
+	if cents > maxCents {
+		return 0, fmt.Errorf("amount exceeds maximum of $100,000.00")
+	}
+	return cents, nil
 }

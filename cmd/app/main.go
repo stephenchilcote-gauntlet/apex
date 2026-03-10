@@ -11,6 +11,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 
 	"github.com/apex-checkout/mobile-check-deposit/internal/config"
+	appmiddleware "github.com/apex-checkout/mobile-check-deposit/internal/http/middleware"
 	"github.com/apex-checkout/mobile-check-deposit/internal/deposits"
 	"github.com/apex-checkout/mobile-check-deposit/internal/funding"
 	"github.com/apex-checkout/mobile-check-deposit/internal/http/api"
@@ -81,6 +82,8 @@ func main() {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
+	r.Use(appmiddleware.SecurityHeaders())
+	r.Use(appmiddleware.RateLimit(120))
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 
@@ -90,7 +93,8 @@ func main() {
 
 		dbStatus := "ok"
 		if err := db.Ping(); err != nil {
-			dbStatus = err.Error()
+			slog.Error("healthz db ping failed", "err", err)
+			dbStatus = "unavailable"
 			status = "degraded"
 			httpStatus = http.StatusServiceUnavailable
 		}
@@ -98,7 +102,8 @@ func main() {
 		vendorStatus := "ok"
 		resp, err := http.Get(cfg.VendorStubURL + "/health")
 		if err != nil {
-			vendorStatus = err.Error()
+			slog.Error("healthz vendor check failed", "err", err)
+			vendorStatus = "unavailable"
 			status = "degraded"
 			httpStatus = http.StatusServiceUnavailable
 		} else {
@@ -119,10 +124,17 @@ func main() {
 		})
 	})
 
-	// Register API routes directly on main router
-	apiHandlers.RegisterRoutes(r)
+	// API routes — protected by API key auth
+	r.Group(func(r chi.Router) {
+		r.Use(appmiddleware.APIKeyAuth(cfg.APIKey))
+		apiHandlers.RegisterRoutes(r)
+	})
 
-	// UI handlers
+	// Login page — must be outside the auth group
+	r.Get("/ui/login", appmiddleware.UILoginHandler(cfg.UIUsername, cfg.UIPassword, cfg.SessionSecret))
+	r.Post("/ui/login", appmiddleware.UILoginHandler(cfg.UIUsername, cfg.UIPassword, cfg.SessionSecret))
+
+	// UI routes — protected by session cookie auth
 	uiH := &uihandlers.UIHandlers{
 		DB:            db,
 		TemplateDir:   "web/templates",
@@ -137,7 +149,10 @@ func main() {
 		slog.Error("failed to initialize UI templates", "err", err)
 		os.Exit(1)
 	}
-	uiH.RegisterRoutes(r)
+	r.Group(func(r chi.Router) {
+		r.Use(appmiddleware.UIAuth(cfg.UIUsername, cfg.UIPassword, cfg.SessionSecret))
+		uiH.RegisterRoutes(r)
+	})
 
 	addr := fmt.Sprintf(":%s", cfg.AppPort)
 	slog.Info("Starting Mobile Check Deposit server", "addr", addr)

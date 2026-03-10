@@ -18,6 +18,12 @@ type Config struct {
 	Timezone             string
 	EODCutoffHour        int
 	EODCutoffMinute      int
+
+	// Security (optional — omitting disables auth enforcement, safe for dev)
+	APIKey        string
+	UIUsername    string
+	UIPassword    string
+	SessionSecret string
 }
 
 func Load() (Config, error) {
@@ -44,6 +50,10 @@ func Load() (Config, error) {
 		Timezone:             required("TIMEZONE", &errs),
 		EODCutoffHour:        eodHour,
 		EODCutoffMinute:      eodMinute,
+		APIKey:               os.Getenv("API_KEY"),
+		UIUsername:           os.Getenv("UI_USERNAME"),
+		UIPassword:           os.Getenv("UI_PASSWORD"),
+		SessionSecret:        os.Getenv("SESSION_SECRET"),
 	}
 
 	if len(errs) > 0 {

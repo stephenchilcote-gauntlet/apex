@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"math"
 	"net/http"
 	"os"
@@ -106,7 +107,7 @@ func (h *Handlers) submitDeposit(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.DepositSvc.SubmitDeposit(r.Context(), investorAccountID, amountCents, frontFile, backFile)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "submit deposit", err)
 		return
 	}
 
@@ -166,7 +167,7 @@ func (h *Handlers) listDeposits(w http.ResponseWriter, r *http.Request) {
 
 	list, err := h.TransferSvc.List(h.DB, filters)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "list deposits", err)
 		return
 	}
 
@@ -178,7 +179,7 @@ func (h *Handlers) getDecisionTrace(w http.ResponseWriter, r *http.Request) {
 
 	events, err := audit.GetByEntity(h.DB, "transfer", transferID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "get decision trace", err)
 		return
 	}
 
@@ -220,7 +221,7 @@ func (h *Handlers) resubmitDeposit(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.DepositSvc.SubmitDeposit(r.Context(), original.InvestorAccountID, original.AmountCents, frontFile, backFile)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "resubmit deposit", err)
 		return
 	}
 
@@ -251,7 +252,7 @@ func (h *Handlers) getReviewQueue(w http.ResponseWriter, r *http.Request) {
 		ReviewStatus:   &reviewStatus,
 	})
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "get review queue", err)
 		return
 	}
 
@@ -291,7 +292,7 @@ func (h *Handlers) approveTransfer(w http.ResponseWriter, r *http.Request) {
 		_, err = h.DB.Exec("UPDATE transfers SET contribution_type = ?, updated_at = ? WHERE id = ?",
 			body.OverrideContributionType, now, transferID)
 		if err != nil {
-			respondError(w, http.StatusInternalServerError, "update contribution type: "+err.Error())
+			internalError(w, "update contribution type", err)
 			return
 		}
 	}
@@ -301,32 +302,32 @@ func (h *Handlers) approveTransfer(w http.ResponseWriter, r *http.Request) {
 		VALUES (?, ?, ?, ?, ?, ?, ?)`,
 		uuid.New().String(), transferID, body.OperatorID, action, body.Notes, overridePtr, now)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "create operator action: "+err.Error())
+		internalError(w, "create operator action", err)
 		return
 	}
 
 	// 2. Update review_status to APPROVED
 	if err := h.TransferSvc.UpdateReviewStatus(h.DB, transferID, "APPROVED"); err != nil {
-		respondError(w, http.StatusInternalServerError, "update review status: "+err.Error())
+		internalError(w, "update review status", err)
 		return
 	}
 
 	// 3. Transition to Approved
 	if err := h.TransferSvc.Transition(h.DB, transferID, transfers.StateApproved, "OPERATOR", body.OperatorID); err != nil {
-		respondError(w, http.StatusInternalServerError, "transition to Approved: "+err.Error())
+		internalError(w, "transition to Approved", err)
 		return
 	}
 	h.DB.Exec("UPDATE transfers SET approved_at = ? WHERE id = ?", now, transferID)
 
 	// 4. Post ledger deposit
 	if err := h.LedgerSvc.PostDeposit(h.DB, transferID, t.InvestorAccountID, t.OmnibusAccountID, t.AmountCents); err != nil {
-		respondError(w, http.StatusInternalServerError, "post deposit: "+err.Error())
+		internalError(w, "post deposit", err)
 		return
 	}
 
 	// 5. Transition to FundsPosted
 	if err := h.TransferSvc.Transition(h.DB, transferID, transfers.StateFundsPosted, "OPERATOR", body.OperatorID); err != nil {
-		respondError(w, http.StatusInternalServerError, "transition to FundsPosted: "+err.Error())
+		internalError(w, "transition to FundsPosted", err)
 		return
 	}
 	h.DB.Exec("UPDATE transfers SET posted_at = ? WHERE id = ?", now, transferID)
@@ -373,19 +374,19 @@ func (h *Handlers) rejectTransfer(w http.ResponseWriter, r *http.Request) {
 		VALUES (?, ?, ?, 'REJECT', ?, ?)`,
 		uuid.New().String(), transferID, body.OperatorID, body.Notes, now)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "create operator action: "+err.Error())
+		internalError(w, "create operator action", err)
 		return
 	}
 
 	// 2. Update review_status to REJECTED
 	if err := h.TransferSvc.UpdateReviewStatus(h.DB, transferID, "REJECTED"); err != nil {
-		respondError(w, http.StatusInternalServerError, "update review status: "+err.Error())
+		internalError(w, "update review status", err)
 		return
 	}
 
 	// 3. Transition to Rejected
 	if err := h.TransferSvc.Transition(h.DB, transferID, transfers.StateRejected, "OPERATOR", body.OperatorID); err != nil {
-		respondError(w, http.StatusInternalServerError, "transition to Rejected: "+err.Error())
+		internalError(w, "transition to Rejected", err)
 		return
 	}
 
@@ -421,7 +422,7 @@ func (h *Handlers) getAccountBalances(w http.ResponseWriter, r *http.Request) {
 		GROUP BY a.id
 		ORDER BY a.account_type, a.account_name`)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "get account balances", err)
 		return
 	}
 	defer rows.Close()
@@ -438,13 +439,13 @@ func (h *Handlers) getAccountBalances(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var ab accountBalance
 		if err := rows.Scan(&ab.ID, &ab.ExternalAccountID, &ab.AccountName, &ab.AccountType, &ab.Status, &ab.BalanceCents); err != nil {
-			respondError(w, http.StatusInternalServerError, err.Error())
+			internalError(w, "scan account balance", err)
 			return
 		}
 		balances = append(balances, ab)
 	}
 	if err := rows.Err(); err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "iterate account balances", err)
 		return
 	}
 
@@ -476,7 +477,7 @@ func (h *Handlers) getAccountDetail(w http.ResponseWriter, r *http.Request) {
 		WHERE e.account_id = ?
 		ORDER BY e.created_at ASC`, accountID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "get account entries", err)
 		return
 	}
 	defer rows.Close()
@@ -485,13 +486,13 @@ func (h *Handlers) getAccountDetail(w http.ResponseWriter, r *http.Request) {
 	for rows.Next() {
 		var e ledger.Entry
 		if err := rows.Scan(&e.ID, &e.JournalID, &e.AccountID, &e.SignedAmountCents, &e.Currency, &e.LineType, &e.SourceApplicationID, &e.CreatedAt); err != nil {
-			respondError(w, http.StatusInternalServerError, err.Error())
+			internalError(w, "scan ledger entry", err)
 			return
 		}
 		entries = append(entries, e)
 	}
 	if err := rows.Err(); err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "iterate ledger entries", err)
 		return
 	}
 
@@ -510,7 +511,7 @@ func (h *Handlers) getJournals(w http.ResponseWriter, r *http.Request) {
 
 	journals, err := h.LedgerSvc.GetJournalsByTransfer(h.DB, transferID)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "get journals", err)
 		return
 	}
 
@@ -533,7 +534,7 @@ func (h *Handlers) generateBatch(w http.ResponseWriter, r *http.Request) {
 	if body.BusinessDateCT == "" {
 		loc, err := time.LoadLocation("America/Chicago")
 		if err != nil {
-			respondError(w, http.StatusInternalServerError, "load timezone: "+err.Error())
+			internalError(w, "load timezone", err)
 			return
 		}
 		body.BusinessDateCT = time.Now().In(loc).Format("2006-01-02")
@@ -541,7 +542,7 @@ func (h *Handlers) generateBatch(w http.ResponseWriter, r *http.Request) {
 
 	batch, err := h.SettlementSvc.GenerateBatch(r.Context(), body.BusinessDateCT)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "generate batch", err)
 		return
 	}
 
@@ -551,7 +552,7 @@ func (h *Handlers) generateBatch(w http.ResponseWriter, r *http.Request) {
 func (h *Handlers) listBatches(w http.ResponseWriter, r *http.Request) {
 	batches, err := h.SettlementSvc.ListBatches(r.Context())
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "list batches", err)
 		return
 	}
 
@@ -589,7 +590,7 @@ func (h *Handlers) ackBatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.SettlementSvc.AcknowledgeBatch(r.Context(), batchID, body.AckReference); err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "ack batch", err)
 		return
 	}
 
@@ -624,7 +625,7 @@ func (h *Handlers) processReturn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.ReturnsSvc.ProcessReturn(r.Context(), body.TransferID, body.ReasonCode, body.ReasonText); err != nil {
-		respondError(w, http.StatusInternalServerError, err.Error())
+		internalError(w, "process return", err)
 		return
 	}
 
@@ -656,7 +657,7 @@ func (h *Handlers) testReset(w http.ResponseWriter, r *http.Request) {
 	}
 	for _, t := range tables {
 		if _, err := h.DB.Exec("DELETE FROM " + t); err != nil {
-			http.Error(w, fmt.Sprintf("reset %s: %v", t, err), 500)
+			internalError(w, "reset "+t, err)
 			return
 		}
 	}
@@ -678,12 +679,26 @@ func respondError(w http.ResponseWriter, status int, message string) {
 	respondJSON(w, status, map[string]string{"error": message})
 }
 
+// internalError logs the full error server-side and returns a generic message to the client.
+func internalError(w http.ResponseWriter, op string, err error) {
+	slog.Error("internal error", "op", op, "err", err)
+	respondError(w, http.StatusInternalServerError, "an internal error occurred")
+}
+
 func parseCents(s string) (int64, error) {
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return 0, fmt.Errorf("parse amount %q: %w", s, err)
 	}
-	return int64(math.Round(f * 100)), nil
+	cents := int64(math.Round(f * 100))
+	if cents <= 0 {
+		return 0, fmt.Errorf("amount must be positive")
+	}
+	const maxCents = 10_000_000 // $100,000.00
+	if cents > maxCents {
+		return 0, fmt.Errorf("amount exceeds maximum of $100,000.00")
+	}
+	return cents, nil
 }
 
 type ruleEvaluation struct {
