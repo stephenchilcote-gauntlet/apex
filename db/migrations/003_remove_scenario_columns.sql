@@ -1,3 +1,2 @@
--- Remove test-only scenario columns from production tables
-ALTER TABLE transfers DROP COLUMN vendor_scenario;
-ALTER TABLE vendor_results DROP COLUMN scenario;
+-- No-op: vendor_scenario and scenario columns were removed from 001_initial.sql directly.
+SELECT 1;

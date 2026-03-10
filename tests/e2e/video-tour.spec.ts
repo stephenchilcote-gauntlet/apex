@@ -1186,7 +1186,7 @@ test.describe('Video Tour', () => {
 
     // Submit a new deposit, settle it, then return with FRAUD
     const fraudTransferId = await submitDeposit(page, {
-      accountId: 'INV-1002', amount: '275.00', scenario: 'clean_pass',
+      accountId: 'INV-1001', amount: '275.00', scenario: 'clean_pass',
     });
     await pause(page, 500);
 

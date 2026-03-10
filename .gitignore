@@ -3,6 +3,10 @@ bin/
 data/sqlite/
 data/images/
 reports/settlement/
+reports/video-tour.mp4
 test-results/
+tests/e2e/tests/artifacts/
 .env
 /vendorstub
+*.pid
+/app

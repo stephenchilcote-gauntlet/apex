@@ -1,4 +1,4 @@
-.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux clean
+.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux video clean
 
 build:
 	go build -o bin/app ./cmd/app
@@ -51,6 +51,21 @@ demo:
 	@echo "Shutting down..."
 	@cat .vendorstub.pid | xargs kill 2>/dev/null || true
 	@rm -f .vendorstub.pid
+
+video:
+	@echo "Restarting app with latest code..."
+	@pkill -f "go-build.*cmd/app" 2>/dev/null || true
+	@pkill -f "go run.*cmd/app" 2>/dev/null || true
+	@sleep 1
+	@set -a && . ./.env && set +a && go run ./cmd/app & echo $$! > .app.pid
+	@echo "Waiting for app..."
+	@for i in $$(seq 1 20); do curl -sf http://localhost:8080/api/v1/deposits > /dev/null 2>&1 && break || sleep 1; done
+	@echo "Clearing Playwright cache..."
+	@rm -rf /tmp/playwright-transform-cache-$$(id -u)/
+	@echo "Generating video tour..."
+	@cd tests/e2e && npx playwright test video-tour.spec.ts
+	@echo "Playing video..."
+	@mpv --no-resume-playback tests/e2e/test-results/video-tour-Video-Tour-Full-Application-Walkthrough-chromium/video.webm
 
 clean:
 	rm -rf bin/ data/sqlite/ data/images/ reports/settlement/ .vendorstub.pid

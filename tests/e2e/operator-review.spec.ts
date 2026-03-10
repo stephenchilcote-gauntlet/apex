@@ -10,7 +10,7 @@ test.describe('Operator Review Workflow', () => {
 
     // Should show key review information
     await expect(page.locator('body')).toContainText(/800/);
-    await expect(page.locator('body')).toContainText(/micr_failure/);
+    await expect(page.locator('body')).toContainText(/INV-1004|00000000-0000-0000-0000-000000001004/);
   });
 
   test('operator can approve a flagged deposit', async ({ page }) => {
