@@ -83,7 +83,7 @@ func main() {
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.RequestID)
 	r.Use(appmiddleware.SecurityHeaders())
-	r.Use(appmiddleware.RateLimit(120))
+	r.Use(appmiddleware.RateLimit(cfg.RateLimitRPM))
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
 

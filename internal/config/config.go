@@ -20,10 +20,11 @@ type Config struct {
 	EODCutoffMinute      int
 
 	// Security (optional — omitting disables auth enforcement, safe for dev)
-	APIKey        string
-	UIUsername    string
-	UIPassword    string
-	SessionSecret string
+	APIKey           string
+	UIUsername       string
+	UIPassword       string
+	SessionSecret    string
+	RateLimitRPM     int // requests per minute per IP; 0 = use default (600)
 }
 
 func Load() (Config, error) {
@@ -54,6 +55,7 @@ func Load() (Config, error) {
 		UIUsername:           os.Getenv("UI_USERNAME"),
 		UIPassword:           os.Getenv("UI_PASSWORD"),
 		SessionSecret:        os.Getenv("SESSION_SECRET"),
+		RateLimitRPM:         optionalInt("RATE_LIMIT_RPM", 600),
 	}
 
 	if len(errs) > 0 {
@@ -69,6 +71,18 @@ func required(key string, errs *[]string) string {
 		*errs = append(*errs, fmt.Sprintf("%s: required but not set", key))
 	}
 	return v
+}
+
+func optionalInt(key string, defaultVal int) int {
+	v := os.Getenv(key)
+	if v == "" {
+		return defaultVal
+	}
+	i, err := strconv.Atoi(v)
+	if err != nil {
+		return defaultVal
+	}
+	return i
 }
 
 func requiredInt(key string) (int, error) {

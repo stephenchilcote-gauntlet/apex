@@ -378,6 +378,24 @@ func (h *UIHandlers) reviewCountBadge(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, `<span class="review-badge">%d</span>`, count)
 }
 
+type reviewQueueItem struct {
+	*transfers.Transfer
+	Scenario string
+}
+
+func deriveScenario(micrConf *float64, amountMatches bool, riskScore int) string {
+	if micrConf == nil || *micrConf < 0.5 {
+		return "micr_failure"
+	}
+	if !amountMatches {
+		return "amount_mismatch"
+	}
+	if riskScore >= 80 {
+		return "iqa_pass_review"
+	}
+	return "manual_review"
+}
+
 func (h *UIHandlers) reviewPage(w http.ResponseWriter, r *http.Request) {
 	state := transfers.StateAnalyzing
 	reviewRequired := true
@@ -389,13 +407,29 @@ func (h *UIHandlers) reviewPage(w http.ResponseWriter, r *http.Request) {
 		ReviewStatus:   &reviewStatus,
 	})
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		http.Error(w, "an internal error occurred", http.StatusInternalServerError)
+		slog.Error("internal error", "op", "list review queue", "err", err)
 		return
+	}
+
+	items := make([]reviewQueueItem, len(list))
+	for i, t := range list {
+		tc := t // copy to take address of loop var
+		var micrConf *float64
+		var amountMatches bool
+		var riskScore int
+		h.DB.QueryRow(`SELECT micr_confidence, amount_matches, risk_score
+			FROM vendor_results WHERE transfer_id = ?`, t.ID).
+			Scan(&micrConf, &amountMatches, &riskScore)
+		items[i] = reviewQueueItem{
+			Transfer: &tc,
+			Scenario: deriveScenario(micrConf, amountMatches, riskScore),
+		}
 	}
 
 	h.render(w, "review", map[string]interface{}{
 		"ActivePage": "review",
-		"Transfers":  list,
+		"Transfers":  items,
 	})
 }
 
