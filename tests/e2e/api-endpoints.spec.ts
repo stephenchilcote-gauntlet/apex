@@ -33,11 +33,10 @@ test.describe('API Endpoints', () => {
     const resp = await page.request.get('/api/v1/deposits');
     expect(resp.status()).toBe(200);
     const body = await resp.json();
-    // Go encodes nil slices as null; initialized slices as []. Either way, the deposit exists.
-    expect(body).not.toBeNull();
-    const deposits = Array.isArray(body) ? body : [];
+    // API returns [] (not null) for empty list
+    expect(Array.isArray(body)).toBe(true);
     // Find our $350 deposit
-    const deposit = deposits.find((d: any) => d.AmountCents === 35000);
+    const deposit = body.find((d: any) => d.AmountCents === 35000);
     expect(deposit).toBeTruthy();
     // Verify Go struct PascalCase field names
     expect(deposit).toHaveProperty('ID');
@@ -83,11 +82,11 @@ test.describe('API Endpoints', () => {
     expect(account).toHaveProperty('balanceCents');
   });
 
-  test('GET /api/v1/settlement/batches returns valid response', async ({ page }) => {
+  test('GET /api/v1/settlement/batches returns empty array when no batches', async ({ page }) => {
     const resp = await page.request.get('/api/v1/settlement/batches');
     expect(resp.status()).toBe(200);
     const body = await resp.json();
-    // Go nil slice encodes as null; both null and [] are valid for empty batch list
-    expect(body === null || Array.isArray(body)).toBe(true);
+    // API returns [] (not null) for empty list
+    expect(Array.isArray(body)).toBe(true);
   });
 });

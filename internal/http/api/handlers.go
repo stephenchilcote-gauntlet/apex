@@ -178,6 +178,10 @@ func (h *Handlers) listDeposits(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Ensure nil slice serializes as [] not null
+	if list == nil {
+		list = []transfers.Transfer{}
+	}
 	respondJSON(w, http.StatusOK, list)
 }
 
@@ -512,6 +516,10 @@ func (h *Handlers) listBatches(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Ensure nil slice serializes as [] not null
+	if batches == nil {
+		batches = []settlement.Batch{}
+	}
 	respondJSON(w, http.StatusOK, batches)
 }
 
