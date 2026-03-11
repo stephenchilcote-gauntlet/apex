@@ -23,6 +23,7 @@
           <a href="/ui/ledger"     class="nav-level-tab" {{if eq .ActivePage "ledger"    }}aria-selected="true"{{end}}>Ledger</a>
           <a href="/ui/settlement" class="nav-level-tab" {{if eq .ActivePage "settlement"}}aria-selected="true"{{end}}>Settlement <span id="settlement-count" hx-get="/ui/settlement-count" hx-trigger="load, every 15s" hx-swap="innerHTML"></span></a>
           <a href="/ui/returns"    class="nav-level-tab" {{if eq .ActivePage "returns"   }}aria-selected="true"{{end}}>Returns</a>
+          <a href="/ui/audit"      class="nav-level-tab" {{if eq .ActivePage "audit"     }}aria-selected="true"{{end}}>Audit Log</a>
         </div>
       </div>
       <div class="nav-status-strip">
@@ -78,6 +79,7 @@
         <tr><td><kbd>g</kbd> <kbd>l</kbd></td><td>Go to Ledger</td></tr>
         <tr><td><kbd>g</kbd> <kbd>e</kbd></td><td>Go to Settlement</td></tr>
         <tr><td><kbd>g</kbd> <kbd>n</kbd></td><td>Go to Returns</td></tr>
+        <tr><td><kbd>g</kbd> <kbd>a</kbd></td><td>Go to Audit Log</td></tr>
         <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>Navigate rows in transfer list</td></tr>
         <tr><td><kbd>Enter</kbd></td><td>Open focused transfer</td></tr>
         <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Prev/next in review queue</td></tr>
@@ -225,6 +227,7 @@ document.addEventListener('click', function (e) {
     l: '/ui/ledger',
     e: '/ui/settlement',
     n: '/ui/returns',
+    a: '/ui/audit',
   };
   document.addEventListener('keydown', function (e) {
     var key = e.key;

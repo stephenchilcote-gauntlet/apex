@@ -156,7 +156,7 @@ func (h *UIHandlers) Init() error {
 	}
 
 	h.templates = make(map[string]*template.Template)
-	pages := []string{"dashboard", "simulate", "transfers", "transfer_detail", "review", "review_detail", "ledger", "settlement", "settlement_batch_detail", "returns"}
+	pages := []string{"dashboard", "simulate", "transfers", "transfer_detail", "review", "review_detail", "ledger", "audit", "settlement", "settlement_batch_detail", "returns"}
 	for _, page := range pages {
 		t, err := template.New("").Funcs(funcMap).ParseFiles(
 			filepath.Join(h.TemplateDir, "layout.html"),
@@ -191,6 +191,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Post("/ui/review/{id}/approve", h.reviewApprove)
 	r.Post("/ui/review/{id}/reject", h.reviewReject)
 	r.Get("/ui/ledger", h.ledgerPage)
+	r.Get("/ui/audit", h.auditPage)
 	r.Get("/ui/settlement", h.settlementPage)
 	r.Post("/ui/settlement/generate", h.settlementGenerate)
 	r.Get("/ui/settlement/{id}", h.settlementBatchDetailPage)
@@ -965,6 +966,63 @@ func (h *UIHandlers) ledgerPage(w http.ResponseWriter, r *http.Request) {
 		"ActivePage":     "ledger",
 		"Accounts":       accounts,
 		"RecentEntries":  entries,
+	})
+}
+
+func (h *UIHandlers) auditPage(w http.ResponseWriter, r *http.Request) {
+	limit := 100
+	if l := r.URL.Query().Get("limit"); l != "" {
+		if n, err := strconv.Atoi(l); err == nil && n > 0 && n <= 500 {
+			limit = n
+		}
+	}
+	transferID := r.URL.Query().Get("transferId")
+
+	type auditRow struct {
+		ID          string
+		EntityType  string
+		EntityID    string
+		ActorID     string
+		EventType   string
+		FromState   string
+		ToState     string
+		Details     string
+		CreatedAt   string
+	}
+
+	query := `SELECT id, entity_type, entity_id, COALESCE(actor_id,''), event_type,
+	               COALESCE(from_state,''), COALESCE(to_state,''),
+	               COALESCE(details_json,''), created_at
+	          FROM audit_events`
+	args := []interface{}{}
+	if transferID != "" {
+		query += ` WHERE entity_id = ?`
+		args = append(args, transferID)
+	}
+	query += ` ORDER BY created_at DESC LIMIT ?`
+	args = append(args, limit)
+
+	rows, err := h.DB.Query(query, args...)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	defer rows.Close()
+
+	var events []auditRow
+	for rows.Next() {
+		var e auditRow
+		if rows.Scan(&e.ID, &e.EntityType, &e.EntityID, &e.ActorID, &e.EventType,
+			&e.FromState, &e.ToState, &e.Details, &e.CreatedAt) == nil {
+			events = append(events, e)
+		}
+	}
+
+	h.render(w, "audit", map[string]interface{}{
+		"ActivePage":  "audit",
+		"Events":      events,
+		"TransferID":  transferID,
+		"Limit":       limit,
 	})
 }
 
