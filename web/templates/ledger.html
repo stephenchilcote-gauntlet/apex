@@ -1,17 +1,6 @@
 {{define "content"}}
 <div class="page-header">
   <div class="compressed-title-wrap"><h1 class="section-title">Ledger</h1></div>
-  {{if .Accounts}}
-  <div style="margin-left:auto;display:flex;align-items:center;gap:6px;font-family:var(--font-ui);font-size:11px;">
-    {{if .LedgerBalanced}}
-    <span style="color:var(--green-mid);">✓ Balanced</span>
-    <span style="color:var(--text-tertiary);">all entries sum to zero</span>
-    {{else}}
-    <span style="color:var(--red);">⚠ Out of balance</span>
-    <span style="color:var(--text-secondary);">sum: ${{formatCents .LedgerSum}}</span>
-    {{end}}
-  </div>
-  {{end}}
 </div>
 
 <div class="panel">

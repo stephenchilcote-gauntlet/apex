@@ -291,7 +291,6 @@ body {
   border-radius: 9px;
   margin-left: 5px;
   vertical-align: middle;
-  animation: badge-pulse 2s ease-in-out infinite;
 }
 
 .nav-status-strip {
