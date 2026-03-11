@@ -163,4 +163,20 @@
   {{end}}
 
 </div>
+
+{{if or (eq .Transfer.State "FundsPosted") (eq .Transfer.State "Completed")}}
+<script>
+// Keyboard shortcut: press 'r' to process a return for this transfer
+(function () {
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'r') {
+      window.location.href = '/ui/returns?id={{.Transfer.ID}}';
+    }
+  });
+})();
+</script>
+{{end}}
 {{end}}

@@ -55,11 +55,13 @@
       <div class="form-row">
         <div class="form-group" style="flex:1">
           <label class="form-label" for="frontImage">Front Image</label>
-          <input type="file" name="frontImage" id="frontImage" class="input" style="width:100%">
+          <input type="file" name="frontImage" id="frontImage" class="input" style="width:100%" accept="image/*">
+          <img id="frontPreview" style="display:none;margin-top:8px;max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;" alt="Front preview">
         </div>
         <div class="form-group" style="flex:1">
           <label class="form-label" for="backImage">Back Image</label>
-          <input type="file" name="backImage" id="backImage" class="input" style="width:100%">
+          <input type="file" name="backImage" id="backImage" class="input" style="width:100%" accept="image/*">
+          <img id="backPreview" style="display:none;margin-top:8px;max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;" alt="Back preview">
         </div>
       </div>
       <button type="submit" class="btn" id="submit-btn">
@@ -82,6 +84,29 @@
     if (spinner) spinner.style.display = 'inline-block';
     if (label) label.textContent = 'Processing…';
   });
+})();
+
+// Image preview — show thumbnail when file selected
+(function () {
+  function wirePreview(inputId, previewId) {
+    var input = document.getElementById(inputId);
+    var preview = document.getElementById(previewId);
+    if (!input || !preview) return;
+    input.addEventListener('change', function () {
+      if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+  }
+  wirePreview('frontImage', 'frontPreview');
+  wirePreview('backImage', 'backPreview');
 })();
 
 // Auto-navigate to transfer detail if deposit is in a transient state
