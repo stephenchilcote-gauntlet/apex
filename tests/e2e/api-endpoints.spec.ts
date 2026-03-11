@@ -110,4 +110,48 @@ test.describe('API Endpoints', () => {
     expect(Array.isArray(body)).toBe(true);
     expect(body.length).toBe(0);
   });
+
+  test('GET /api/v1/deposits?state=FundsPosted filters by state', async ({ page }) => {
+    await submitDepositUI(page, { amount: '275.00', scenario: 'clean_pass' });
+
+    const resp = await page.request.get('/api/v1/deposits?state=FundsPosted');
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    // All results should be in FundsPosted state
+    for (const deposit of body) {
+      expect(deposit.State).toBe('FundsPosted');
+    }
+  });
+
+  test('GET /api/v1/deposits?state=Rejected filters to rejected only', async ({ page }) => {
+    await submitDepositUI(page, { scenario: 'iqa_blur' });
+
+    const resp = await page.request.get('/api/v1/deposits?state=Rejected');
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    for (const deposit of body) {
+      expect(deposit.State).toBe('Rejected');
+    }
+  });
+
+  test('GET /api/v1/ledger/accounts/{accountId} returns account with entries', async ({ page }) => {
+    await submitDepositUI(page, { amount: '125.00', scenario: 'clean_pass' });
+
+    // Get account list to find a valid account ID
+    const listResp = await page.request.get('/api/v1/ledger/accounts');
+    const accounts = await listResp.json();
+    const account = accounts.find((a: any) => a.externalAccountId === 'INV-1001');
+    expect(account).toBeTruthy();
+
+    const resp = await page.request.get(`/api/v1/ledger/accounts/${account.id}`);
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(body).toHaveProperty('account');
+    expect(body).toHaveProperty('entries');
+    expect(body.account.externalAccountId).toBe('INV-1001');
+  });
 });
