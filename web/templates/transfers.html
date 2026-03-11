@@ -49,7 +49,7 @@
           <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
           <td><span class="badge badge--{{.State}}" data-state>{{.State}}</span></td>
           <td>{{if .BusinessDateCT}}{{deref .BusinessDateCT}}{{else}}—{{end}}</td>
-          <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+          <td><span class="time-ago" data-ts="{{.CreatedAt.Unix}}" title="{{.CreatedAt.Format "2006-01-02 15:04:05"}}">{{.CreatedAt.Format "2006-01-02 15:04:05"}}</span></td>
         </tr>
         {{else}}
         <tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:24px;">No transfers found</td></tr>
@@ -114,6 +114,44 @@ tr[data-transfer].row-focused td { background: var(--accent-dim) !important; out
       rows.forEach(function (r) { tbody.appendChild(r); });
     });
   });
+})();
+
+// Relative timestamps for Created At column
+(function () {
+  function timeAgo(ts) {
+    var diff = Math.floor(Date.now() / 1000) - ts;
+    if (diff < 60)   return diff + 's ago';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+  function update() {
+    document.querySelectorAll('.time-ago[data-ts]').forEach(function (el) {
+      var ts = parseInt(el.getAttribute('data-ts'), 10);
+      if (!isNaN(ts)) el.textContent = timeAgo(ts);
+    });
+  }
+  update();
+  setInterval(update, 30000);
+})();
+
+// Auto-refresh table when transient-state transfers are visible
+(function () {
+  var transient = ['Requested', 'Validating', 'Analyzing'];
+  function hasTransient() {
+    return Array.from(document.querySelectorAll('[data-state]')).some(function (el) {
+      return transient.indexOf(el.textContent.trim()) !== -1;
+    });
+  }
+  if (!hasTransient()) return;
+  var panel = document.querySelector('.panel');
+  if (!panel || !window.htmx) return;
+  panel.setAttribute('hx-get', window.location.href);
+  panel.setAttribute('hx-trigger', 'every 5s');
+  panel.setAttribute('hx-target', '.panel');
+  panel.setAttribute('hx-select', '.panel');
+  panel.setAttribute('hx-swap', 'outerHTML');
+  htmx.process(panel);
 })();
 
 // j/k keyboard navigation through transfer rows
