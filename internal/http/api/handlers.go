@@ -621,6 +621,13 @@ func (h *Handlers) testSeed(w http.ResponseWriter, r *http.Request) {
 	day := func(d int) time.Time { return now.AddDate(0, 0, d) }
 	ptr := func(s string) *string { return &s }
 
+	// Look up account UUIDs by external_account_id.
+	acctID := func(extID string) string {
+		var id string
+		h.DB.QueryRow("SELECT id FROM accounts WHERE external_account_id = ?", extID).Scan(&id)
+		return id
+	}
+
 	seeds := []struct {
 		id, acct, state, bizDate string
 		cents                    int64
@@ -630,30 +637,30 @@ func (h *Handlers) testSeed(w http.ResponseWriter, r *http.Request) {
 		submittedAt, approvedAt, postedAt, completedAt *time.Time
 	}{
 		// Completed — settled last week
-		{id: "demo-seed-0001", acct: "INV-1001", state: "Completed", bizDate: day(-7).Format("2006-01-02"), cents: 125000,
+		{id: "demo-seed-0001", acct: acctID("INV-1001"), state: "Completed", bizDate: day(-7).Format("2006-01-02"), cents: 125000,
 			submittedAt: timePtr(day(-7)), approvedAt: timePtr(day(-7)), postedAt: timePtr(day(-7)), completedAt: timePtr(day(-7))},
-		{id: "demo-seed-0002", acct: "INV-1002", state: "Completed", bizDate: day(-5).Format("2006-01-02"), cents: 75000,
+		{id: "demo-seed-0002", acct: acctID("INV-1002"), state: "Completed", bizDate: day(-5).Format("2006-01-02"), cents: 75000,
 			submittedAt: timePtr(day(-5)), approvedAt: timePtr(day(-5)), postedAt: timePtr(day(-5)), completedAt: timePtr(day(-5))},
 		// Returned
-		{id: "demo-seed-0003", acct: "INV-1003", state: "Returned", bizDate: day(-3).Format("2006-01-02"), cents: 200000,
+		{id: "demo-seed-0003", acct: acctID("INV-1003"), state: "Returned", bizDate: day(-3).Format("2006-01-02"), cents: 200000,
 			submittedAt: timePtr(day(-3)), approvedAt: timePtr(day(-3)), postedAt: timePtr(day(-3)), completedAt: timePtr(day(-3))},
 		// FundsPosted — today, awaiting settlement
-		{id: "demo-seed-0004", acct: "INV-1001", state: "FundsPosted", bizDate: now.Format("2006-01-02"), cents: 350000,
+		{id: "demo-seed-0004", acct: acctID("INV-1001"), state: "FundsPosted", bizDate: now.Format("2006-01-02"), cents: 350000,
 			submittedAt: timePtr(now.Add(-2 * time.Hour)), approvedAt: timePtr(now.Add(-2 * time.Hour)), postedAt: timePtr(now.Add(-2 * time.Hour))},
-		{id: "demo-seed-0005", acct: "INV-1004", state: "FundsPosted", bizDate: now.Format("2006-01-02"), cents: 50000,
+		{id: "demo-seed-0005", acct: acctID("INV-1004"), state: "FundsPosted", bizDate: now.Format("2006-01-02"), cents: 50000,
 			submittedAt: timePtr(now.Add(-1 * time.Hour)), approvedAt: timePtr(now.Add(-1 * time.Hour)), postedAt: timePtr(now.Add(-1 * time.Hour))},
-		// PendingReview — two items waiting
-		{id: "demo-seed-0006", acct: "INV-1006", state: "PendingReview", bizDate: now.Format("2006-01-02"), cents: 480000,
+		// Pending review — Analyzing state with review_required=true, review_status=PENDING
+		{id: "demo-seed-0006", acct: acctID("INV-1006"), state: "Analyzing", bizDate: now.Format("2006-01-02"), cents: 480000,
 			reviewRequired: true, reviewStatus: ptr("PENDING"),
 			submittedAt: timePtr(now.Add(-90 * time.Minute))},
-		{id: "demo-seed-0007", acct: "INV-1007", state: "PendingReview", bizDate: now.Format("2006-01-02"), cents: 95000,
+		{id: "demo-seed-0007", acct: acctID("INV-1007"), state: "Analyzing", bizDate: now.Format("2006-01-02"), cents: 95000,
 			reviewRequired: true, reviewStatus: ptr("PENDING"),
 			submittedAt: timePtr(now.Add(-20 * time.Minute))},
 		// Rejected
-		{id: "demo-seed-0008", acct: "INV-1005", state: "Rejected", bizDate: now.Format("2006-01-02"), cents: 20000,
+		{id: "demo-seed-0008", acct: acctID("INV-1005"), state: "Rejected", bizDate: now.Format("2006-01-02"), cents: 20000,
 			rejCode: ptr("DUPLICATE_DETECTED"), rejMsg: ptr("Fingerprint matches transfer demo-seed-0001"),
 			submittedAt: timePtr(now.Add(-3 * time.Hour))},
-		{id: "demo-seed-0009", acct: "INV-1002", state: "Rejected", bizDate: day(-1).Format("2006-01-02"), cents: 15000,
+		{id: "demo-seed-0009", acct: acctID("INV-1002"), state: "Rejected", bizDate: day(-1).Format("2006-01-02"), cents: 15000,
 			rejCode: ptr("IQA_BLUR"), rejMsg: ptr("Image quality score 0.23 below threshold 0.60"),
 			submittedAt: timePtr(day(-1))},
 	}
@@ -670,7 +677,9 @@ func (h *Handlers) testSeed(w http.ResponseWriter, r *http.Request) {
 
 	inserted := 0
 	for _, s := range seeds {
-		// Skip if already exists
+		if s.acct == "" {
+			continue // account not found, skip
+		}
 		var exists int
 		tx.QueryRow("SELECT COUNT(*) FROM transfers WHERE id = ?", s.id).Scan(&exists)
 		if exists > 0 {
