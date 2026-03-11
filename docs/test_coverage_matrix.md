@@ -28,7 +28,8 @@ Maps every spec requirement to the Go tests and Playwright E2E tests that valida
 | Requirement | Go Test(s) | Playwright Test(s) | Status |
 |---|---|---|---|
 | Account eligibility (ACTIVE status required) | `deposits.TestDepositService_SubmitDeposit_FundingRuleRejections/inactive_account` | `business-rules.spec.ts` | ✅ |
-| Max deposit limit ($5,000) | `deposits.TestDepositService_SubmitDeposit_FundingRuleRejections/over_max_deposit_limit` | `business-rules.spec.ts` | ✅ |
+| Max deposit limit ($5,000 per deposit) | `deposits.TestDepositService_SubmitDeposit_FundingRuleRejections/over_max_deposit_limit` | `business-rules.spec.ts` | ✅ |
+| Daily deposit limit ($10,000 per account per day) | `deposits.TestDepositService_SubmitDeposit_FundingRuleRejections/exceeds_daily_deposit_limit`, `funding.TestRuleDailyDepositLimit` | `business-rules.spec.ts` | ✅ |
 | Contribution type defaults (INDIVIDUAL) | `deposits.TestDepositService_SubmitDeposit_CleanPass_E2E` (line 123–125) | — | ✅ |
 | Internal duplicate detection (SHA256 fingerprint) | `deposits.TestDepositService_SubmitDeposit_InternalDuplicateFingerprint` | — | ✅ |
 | Account resolution (external → internal IDs) | `deposits.TestDepositService_SubmitDeposit_CleanPass_E2E` | — | ✅ |
