@@ -1008,10 +1008,16 @@ func (h *UIHandlers) ledgerPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Global zero-sum invariant check
+	var totalLedger int64
+	h.DB.QueryRow(`SELECT COALESCE(SUM(signed_amount_cents), 0) FROM ledger_entries`).Scan(&totalLedger)
+
 	h.render(w, "ledger", map[string]interface{}{
-		"ActivePage":     "ledger",
-		"Accounts":       accounts,
-		"RecentEntries":  entries,
+		"ActivePage":      "ledger",
+		"Accounts":        accounts,
+		"RecentEntries":   entries,
+		"LedgerSum":       totalLedger,
+		"LedgerBalanced":  totalLedger == 0,
 	})
 }
 
