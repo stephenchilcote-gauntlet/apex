@@ -1029,6 +1029,7 @@ func (h *UIHandlers) auditPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	transferID := r.URL.Query().Get("transferId")
+	eventType := r.URL.Query().Get("eventType")
 
 	type auditRow struct {
 		ID          string
@@ -1045,11 +1046,15 @@ func (h *UIHandlers) auditPage(w http.ResponseWriter, r *http.Request) {
 	query := `SELECT id, entity_type, entity_id, COALESCE(actor_id,''), event_type,
 	               COALESCE(from_state,''), COALESCE(to_state,''),
 	               COALESCE(details_json,''), created_at
-	          FROM audit_events`
+	          FROM audit_events WHERE 1=1`
 	args := []interface{}{}
 	if transferID != "" {
-		query += ` WHERE entity_id = ?`
+		query += ` AND entity_id = ?`
 		args = append(args, transferID)
+	}
+	if eventType != "" {
+		query += ` AND event_type = ?`
+		args = append(args, eventType)
 	}
 	query += ` ORDER BY created_at DESC LIMIT ?`
 	args = append(args, limit)
@@ -1070,10 +1075,25 @@ func (h *UIHandlers) auditPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Get distinct event types for the filter dropdown
+	etRows, _ := h.DB.Query(`SELECT DISTINCT event_type FROM audit_events ORDER BY event_type`)
+	var eventTypes []string
+	if etRows != nil {
+		defer etRows.Close()
+		for etRows.Next() {
+			var et string
+			if etRows.Scan(&et) == nil {
+				eventTypes = append(eventTypes, et)
+			}
+		}
+	}
+
 	h.render(w, "audit", map[string]interface{}{
 		"ActivePage":  "audit",
 		"Events":      events,
 		"TransferID":  transferID,
+		"EventType":   eventType,
+		"EventTypes":  eventTypes,
 		"Limit":       limit,
 	})
 }
