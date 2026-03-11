@@ -716,7 +716,8 @@ label,
   justify-content: center;
   cursor: zoom-out;
 }
-.check-lightbox.open { display: flex; }
+.check-lightbox.open { display: flex; animation: lightbox-fade 0.18s ease; }
+@keyframes lightbox-fade { from { opacity: 0; } to { opacity: 1; } }
 .check-lightbox-inner {
   position: relative;
   max-width: min(90vw, 960px);
