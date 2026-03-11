@@ -21,7 +21,7 @@
           <th>Account</th>
           <th style="text-align:right;">Amount</th>
           <th>Posted</th>
-          <th style="width:110px;">Batch</th>
+          <th style="width:180px;">Batch</th>
         </tr>
       </thead>
       <tbody>
@@ -33,7 +33,8 @@
           <td style="color:var(--text-secondary);font-size:11px;">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
           <td>
             {{if .BatchID}}
-            <a href="/ui/settlement/{{.BatchID}}" class="settle-batch-chip" title="{{.BatchID}}">{{shortID .BatchID}} →</a>
+            <a href="/ui/settlement/{{.BatchID}}" class="settle-batch-chip" title="{{.BatchID}}">{{shortID .BatchID}} →</a><br>
+            <span class="settle-ack-badge">Awaiting acknowledgment</span>
             {{else}}
             <span style="color:var(--text-tertiary);">—</span>
             {{end}}
@@ -69,6 +70,19 @@
 .settle-batch-chip:hover {
   text-decoration: none;
   opacity: 0.8;
+}
+.settle-ack-badge {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--blue-bright);
+  background: var(--blue-dim, rgba(59,130,246,0.12));
+  border: 1px solid var(--blue-dim, rgba(59,130,246,0.25));
+  border-radius: 3px;
+  padding: 2px 6px;
+  margin-top: 4px;
+  white-space: nowrap;
 }
 </style>
 
