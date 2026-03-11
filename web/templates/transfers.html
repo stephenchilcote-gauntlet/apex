@@ -1,25 +1,42 @@
 {{define "content"}}
-<div class="page-header">
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
   <div class="compressed-title-wrap"><h1 class="section-title">Transfers</h1></div>
+  <form method="GET" action="/ui/transfers" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+    <input type="text" name="investorAccountId" class="input" style="width:160px;" placeholder="Account ID…" value="{{.AccountFilter}}">
+    <select name="state" class="input" style="width:auto;min-width:150px;" onchange="this.form.submit()">
+      <option value="">All states</option>
+      <option value="Requested"    {{if eq .StateFilter "Requested"   }}selected{{end}}>Requested</option>
+      <option value="Validating"   {{if eq .StateFilter "Validating"  }}selected{{end}}>Validating</option>
+      <option value="Analyzing"    {{if eq .StateFilter "Analyzing"   }}selected{{end}}>Analyzing</option>
+      <option value="PendingReview"{{if eq .StateFilter "PendingReview"}}selected{{end}}>Pending Review</option>
+      <option value="Approved"     {{if eq .StateFilter "Approved"    }}selected{{end}}>Approved</option>
+      <option value="FundsPosted"  {{if eq .StateFilter "FundsPosted" }}selected{{end}}>Funds Posted</option>
+      <option value="Completed"    {{if eq .StateFilter "Completed"   }}selected{{end}}>Completed</option>
+      <option value="Rejected"     {{if eq .StateFilter "Rejected"    }}selected{{end}}>Rejected</option>
+      <option value="Returned"     {{if eq .StateFilter "Returned"    }}selected{{end}}>Returned</option>
+    </select>
+    <button type="submit" class="btn">Filter</button>
+    {{if or .StateFilter .AccountFilter}}<a href="/ui/transfers" class="btn" style="white-space:nowrap;">Clear</a>{{end}}
+  </form>
 </div>
 
 <div class="panel">
-  <div class="panel-header"><span class="panel-header-title">All Transfers</span></div>
+  <div class="panel-header"><span class="panel-header-title">{{if .StateFilter}}{{.StateFilter}}{{if .AccountFilter}} · {{.AccountFilter}}{{end}}{{else if .AccountFilter}}{{.AccountFilter}}{{else}}All{{end}} transfers</span></div>
   <div class="panel-body">
     <table class="data-table">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>Account</th>
-          <th>Amount</th>
-          <th>State</th>
-          <th>Business Date</th>
-          <th>Created At</th>
+          <th data-sortable data-col="0">ID</th>
+          <th data-sortable data-col="1">Account</th>
+          <th data-sortable data-col="2" data-type="num">Amount</th>
+          <th data-sortable data-col="3">State</th>
+          <th data-sortable data-col="4">Business Date</th>
+          <th data-sortable data-col="5">Created At</th>
         </tr>
       </thead>
       <tbody>
         {{range .Transfers}}
-        <tr data-transfer>
+        <tr data-transfer class="row-link" onclick="window.location='/ui/transfers/{{.ID}}'">
           <td><a href="/ui/transfers/{{.ID}}">{{slice .ID 0 8}}…</a></td>
           <td>{{.InvestorAccountID}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
@@ -28,10 +45,52 @@
           <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
         </tr>
         {{else}}
-        <tr><td colspan="6" style="text-align:center;">No transfers found</td></tr>
+        <tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:24px;">No transfers found</td></tr>
         {{end}}
       </tbody>
     </table>
   </div>
 </div>
+
+<style>
+th[data-sortable] { cursor: pointer; user-select: none; }
+th[data-sortable]:hover { color: var(--text-primary); }
+th[data-sortable][data-dir]::after { content: ' ↑'; opacity: 0.6; }
+th[data-sortable][data-dir="desc"]::after { content: ' ↓'; opacity: 0.6; }
+</style>
+
+<script>
+// Client-side sortable columns
+(function () {
+  var table = document.querySelector('.data-table');
+  if (!table) return;
+  var lastCol = null, lastDir = 'asc';
+
+  table.querySelectorAll('th[data-sortable]').forEach(function (th) {
+    th.addEventListener('click', function () {
+      var col = parseInt(th.getAttribute('data-col'), 10);
+      var isNum = th.getAttribute('data-type') === 'num';
+      var dir = (lastCol === col && lastDir === 'asc') ? 'desc' : 'asc';
+      lastCol = col; lastDir = dir;
+
+      // Update header indicators
+      table.querySelectorAll('th[data-sortable]').forEach(function (h) { h.removeAttribute('data-dir'); });
+      th.setAttribute('data-dir', dir);
+
+      // Sort rows
+      var tbody = table.querySelector('tbody');
+      var rows = Array.from(tbody.querySelectorAll('tr[data-transfer]'));
+      rows.sort(function (a, b) {
+        var aText = (a.cells[col] ? a.cells[col].textContent.trim() : '');
+        var bText = (b.cells[col] ? b.cells[col].textContent.trim() : '');
+        var cmp = isNum
+          ? (parseFloat(aText.replace(/[^0-9.-]/g, '')) || 0) - (parseFloat(bText.replace(/[^0-9.-]/g, '')) || 0)
+          : aText.localeCompare(bText);
+        return dir === 'asc' ? cmp : -cmp;
+      });
+      rows.forEach(function (r) { tbody.appendChild(r); });
+    });
+  });
+})();
+</script>
 {{end}}

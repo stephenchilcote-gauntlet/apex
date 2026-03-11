@@ -67,7 +67,7 @@ test.describe('Visual Regression', () => {
       critical('Is there a "Transfer Info" panel showing ID, State badge, Amount, Account, and timestamps?'),
       critical('Is there a "Check Images" panel with front and back image placeholders or images?'),
       critical('Is there a "Vendor Result" panel showing decision details like IQA Status, MICR data, and Risk Score?'),
-      critical('Is there an "Audit Trail" panel with a table of events showing Time, Event, From, To, and Actor columns?'),
+      critical('Is there an "Activity" panel showing a timeline or list of events, each with a timestamp, event type, and state transition (From → To states)?'),
     ], { testName: 'transfer-detail-panels', fullPage: true });
   });
 
@@ -79,7 +79,7 @@ test.describe('Visual Regression', () => {
     await expect(page.locator('[data-review-item]').first()).toBeVisible();
 
     await judge.assertVisual(page, [
-      critical('Is there a "Pending Reviews" table with columns for ID, Account, Amount, Reason, Created, and Action?'),
+      critical('Is there a "Pending Reviews" table with columns for ID, Account, Amount, Reason, a time/waiting column, and Action?'),
       critical('Does the table have at least one row with a "Review" button or link?'),
       advisory('Is the "Review Queue" tab highlighted as active in the navigation?'),
     ], { testName: 'review-queue-populated', fullPage: true });

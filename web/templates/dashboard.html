@@ -1,0 +1,186 @@
+{{define "content"}}
+<div class="page-header">
+  <h1 class="section-title">Overview</h1>
+</div>
+
+<!-- Summary stat cards — HTMX live-refresh every 15s -->
+<div class="dash-cards" style="margin-bottom:16px;"
+     hx-get="/ui"
+     hx-trigger="every 15s"
+     hx-target=".dash-cards"
+     hx-select=".dash-cards"
+     hx-swap="outerHTML">
+  <div class="dash-card">
+    <div class="dash-card-label">Total transfers</div>
+    <div class="dash-card-value">{{.TotalTransfers}}</div>
+  </div>
+  <div class="dash-card{{if gt .PendingReview 0}} dash-card--alert{{end}}">
+    <div class="dash-card-label">Pending review</div>
+    <div class="dash-card-value">{{.PendingReview}}</div>
+    {{if gt .PendingReview 0}}<a href="/ui/review" class="dash-card-action">Review now →</a>{{end}}
+  </div>
+  <div class="dash-card">
+    <div class="dash-card-label">Funds posted (unsettled)</div>
+    <div class="dash-card-value data-value">${{formatCents .FundsPostedCents}}</div>
+  </div>
+  {{if .LatestBatch}}
+  <div class="dash-card">
+    <div class="dash-card-label">Latest settlement</div>
+    <div class="dash-card-value" style="font-size:14px;">
+      <span class="badge badge--{{.LatestBatch.Status}}">{{.LatestBatch.Status}}</span>
+    </div>
+    <div style="font-family:var(--font-data);font-size:11px;color:var(--text-secondary);margin-top:4px;">
+      {{.LatestBatch.BusinessDateCT}} · {{.LatestBatch.TotalItems}} items · ${{formatCents .LatestBatch.TotalAmountCents}}
+    </div>
+  </div>
+  {{end}}
+</div>
+
+<!-- Transfer breakdown by state -->
+{{if .StateCounts}}
+<div class="panel" style="margin-bottom:16px;">
+  <div class="panel-header"><span class="panel-header-title">Transfers by state</span></div>
+  <div class="panel-body" style="padding:0;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>State</th>
+          <th style="text-align:right;">Count</th>
+          <th style="width:60%;padding-right:16px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .StateCounts}}
+        <tr>
+          <td><a href="/ui/transfers?state={{.State}}"><span class="badge badge--{{.State}}">{{.State}}</span></a></td>
+          <td data-numeric>{{.Count}}</td>
+          <td style="padding-right:16px;">
+            <div class="dash-bar-wrap">
+              <div class="dash-bar" style="width:{{pct .Count $.MaxStateCount}};"></div>
+            </div>
+          </td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
+
+<!-- Quick links — Amp-style action cards -->
+<div class="workspace-grid">
+  <a href="/ui/simulate" class="dash-link-card">
+    <div class="dash-link-title">Simulate deposit</div>
+    <div class="dash-link-desc">Submit a test check deposit and see it processed through the pipeline.</div>
+  </a>
+  <a href="/ui/settlement" class="dash-link-card">
+    <div class="dash-link-title">Settlement</div>
+    <div class="dash-link-desc">Generate an X9.37 ICL batch file for all FundsPosted transfers.</div>
+  </a>
+  <a href="/ui/returns" class="dash-link-card">
+    <div class="dash-link-title">Process return</div>
+    <div class="dash-link-desc">Mark a completed deposit as returned (NSF, fraud, stop payment, etc.).</div>
+  </a>
+  <a href="/ui/ledger" class="dash-link-card">
+    <div class="dash-link-title">Ledger</div>
+    <div class="dash-link-desc">Inspect double-entry account balances across the correspondent network.</div>
+  </a>
+</div>
+
+<style>
+.dash-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.dash-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 14px 16px;
+}
+
+.dash-card--alert {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+.dash-card-label {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.dash-card-value {
+  font-family: var(--font-data);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.dash-card-action {
+  display: inline-block;
+  margin-top: 8px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.dash-card-action:hover { text-decoration: underline; }
+
+.dash-bar-wrap {
+  height: 4px;
+  background: var(--bg-surface);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.dash-bar {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 2px;
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+
+/* Link cards — Amp-style action grid */
+.dash-link-card {
+  display: block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 16px;
+  text-decoration: none;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.dash-link-card:hover {
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  text-decoration: none;
+}
+
+.dash-link-title {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.dash-link-desc {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+</style>
+{{end}}

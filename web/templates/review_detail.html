@@ -1,6 +1,11 @@
 {{define "content"}}
+<nav class="breadcrumb">
+  <a href="/ui/review">Review Queue</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">{{slice .Transfer.ID 0 8}}…</span>
+</nav>
 <div class="page-header">
-  <div class="compressed-title-wrap"><h1 class="section-title">Review Transfer</h1></div>
+  <h1 class="section-title">Review Transfer</h1>
 </div>
 
 <div data-transfer-id="{{.Transfer.ID}}">
@@ -9,12 +14,12 @@
     <div class="panel-header"><span class="panel-header-title">Transfer Info</span></div>
     <div class="panel-body">
       <div class="detail-grid">
-        <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}</span>
+        <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}<button data-copy="{{.Transfer.ID}}" title="Copy ID">⎘</button></span>
         <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span></span>
         <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
         <span class="detail-label">Entered Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
         {{if .VendorResult}}{{if .VendorResult.OCRAmountCents}}
-        <span class="detail-label">OCR Amount</span><span class="detail-value data-value--currency"{{if not .VendorResult.AmountMatches}} style="color:var(--color-error,#f44)"{{end}}>${{formatCentsInt (derefInt .VendorResult.OCRAmountCents)}}</span>
+        <span class="detail-label">OCR Amount</span><span class="detail-value data-value--currency"{{if not .VendorResult.AmountMatches}} style="color:var(--red)"{{end}}>${{formatCentsInt (derefInt .VendorResult.OCRAmountCents)}}</span>
         {{end}}{{end}}
         <span class="detail-label">Business Date</span><span class="detail-value">{{if .Transfer.BusinessDateCT}}{{deref .Transfer.BusinessDateCT}}{{else}}—{{end}}</span>
         <span class="detail-label">Created</span><span class="detail-value">{{.Transfer.CreatedAt.Format "2006-01-02 15:04:05"}}</span>
@@ -81,32 +86,32 @@
 
   {{if .AuditEvents}}
   <div class="panel" style="margin-bottom:12px;">
-    <div class="panel-header"><span class="panel-header-title">Audit Trail</span></div>
-    <div class="panel-body">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Time</th>
-            <th>Event</th>
-            <th>From</th>
-            <th>To</th>
-            <th>Actor</th>
-            <th>Details</th>
-          </tr>
-        </thead>
-        <tbody>
-          {{range .AuditEvents}}
-          <tr>
-            <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
-            <td>{{.EventType}}</td>
-            <td>{{if .FromState}}{{deref .FromState}}{{else}}—{{end}}</td>
-            <td>{{if .ToState}}{{deref .ToState}}{{else}}—{{end}}</td>
-            <td>{{.ActorID}}</td>
-            <td>{{if .DetailsJSON}}{{deref .DetailsJSON}}{{else}}—{{end}}</td>
-          </tr>
-          {{end}}
-        </tbody>
-      </table>
+    <div class="panel-header"><span class="panel-header-title">Activity</span></div>
+    <div class="panel-body" style="padding:8px 12px;">
+      <div class="timeline">
+        {{range .AuditEvents}}
+        <div class="timeline-item">
+          <div class="timeline-dot"></div>
+          <div class="timeline-body">
+            <div class="timeline-header">
+              <span class="timeline-event">{{.EventType}}</span>
+              {{if and .FromState .ToState}}
+              <span class="timeline-transition">
+                <span class="badge badge--{{deref .FromState}}">{{deref .FromState}}</span>
+                <span style="color:var(--text-tertiary);margin:0 4px;">→</span>
+                <span class="badge badge--{{deref .ToState}}">{{deref .ToState}}</span>
+              </span>
+              {{end}}
+              <span class="timeline-time">{{.CreatedAt.Format "Jan 2, 15:04:05"}}</span>
+            </div>
+            {{if and .DetailsJSON (ne (deref .DetailsJSON) "null")}}
+            <div class="timeline-details">{{deref .DetailsJSON}}</div>
+            {{end}}
+            {{if .ActorID}}<div class="timeline-actor">by {{.ActorID}}</div>{{end}}
+          </div>
+        </div>
+        {{end}}
+      </div>
     </div>
   </div>
   {{end}}

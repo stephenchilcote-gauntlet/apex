@@ -86,6 +86,7 @@ func main() {
 	r.Use(appmiddleware.RateLimit(cfg.RateLimitRPM))
 
 	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web/static"))))
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) { http.Redirect(w, r, "/ui", http.StatusFound) })
 
 	r.Get("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		status := "ok"

@@ -11,3 +11,4 @@ tests/e2e/storageState.json
 /vendorstub
 *.pid
 /app
+.idea/

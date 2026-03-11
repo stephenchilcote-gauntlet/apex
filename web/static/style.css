@@ -1,90 +1,202 @@
 /* ==========================================================================
    Apex Mobile Check Deposit — Operations Dashboard
-   Clean Dark UI · UX Principles Implementation
+   Design: Amp-inspired (ampcode.com) — light/dark via prefers-color-scheme
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   Color System
-   --------------------------------------------------------------------------
-   Per UX §6: saturated color reserved for states requiring attention.
-   Backgrounds are dark gray (not pitch black) to reduce fatigue.
-   Gray/neutral canvas lets alert colors pop.
+   Color System — Amp palette, automatic light/dark
+   Amp uses light-dark(#f6f6f6, #171717) for bg and #f34e3f as accent.
+   Semantic colors (green/amber/red) adjust saturation per mode.
    -------------------------------------------------------------------------- */
+
+/* Dark mode (default — financial ops dashboards live in dark) */
 :root {
-  --bg-primary:     #121218;
-  --bg-elevated:    #1a1a22;
-  --bg-surface:     #22222c;
-  --bg-overlay:     rgba(18,18,24,0.92);
-  --border-subtle:  rgba(255,255,255,0.07);
-  --border-default: rgba(255,255,255,0.12);
-  --border-strong:  rgba(255,255,255,0.20);
-  --grid-line:      rgba(255,255,255,0.04);
-  --text-primary:   #d0d0d8;
-  --text-secondary: #78788a;
-  --text-tertiary:  #44444e;
-  --green-bright:   #00e03c;
-  --green-mid:      #00aa2e;
-  --green-dim:      #004d15;
-  --green-glow:     rgba(0,224,60,0.12);
-  --green-surface:  rgba(0,224,60,0.06);
-  --amber:          #e8a000;
-  --amber-dim:      #6b4a00;
-  --amber-glow:     rgba(232,160,0,0.12);
-  --red:            #e8000b;
-  --red-dim:        #5c0004;
-  --red-glow:       rgba(232,0,11,0.15);
-  --red-surface:    rgba(232,0,11,0.08);
-  --blue:           #0070e0;
-  --blue-bright:    #00a8ff;
-  --blue-dim:       #003366;
-  --cyan:           #00d4d4;
-  --purple:         #7c2d90;
-  --purple-bright:  #a855f7;
-  --purple-dim:     #3d1650;
+  color-scheme: dark light;
+
+  /* Backgrounds */
+  --bg-primary:     #111111;
+  --bg-elevated:    #171717;
+  --bg-surface:     #1e1e1e;
+  --bg-overlay:     rgba(17,17,17,0.92);
+
+  /* Borders */
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.11);
+  --border-strong:  rgba(255,255,255,0.18);
+
+  /* Text */
+  --text-primary:   #f0f0f0;
+  --text-secondary: #737373;
+  --text-tertiary:  #404040;
+
+  /* Amp brand accent — #f34e3f red-orange (same in both modes) */
+  --accent:         #f34e3f;
+  --accent-dim:     rgba(243,78,63,0.12);
+  --accent-glow:    rgba(243,78,63,0.20);
+
+  /* Semantic: green = success / funds */
+  --green-bright:   #22c55e;
+  --green-mid:      #16a34a;
+  --green-dim:      #14532d;
+  --green-glow:     rgba(34,197,94,0.12);
+  --green-surface:  rgba(34,197,94,0.07);
+
+  /* Semantic: amber = warning / review */
+  --amber:          #f59e0b;
+  --amber-dim:      #78350f;
+  --amber-glow:     rgba(245,158,11,0.12);
+
+  /* Semantic: red = error / rejection */
+  --red:            #ef4444;
+  --red-dim:        #7f1d1d;
+  --red-glow:       rgba(239,68,68,0.15);
+  --red-surface:    rgba(239,68,68,0.08);
+
+  /* Blue — informational */
+  --blue:           #3b82f6;
+  --blue-bright:    #60a5fa;
+  --blue-dim:       #1e3a5f;
+}
+
+/* Light mode — Amp's #f6f6f6 / #272727 palette */
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg-primary:     #f6f6f6;
+    --bg-elevated:    #ffffff;
+    --bg-surface:     #ebebeb;
+    --bg-overlay:     rgba(246,246,246,0.95);
+
+    --border-subtle:  rgba(0,0,0,0.07);
+    --border-default: rgba(0,0,0,0.13);
+    --border-strong:  rgba(0,0,0,0.22);
+
+    --text-primary:   #1a1a1a;
+    --text-secondary: #737373;
+    --text-tertiary:  #b0b0b0;
+
+    /* Accent stays the same — Amp's red-orange works in both modes */
+    --accent:         #f34e3f;
+    --accent-dim:     rgba(243,78,63,0.10);
+    --accent-glow:    rgba(243,78,63,0.18);
+
+    /* Semantic greens — darker for light bg */
+    --green-bright:   #15803d;
+    --green-mid:      #16a34a;
+    --green-dim:      #bbf7d0;
+    --green-glow:     rgba(22,163,74,0.10);
+    --green-surface:  rgba(22,163,74,0.07);
+
+    /* Amber */
+    --amber:          #b45309;
+    --amber-dim:      #fde68a;
+    --amber-glow:     rgba(180,83,9,0.10);
+
+    /* Red */
+    --red:            #dc2626;
+    --red-dim:        #fecaca;
+    --red-glow:       rgba(220,38,38,0.12);
+    --red-surface:    rgba(220,38,38,0.07);
+
+    /* Blue */
+    --blue:           #2563eb;
+    --blue-bright:    #1d4ed8;
+    --blue-dim:       #bfdbfe;
+  }
+}
+
+/* Manual theme override — data-theme attribute set by JS toggle */
+[data-theme="dark"] {
+  --bg-primary:     #111111;
+  --bg-elevated:    #171717;
+  --bg-surface:     #1e1e1e;
+  --bg-overlay:     rgba(17,17,17,0.92);
+  --border-subtle:  rgba(255,255,255,0.06);
+  --border-default: rgba(255,255,255,0.11);
+  --border-strong:  rgba(255,255,255,0.18);
+  --text-primary:   #f0f0f0;
+  --text-secondary: #737373;
+  --text-tertiary:  #404040;
+  --accent:         #f34e3f;
+  --accent-dim:     rgba(243,78,63,0.12);
+  --accent-glow:    rgba(243,78,63,0.20);
+  --green-bright:   #22c55e;
+  --green-mid:      #16a34a;
+  --green-dim:      #14532d;
+  --green-glow:     rgba(34,197,94,0.12);
+  --green-surface:  rgba(34,197,94,0.07);
+  --amber:          #f59e0b;
+  --amber-dim:      #78350f;
+  --amber-glow:     rgba(245,158,11,0.12);
+  --red:            #ef4444;
+  --red-dim:        #7f1d1d;
+  --red-glow:       rgba(239,68,68,0.15);
+  --red-surface:    rgba(239,68,68,0.08);
+  --blue:           #3b82f6;
+  --blue-bright:    #60a5fa;
+  --blue-dim:       #1e3a5f;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg-primary:     #f6f6f6;
+  --bg-elevated:    #ffffff;
+  --bg-surface:     #ebebeb;
+  --bg-overlay:     rgba(246,246,246,0.95);
+  --border-subtle:  rgba(0,0,0,0.07);
+  --border-default: rgba(0,0,0,0.13);
+  --border-strong:  rgba(0,0,0,0.22);
+  --text-primary:   #1a1a1a;
+  --text-secondary: #737373;
+  --text-tertiary:  #b0b0b0;
+  --accent:         #f34e3f;
+  --accent-dim:     rgba(243,78,63,0.10);
+  --accent-glow:    rgba(243,78,63,0.18);
+  --green-bright:   #15803d;
+  --green-mid:      #16a34a;
+  --green-dim:      #bbf7d0;
+  --green-glow:     rgba(22,163,74,0.10);
+  --green-surface:  rgba(22,163,74,0.07);
+  --amber:          #b45309;
+  --amber-dim:      #fde68a;
+  --amber-glow:     rgba(180,83,9,0.10);
+  --red:            #dc2626;
+  --red-dim:        #fecaca;
+  --red-glow:       rgba(220,38,38,0.12);
+  --red-surface:    rgba(220,38,38,0.07);
+  --blue:           #2563eb;
+  --blue-bright:    #1d4ed8;
+  --blue-dim:       #bfdbfe;
+  color-scheme: light;
 }
 
 /* --------------------------------------------------------------------------
-   Font System
-   --------------------------------------------------------------------------
-   Dropped Orbitron (decorative display font, never earned its place).
+   Font System — Amp uses ui-sans-serif / system-ui, no external fonts
    -------------------------------------------------------------------------- */
 :root {
-  --font-title:   'Inter', 'Helvetica Neue', 'Arial', sans-serif;
-  --font-ui:      'Inter', 'Helvetica Neue', 'Arial', sans-serif;
-  --font-data:    'JetBrains Mono', 'Menlo', 'Consolas', monospace;
+  --font-ui:   ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-data: ui-monospace, 'SFMono-Regular', 'Cascadia Code', 'Menlo', monospace;
 }
 
 /* --------------------------------------------------------------------------
-   1. Body & Layout
+   1. Base
    -------------------------------------------------------------------------- */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   margin: 0;
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.viewport {
-  min-height: 100vh;
-}
-
-.nav-shell {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  min-height: 100vh;
-}
+.viewport  { min-height: 100vh; }
+.nav-shell { display: grid; grid-template-rows: auto 1fr; min-height: 100vh; }
 
 .container {
   max-width: 1200px;
@@ -93,62 +205,86 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Navigation
+   Navigation — Amp-style: neutral dark bar, accent underline on active
    -------------------------------------------------------------------------- */
 .nav-header {
   display: flex;
   align-items: center;
-  height: 40px;
-  background: var(--bg-primary);
+  height: 44px;
+  background: var(--bg-elevated);
   border-bottom: 1px solid var(--border-subtle);
   padding: 0 16px;
   gap: 0;
 }
 
+/* Brand — Amp uses clean all-caps mark with subtle letter-spacing */
 .nav-brand {
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.12em;
   color: var(--text-primary);
   text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-right: 16px;
+}
+
+/* Amp-style feature tag next to the brand */
+.nav-brand-tag {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: var(--accent);
+  color: #fff;
+  padding: 2px 5px;
+  border-radius: 2px;
+  line-height: 1.4;
+}
+
+.nav-level-tabs {
+  display: flex;
+  height: 100%;
 }
 
 .nav-level-tab {
   font-family: var(--font-ui);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 400;
   color: var(--text-secondary);
   text-decoration: none;
-  padding: 0 12px;
+  padding: 0 13px;
   height: 100%;
   display: inline-flex;
   align-items: center;
   border-bottom: 2px solid transparent;
-  transition: color 0.15s, border-color 0.15s;
+  transition: color 0.12s, border-color 0.12s;
+  white-space: nowrap;
 }
 
 .nav-level-tab:hover {
   color: var(--text-primary);
 }
 
+/* Active tab uses Amp's accent color */
 .nav-level-tab.active,
 .nav-level-tab[aria-selected="true"],
 .nav-level-tab[aria-current="page"] {
-  color: var(--green-mid);
-  border-bottom-color: var(--green-bright);
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
 }
 
 .review-badge {
-  background: var(--red);
+  background: var(--accent);
   color: #fff;
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 700;
   line-height: 1;
-  padding: 2px 6px;
+  padding: 2px 5px;
   border-radius: 9px;
-  margin-left: 4px;
+  margin-left: 5px;
   vertical-align: middle;
 }
 
@@ -156,10 +292,8 @@ body {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  gap: 6px;
+  font-size: 11px;
   color: var(--text-secondary);
 }
 
@@ -171,58 +305,47 @@ body {
   background: var(--green-mid);
 }
 
-.status-dot[data-active] {
-  animation: status-pulse 3s ease-in-out infinite;
-}
+.status-dot[data-active] { animation: status-pulse 3s ease-in-out infinite; }
 
 /* --------------------------------------------------------------------------
    Page Headers
    -------------------------------------------------------------------------- */
-.page-header {
-  padding: 16px 0 12px;
-}
+.page-header { padding: 18px 0 14px; }
 
-/* --------------------------------------------------------------------------
-   Section Titles
-   --------------------------------------------------------------------------
-   Removed scaleX(0.72) compression — sacrificed legibility for style.
-   -------------------------------------------------------------------------- */
 .section-title {
-  font-family: var(--font-title);
-  font-weight: 900;
-  font-size: 20px;
-  text-transform: uppercase;
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 18px;
   color: var(--text-primary);
   margin: 0;
-  line-height: 1.2;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
 }
 
-.compressed-title-wrap {
-  display: inline-flex;
-}
+.compressed-title-wrap { display: inline-flex; }
 
 /* --------------------------------------------------------------------------
-   Panels
+   Panels — Amp: minimal card, no decorative left border in default state
    -------------------------------------------------------------------------- */
 .panel {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  border-left: 2px solid var(--green-dim);
+  border-radius: 4px;
 }
 
 .panel-header {
   display: flex;
   align-items: center;
   padding: 8px 12px;
-  background: var(--bg-surface);
   border-bottom: 1px solid var(--border-subtle);
 }
 
 .panel-header-title {
   font-family: var(--font-ui);
   font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.12em;
   color: var(--text-secondary);
   margin: 0;
   line-height: 1;
@@ -233,22 +356,17 @@ body {
   overflow-x: auto;
 }
 
+/* Status variants — keep semantic color borders */
 .panel[data-status="caution"] {
-  border-left-color: var(--amber);
+  border-left: 2px solid var(--amber);
 }
-
-.panel[data-status="caution"] .panel-header-title {
-  color: var(--amber);
-}
+.panel[data-status="caution"] .panel-header-title { color: var(--amber); }
 
 .panel[data-status="critical"] {
-  border-left-color: var(--red);
+  border-left: 2px solid var(--red);
   box-shadow: inset 0 0 12px var(--red-glow);
 }
-
-.panel[data-status="critical"] .panel-header-title {
-  color: var(--red);
-}
+.panel[data-status="critical"] .panel-header-title { color: var(--red); }
 
 /* --------------------------------------------------------------------------
    Tables
@@ -270,7 +388,7 @@ body {
   letter-spacing: 0.1em;
   color: var(--text-secondary);
   background: var(--bg-surface);
-  padding: 6px 8px;
+  padding: 7px 10px;
   text-align: left;
   border-bottom: 1px solid var(--border-default);
   position: sticky;
@@ -279,36 +397,37 @@ body {
 }
 
 .data-table td {
-  padding: 4px 8px;
+  padding: 5px 10px;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-subtle);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.data-table tr:hover td {
-  background: var(--bg-surface);
-}
+.data-table tr:last-child td { border-bottom: none; }
 
-.data-table td[data-numeric] {
-  text-align: right;
-}
+.data-table tr:hover td { background: var(--bg-surface); }
+
+/* Clickable rows — whole row navigates */
+.data-table tr.row-link { cursor: pointer; }
+.data-table tr.row-link:hover td { background: var(--accent-dim); }
+
+.data-table td[data-numeric] { text-align: right; }
 
 /* --------------------------------------------------------------------------
-   Buttons
+   Buttons — Amp: clean, minimal, no decorative left border by default
    -------------------------------------------------------------------------- */
 .btn {
   font-family: var(--font-ui);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 12px;
+  font-weight: 500;
   background: var(--bg-surface);
   color: var(--text-primary);
   border: 1px solid var(--border-default);
-  border-left: 2px solid var(--green-dim);
+  border-radius: 3px;
   padding: 6px 14px;
   cursor: pointer;
-  transition: background 0.1s, border-color 0.1s;
+  transition: background 0.12s, border-color 0.12s;
   line-height: 1;
   display: inline-flex;
   align-items: center;
@@ -317,21 +436,19 @@ body {
 }
 
 .btn:hover {
-  border-left-color: var(--green-bright);
-  background: var(--green-surface);
+  border-color: var(--accent);
+  background: var(--accent-dim);
+  color: var(--text-primary);
 }
 
 .btn:active {
-  background: var(--green-glow);
+  background: var(--accent-glow);
   transform: translateY(1px);
 }
 
-.btn-destructive {
-  border-left-color: var(--red-dim);
-}
-
+/* Destructive variant */
 .btn-destructive:hover {
-  border-left-color: var(--red);
+  border-color: var(--red);
   background: var(--red-surface);
 }
 
@@ -341,7 +458,7 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Inputs
+   Inputs — focus uses Amp accent
    -------------------------------------------------------------------------- */
 .input,
 select.input {
@@ -350,38 +467,35 @@ select.input {
   background: var(--bg-primary);
   color: var(--text-primary);
   border: 1px solid var(--border-default);
-  border-bottom: 2px solid var(--border-strong);
-  padding: 6px 8px;
+  border-radius: 3px;
+  padding: 6px 10px;
   outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+  transition: border-color 0.12s, box-shadow 0.12s;
   width: 100%;
 }
 
 .input:focus,
 select.input:focus {
-  border-bottom-color: var(--green-bright);
-  box-shadow: 0 1px 4px var(--green-glow);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-dim);
 }
 
-.input::placeholder {
-  color: var(--text-tertiary);
-}
+.input::placeholder { color: var(--text-tertiary); }
 
 label,
 .form-label {
   display: block;
   font-family: var(--font-ui);
   font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
   color: var(--text-secondary);
   letter-spacing: 0.1em;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
 }
 
 /* --------------------------------------------------------------------------
-   Status Badges
-   --------------------------------------------------------------------------
-   Fixed class names: templates use badge--State (double-dash).
+   Status Badges — Amp-style: compact, rounded-2px, uppercase
    -------------------------------------------------------------------------- */
 .badge {
   display: inline-block;
@@ -389,87 +503,79 @@ label,
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 2px 8px;
+  letter-spacing: 0.06em;
+  padding: 2px 7px;
   line-height: 1.4;
   border-radius: 2px;
 }
 
-/* Requested — neutral */
-.badge-requested,
-.badge--Requested {
+/* Requested */
+.badge-requested, .badge--Requested {
   color: var(--text-secondary);
   background: transparent;
   border: 1px solid var(--border-default);
 }
 
-/* Validating — blue */
-.badge-validating,
-.badge--Validating {
+/* Validating */
+.badge-validating, .badge--Validating {
   color: var(--blue-bright);
-  background: rgba(0,112,224,0.10);
+  background: rgba(59,130,246,0.10);
   border: 1px solid var(--blue-dim);
 }
 
-/* Analyzing — amber */
-.badge-analyzing,
-.badge--Analyzing {
+/* Analyzing */
+.badge-analyzing, .badge--Analyzing {
   color: var(--amber);
   background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
 }
 
-/* Approved — green-mid */
-.badge-approved,
-.badge--Approved {
+/* Approved */
+.badge-approved, .badge--Approved {
   color: var(--green-mid);
   background: var(--green-surface);
   border: 1px solid var(--green-dim);
 }
 
-/* FundsPosted — green-bright */
-.badge-fundsposted,
-.badge--FundsPosted {
+/* FundsPosted */
+.badge-fundsposted, .badge--FundsPosted {
   color: var(--green-bright);
   background: var(--green-surface);
   border: 1px solid var(--green-dim);
 }
 
-/* Completed — green-bright */
-.badge-completed,
-.badge--Completed {
+/* Completed */
+.badge-completed, .badge--Completed {
   color: var(--green-bright);
   background: var(--green-glow);
   border: 1px solid var(--green-mid);
 }
 
-/* Rejected — amber (business rejection, not system error) */
-.badge-rejected,
-.badge--Rejected {
+/* Rejected */
+.badge-rejected, .badge--Rejected {
   color: var(--amber);
   background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
 }
 
-/* Returned — amber */
-.badge-returned,
-.badge--Returned {
+/* Returned */
+.badge-returned, .badge--Returned {
   color: var(--amber);
   background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
 }
 
-/* PendingReview — blue */
+/* PendingReview */
 .badge--PendingReview {
   color: var(--blue-bright);
-  background: rgba(0,112,224,0.10);
+  background: rgba(59,130,246,0.10);
   border: 1px solid var(--blue-dim);
 }
 
 /* Settlement statuses */
 .badge--GENERATED {
   color: var(--blue-bright);
-  background: rgba(0,112,224,0.10);
+  background: rgba(59,130,246,0.10);
   border: 1px solid var(--blue-dim);
 }
 
@@ -480,41 +586,26 @@ label,
 }
 
 /* Rule outcomes */
-.badge--pass,
-.badge--PASS {
+.badge--pass, .badge--PASS {
   color: var(--green-mid);
   background: var(--green-surface);
   border: 1px solid var(--green-dim);
 }
 
-.badge--fail,
-.badge--FAIL {
+.badge--fail, .badge--FAIL {
   color: var(--red);
   background: var(--red-surface);
   border: 1px solid var(--red-dim);
 }
 
-.badge--review,
-.badge--REVIEW {
+.badge--review, .badge--REVIEW {
   color: var(--amber);
   background: var(--amber-glow);
   border: 1px solid var(--amber-dim);
 }
 
 /* --------------------------------------------------------------------------
-   Scanline Overlay — REMOVED
-   --------------------------------------------------------------------------
-   Per UX §10: "Don't animate unless the animation communicates state."
-   The scanline was purely decorative and reduced text contrast.
-   -------------------------------------------------------------------------- */
-.scanline-overlay {
-  display: none;
-}
-
-/* --------------------------------------------------------------------------
-   Data Values
-   --------------------------------------------------------------------------
-   Removed text-shadow glow — decorative, reduced sharpness.
+   Data Values — currency in green (semantic: positive financial value)
    -------------------------------------------------------------------------- */
 .data-value {
   font-family: var(--font-data);
@@ -522,25 +613,12 @@ label,
   font-variant-numeric: tabular-nums;
 }
 
-.data-value--currency {
-  /* Clean rendering, no glow */
-}
-
 /* --------------------------------------------------------------------------
    Form Layout
    -------------------------------------------------------------------------- */
-.form-group {
-  margin-bottom: 12px;
-}
-
-.form-row {
-  display: flex;
-  gap: 12px;
-}
-
-.form-row > * {
-  flex: 1;
-}
+.form-group  { margin-bottom: 12px; }
+.form-row    { display: flex; gap: 12px; }
+.form-row > * { flex: 1; }
 
 /* --------------------------------------------------------------------------
    Workspace Grid
@@ -557,25 +635,18 @@ label,
 .flash {
   background: var(--bg-elevated);
   border: 1px solid var(--border-subtle);
-  border-left: 2px solid var(--border-default);
-  padding: 8px 12px;
+  border-radius: 3px;
+  border-left: 3px solid var(--border-default);
+  padding: 9px 12px;
   font-family: var(--font-ui);
   font-size: 13px;
   color: var(--text-primary);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
-.flash--success {
-  border-left-color: var(--green-dim);
-}
-
-.flash--error {
-  border-left-color: var(--amber);
-}
-
-.flash--info {
-  border-left-color: var(--blue);
-}
+.flash--success { border-left-color: var(--green-mid);  }
+.flash--error   { border-left-color: var(--amber);      }
+.flash--info    { border-left-color: var(--blue);       }
 
 /* --------------------------------------------------------------------------
    Detail Layout (key-value pairs)
@@ -583,13 +654,14 @@ label,
 .detail-grid {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 4px 16px;
+  gap: 5px 18px;
   align-items: baseline;
 }
 
 .detail-label {
   font-family: var(--font-ui);
   font-size: 10px;
+  font-weight: 600;
   text-transform: uppercase;
   color: var(--text-secondary);
   letter-spacing: 0.1em;
@@ -598,6 +670,7 @@ label,
 .detail-value {
   font-family: var(--font-data);
   color: var(--text-primary);
+  font-size: 12px;
 }
 
 /* --------------------------------------------------------------------------
@@ -605,6 +678,7 @@ label,
    -------------------------------------------------------------------------- */
 .check-image {
   border: 1px solid var(--border-subtle);
+  border-radius: 3px;
   max-width: 100%;
   min-width: 0;
   display: block;
@@ -626,11 +700,37 @@ label,
 }
 
 /* --------------------------------------------------------------------------
-   Status Indicator Pulse
+   Links
+   -------------------------------------------------------------------------- */
+a {
+  color: var(--blue-bright);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Settlement ICL filename
+   -------------------------------------------------------------------------- */
+.icl-filename {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: var(--font-data);
+  font-size: 11px;
+}
+
+/* --------------------------------------------------------------------------
+   Status Pulse Animation
    -------------------------------------------------------------------------- */
 @keyframes status-pulse {
-  0%, 100% { opacity: 0.7; }
-  50%      { opacity: 1.0; }
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1.0; }
 }
 
 .status-indicator {
@@ -641,33 +741,145 @@ label,
   background: var(--green-mid);
 }
 
-.status-indicator[data-active] {
-  animation: status-pulse 3s ease-in-out infinite;
+.status-indicator[data-active] { animation: status-pulse 3s ease-in-out infinite; }
+
+/* --------------------------------------------------------------------------
+   Copy button — [data-copy] utility
+   -------------------------------------------------------------------------- */
+[data-copy] {
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 11px;
+  padding: 0 3px;
+  transition: color 0.12s;
+  vertical-align: middle;
+  line-height: 1;
+}
+
+[data-copy]:hover { color: var(--text-secondary); }
+
+/* --------------------------------------------------------------------------
+   Spinner — Amp-style "thinking" indicator
+   -------------------------------------------------------------------------- */
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.submit-spinner {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--border-default);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  vertical-align: middle;
 }
 
 /* --------------------------------------------------------------------------
-   Links
+   Breadcrumb
    -------------------------------------------------------------------------- */
-a {
-  color: var(--blue-bright);
-  text-decoration: none;
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 14px;
 }
 
-a:hover {
-  text-decoration: underline;
+.breadcrumb a { color: var(--text-secondary); text-decoration: none; }
+.breadcrumb a:hover { color: var(--text-primary); text-decoration: underline; text-underline-offset: 2px; }
+.breadcrumb-sep { color: var(--text-tertiary); }
+.breadcrumb-current { color: var(--text-primary); }
+
+/* --------------------------------------------------------------------------
+   Timeline — Amp-style activity feed for audit trail
+   -------------------------------------------------------------------------- */
+.timeline { position: relative; padding-left: 20px; }
+
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: var(--border-default);
 }
 
-/* Settlement ICL filename — truncated */
-.icl-filename {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.timeline-item {
+  position: relative;
+  padding-bottom: 14px;
+  display: flex;
+  gap: 12px;
+}
+
+.timeline-item:last-child { padding-bottom: 0; }
+
+.timeline-dot {
+  position: absolute;
+  left: -17px;
+  top: 4px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 1px solid var(--bg-elevated);
+  flex-shrink: 0;
+}
+
+.timeline-body { flex: 1; min-width: 0; }
+
+.timeline-header {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.timeline-event {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.timeline-transition {
+  display: flex;
+  align-items: center;
+}
+
+.timeline-time {
   font-family: var(--font-data);
   font-size: 11px;
-  letter-spacing: -0.02em;
+  color: var(--text-secondary);
+  margin-left: auto;
+  white-space: nowrap;
 }
+
+.timeline-details {
+  font-family: var(--font-data);
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 2px;
+  word-break: break-all;
+}
+
+.timeline-actor {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin-top: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   Scanline Overlay — intentionally removed
+   -------------------------------------------------------------------------- */
+.scanline-overlay { display: none; }
 
 /* --------------------------------------------------------------------------
    Reduced Motion
@@ -678,5 +890,4 @@ a:hover {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  .scanline-overlay { display: none; }
 }

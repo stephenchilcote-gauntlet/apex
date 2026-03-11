@@ -51,8 +51,8 @@ func UILoginHandler(username, password, secret string) http.HandlerFunc {
 					Expires:  time.Now().Add(8 * time.Hour),
 				})
 				next := r.FormValue("next")
-				if next == "" || !strings.HasPrefix(next, "/ui/") {
-					next = "/ui/simulate"
+				if next == "" || !strings.HasPrefix(next, "/ui") {
+					next = "/ui"
 				}
 				http.Redirect(w, r, next, http.StatusSeeOther)
 				return

@@ -134,10 +134,16 @@ func (h *UIHandlers) Init() error {
 		},
 		"lower":    strings.ToLower,
 		"basename": filepath.Base,
+		"pct": func(count, max int) string {
+			if max == 0 {
+				return "0%"
+			}
+			return fmt.Sprintf("%.0f%%", float64(count)/float64(max)*100)
+		},
 	}
 
 	h.templates = make(map[string]*template.Template)
-	pages := []string{"simulate", "transfers", "transfer_detail", "review", "review_detail", "ledger", "settlement", "returns"}
+	pages := []string{"dashboard", "simulate", "transfers", "transfer_detail", "review", "review_detail", "ledger", "settlement", "returns"}
 	for _, page := range pages {
 		t, err := template.New("").Funcs(funcMap).ParseFiles(
 			filepath.Join(h.TemplateDir, "layout.html"),
@@ -160,6 +166,7 @@ func (h *UIHandlers) render(w http.ResponseWriter, page string, data map[string]
 }
 
 func (h *UIHandlers) RegisterRoutes(r chi.Router) {
+	r.Get("/ui", h.dashboardPage)
 	r.Get("/ui/simulate", h.simulatePage)
 	r.Post("/ui/simulate", h.simulateSubmit)
 	r.Get("/ui/transfers", h.transfersPage)
@@ -180,17 +187,107 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 }
 
 // ---------------------------------------------------------------------------
+// Dashboard
+// ---------------------------------------------------------------------------
+
+type stateCounts struct {
+	State string
+	Count int
+}
+
+type dashboardBatch struct {
+	ID             string
+	Status         string
+	BusinessDateCT string
+	TotalItems     int
+	TotalAmountCents int64
+}
+
+func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
+	// Transfer counts by state
+	rows, err := h.DB.Query(`SELECT state, COUNT(*) FROM transfers GROUP BY state ORDER BY state`)
+	var counts []stateCounts
+	if err == nil {
+		defer rows.Close()
+		for rows.Next() {
+			var sc stateCounts
+			if err2 := rows.Scan(&sc.State, &sc.Count); err2 == nil {
+				counts = append(counts, sc)
+			}
+		}
+	}
+
+	// Total, pending review count, and max per-state count for bar chart
+	var totalTransfers, pendingReview, maxStateCount int
+	for _, sc := range counts {
+		totalTransfers += sc.Count
+		if sc.State == "PendingReview" {
+			pendingReview = sc.Count
+		}
+		if sc.Count > maxStateCount {
+			maxStateCount = sc.Count
+		}
+	}
+	if maxStateCount == 0 {
+		maxStateCount = 1
+	}
+
+	// Latest settlement batch
+	var latestBatch *dashboardBatch
+	var b dashboardBatch
+	err2 := h.DB.QueryRow(`SELECT id, status, business_date_ct, total_items, total_amount_cents FROM settlement_batches ORDER BY created_at DESC LIMIT 1`).
+		Scan(&b.ID, &b.Status, &b.BusinessDateCT, &b.TotalItems, &b.TotalAmountCents)
+	if err2 == nil {
+		if len(b.BusinessDateCT) > 10 {
+			b.BusinessDateCT = b.BusinessDateCT[:10]
+		}
+		latestBatch = &b
+	}
+
+	// FundsPosted amount (available for settlement)
+	var fundsPostedCents int64
+	h.DB.QueryRow(`SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&fundsPostedCents)
+
+	h.render(w, "dashboard", map[string]interface{}{
+		"ActivePage":       "dashboard",
+		"StateCounts":      counts,
+		"TotalTransfers":   totalTransfers,
+		"PendingReview":    pendingReview,
+		"MaxStateCount":    maxStateCount,
+		"LatestBatch":      latestBatch,
+		"FundsPostedCents": fundsPostedCents,
+	})
+}
+
+// ---------------------------------------------------------------------------
 // Simulate
 // ---------------------------------------------------------------------------
 
 func (h *UIHandlers) simulatePage(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
 		"ActivePage": "simulate",
+		"Recent":     h.recentTransfers(10),
 	}
 	if msg := r.URL.Query().Get("result"); msg != "" {
 		data["Flash"] = map[string]string{"Type": "success", "Text": msg}
 	}
 	h.render(w, "simulate", data)
+}
+
+func (h *UIHandlers) recentTransfers(n int) []transfers.Transfer {
+	var filters transfers.TransferFilters
+	list, err := h.TransferSvc.List(h.DB, filters)
+	if err != nil || len(list) == 0 {
+		return nil
+	}
+	if len(list) > n {
+		list = list[len(list)-n:]
+	}
+	// Reverse so newest is first
+	for i, j := 0, len(list)-1; i < j; i, j = i+1, j-1 {
+		list[i], list[j] = list[j], list[i]
+	}
+	return list
 }
 
 func (h *UIHandlers) simulateSubmit(w http.ResponseWriter, r *http.Request) {
@@ -276,8 +373,10 @@ func (h *UIHandlers) transfersPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.render(w, "transfers", map[string]interface{}{
-		"ActivePage": "transfers",
-		"Transfers":  list,
+		"ActivePage":    "transfers",
+		"Transfers":     list,
+		"StateFilter":   r.URL.Query().Get("state"),
+		"AccountFilter": r.URL.Query().Get("investorAccountId"),
 	})
 }
 

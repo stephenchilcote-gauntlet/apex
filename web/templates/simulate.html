@@ -55,8 +55,56 @@
           <input type="file" name="backImage" id="backImage" class="input" style="width:100%">
         </div>
       </div>
-      <button type="submit" class="btn">Submit Deposit</button>
+      <button type="submit" class="btn" id="submit-btn">
+        <span class="submit-spinner" id="submit-spinner" style="display:none;"></span>
+        <span id="submit-label">Submit Deposit</span>
+      </button>
     </form>
   </div>
 </div>
+
+<script>
+(function () {
+  var form = document.querySelector('form[action="/ui/simulate"]');
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    var btn = document.getElementById('submit-btn');
+    var spinner = document.getElementById('submit-spinner');
+    var label = document.getElementById('submit-label');
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.style.display = 'inline-block';
+    if (label) label.textContent = 'Processing…';
+  });
+})();
+</script>
+
+{{if .Recent}}
+<div class="panel" style="margin-top:16px;">
+  <div class="panel-header"><span class="panel-header-title">Recent deposits</span></div>
+  <div class="panel-body" style="padding:0;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Account</th>
+          <th>Amount</th>
+          <th>State</th>
+          <th>Created</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Recent}}
+        <tr>
+          <td><a href="/ui/transfers/{{.ID}}">{{slice .ID 0 8}}…</a></td>
+          <td>{{.InvestorAccountID}}</td>
+          <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
+          <td><span class="badge badge--{{.State}}">{{.State}}</span></td>
+          <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
 {{end}}

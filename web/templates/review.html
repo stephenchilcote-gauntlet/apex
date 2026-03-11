@@ -1,11 +1,14 @@
 {{define "content"}}
 <div class="page-header">
-  <div class="compressed-title-wrap"><h1 class="section-title">Review Queue</h1></div>
+  <h1 class="section-title">Review Queue</h1>
 </div>
 
 <div class="panel">
-  <div class="panel-header"><span class="panel-header-title">Pending Reviews</span></div>
-  <div class="panel-body">
+  <div class="panel-header">
+    <span class="panel-header-title">Pending Reviews</span>
+    {{if .Transfers}}<span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">{{len .Transfers}} item{{if gt (len .Transfers) 1}}s{{end}} awaiting review</span>{{end}}
+  </div>
+  <div class="panel-body" style="padding:0;">
     <table class="data-table">
       <thead>
         <tr>
@@ -13,25 +16,49 @@
           <th>Account</th>
           <th>Amount</th>
           <th>Reason</th>
-          <th>Created</th>
+          <th>Waiting</th>
           <th>Action</th>
         </tr>
       </thead>
       <tbody>
         {{range .Transfers}}
-        <tr data-review-item>
+        <tr data-review-item class="row-link" onclick="window.location='/ui/review/{{.ID}}'">
           <td><a href="/ui/review/{{.ID}}">{{slice .ID 0 8}}…</a></td>
           <td>{{.InvestorAccountID}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
           <td><span class="badge">{{.Reason}}</span></td>
-          <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
-          <td><a href="/ui/review/{{.ID}}" class="btn">Review</a></td>
+          <td><span class="time-ago" data-ts="{{.CreatedAt.Unix}}">{{.CreatedAt.Format "2006-01-02 15:04"}}</span></td>
+          <td onclick="event.stopPropagation()"><a href="/ui/review/{{.ID}}" class="btn">Review</a></td>
         </tr>
         {{else}}
-        <tr><td colspan="6" style="text-align:center;">No items pending review</td></tr>
+        <tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:24px;">No items pending review</td></tr>
         {{end}}
       </tbody>
     </table>
   </div>
 </div>
+
+<script>
+// Relative time — "5 minutes ago", "2 hours ago"
+(function () {
+  function timeAgo(ts) {
+    var diff = Math.floor(Date.now() / 1000) - ts;
+    if (diff < 60)   return diff + 's ago';
+    if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
+    if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
+    return Math.floor(diff / 86400) + 'd ago';
+  }
+  function update() {
+    document.querySelectorAll('.time-ago[data-ts]').forEach(function (el) {
+      var ts = parseInt(el.getAttribute('data-ts'), 10);
+      el.textContent = timeAgo(ts);
+      // Highlight if waiting > 1 hour
+      var diff = Math.floor(Date.now() / 1000) - ts;
+      if (diff > 3600) el.style.color = 'var(--amber)';
+    });
+  }
+  update();
+  setInterval(update, 30000);
+})();
+</script>
 {{end}}

@@ -22,7 +22,7 @@
           <td>{{.AccountName}}</td>
           <td>{{.AccountType}}</td>
           <td>
-            <span class="data-value data-value--currency"{{if lt .BalanceCents 0}} style="color:var(--color-error,#f44)"{{end}}>
+            <span class="data-value data-value--currency"{{if lt .BalanceCents 0}} style="color:var(--red)"{{end}}>
               {{if lt .BalanceCents 0}}-${{formatCents (abs .BalanceCents)}}{{else}}${{formatCents .BalanceCents}}{{end}}
             </span>
           </td>
