@@ -512,6 +512,10 @@ func (h *Handlers) generateBatch(w http.ResponseWriter, r *http.Request) {
 
 	batch, err := h.SettlementSvc.GenerateBatch(r.Context(), body.BusinessDateCT)
 	if err != nil {
+		if strings.Contains(err.Error(), "no eligible transfers") {
+			respondError(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
 		internalError(w, "generate batch", err)
 		return
 	}

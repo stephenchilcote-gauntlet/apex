@@ -604,6 +604,19 @@ func TestHandlers_RejectTransfer_SeededAnalyzingTransfer(t *testing.T) {
 	}
 }
 
+func TestHandlers_GenerateBatch_NoEligibleTransfers(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Use a future date with no FundsPosted transfers
+	body := `{"businessDateCT": "2099-12-31"}`
+	rr := doRequest(r, "POST", "/api/v1/settlement/batches/generate", []byte(body))
+	// Should be 422 Unprocessable Entity, not 500
+	if rr.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("expected 422 for no eligible transfers, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
 func TestHandlers_GenerateBatch_WithFundsPosted(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
