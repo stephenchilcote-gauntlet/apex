@@ -26,8 +26,13 @@
         </div>
       </div>
       <div class="nav-status-strip">
-        <span class="status-dot" data-active></span>
-        <span>Connected</span>
+        <span id="health-status"
+          hx-get="/ui/health-status"
+          hx-trigger="load, every 30s"
+          hx-swap="innerHTML"
+          style="display:inline-flex;align-items:center;gap:6px;">
+          <span class="status-dot" data-active></span><span>Connected</span>
+        </span>
         <span style="color:var(--text-tertiary);margin-left:4px;">·</span>
         <button class="kbd-help-btn" id="theme-toggle" title="Toggle light/dark mode" aria-label="Toggle theme">◐</button>
         <button class="kbd-help-btn" onclick="document.getElementById('kbd-modal').showModal()" title="Keyboard shortcuts (?)">?</button>

@@ -185,6 +185,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Get("/ui/returns", h.returnsPage)
 	r.Post("/ui/returns", h.returnsSubmit)
 	r.Get("/ui/images/{transferId}/{side}", h.serveImage)
+	r.Get("/ui/health-status", h.healthStatus)
 }
 
 // ---------------------------------------------------------------------------
@@ -859,6 +860,24 @@ func (h *UIHandlers) serveImage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.ServeFile(w, r, absImage)
+}
+
+// ---------------------------------------------------------------------------
+// Health Status (HTMX fragment — nav status strip)
+// ---------------------------------------------------------------------------
+
+func (h *UIHandlers) healthStatus(w http.ResponseWriter, r *http.Request) {
+	ok := true
+	if err := h.DB.PingContext(r.Context()); err != nil {
+		ok = false
+	}
+
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if ok {
+		fmt.Fprint(w, `<span class="status-dot" data-active></span><span>Connected</span>`)
+	} else {
+		fmt.Fprint(w, `<span class="status-dot" style="background:var(--red);"></span><span style="color:var(--red);">Degraded</span>`)
+	}
 }
 
 // ---------------------------------------------------------------------------
