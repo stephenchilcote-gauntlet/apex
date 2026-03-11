@@ -239,7 +239,13 @@ document.addEventListener('click', function (e) {
       if (modal) {
         modal.showModal();
         var inp = document.getElementById('cmd-input');
-        if (inp) { inp.value = ''; inp.focus(); }
+        if (inp) {
+          inp.value = '';
+          inp.focus();
+          // HTMX doesn't process elements inside closed <dialog> at init time —
+          // process now so hx-get/hx-trigger fire correctly on input events.
+          if (window.htmx) htmx.process(inp);
+        }
       }
       return;
     }

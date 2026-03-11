@@ -159,12 +159,12 @@ make test
 
 Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping.
 
-**Playwright E2E tests (12 functional spec files, 49 test cases):**
+**Playwright E2E tests (13 functional spec files, 59 test cases):**
 ```bash
 make test-e2e
 ```
 
-Covers: deposit submission UI, happy path flow, vendor scenarios, operator approve/reject, ledger balances, settlement generation/ack, returns/reversals, business rules, navigation, transfer detail, empty states, visual regression.
+Covers: deposit submission UI, happy path flow, vendor scenarios, operator approve/reject, ledger balances, settlement generation/ack, returns/reversals, business rules, navigation, transfer detail, empty states, keyboard shortcuts, command palette search, visual regression.
 
 ## Demo Walkthrough
 
