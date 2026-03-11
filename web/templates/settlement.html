@@ -7,23 +7,49 @@
 <div class="flash flash--{{.Message.Type}}">{{.Message.Text}}</div>
 {{end}}
 
+{{if .EligibleTransfers}}
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header">
+    <span class="panel-header-title">Ready to Settle</span>
+    <span style="margin-left:auto;font-family:var(--font-data);font-size:11px;color:var(--green-mid);font-weight:600;">{{.EligibleCount}} transfer{{if gt .EligibleCount 1}}s{{end}} · ${{formatCents .EligibleAmountCents}}</span>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Transfer ID</th>
+          <th>Account</th>
+          <th style="text-align:right;">Amount</th>
+          <th>Posted</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .EligibleTransfers}}
+        <tr>
+          <td><a href="/ui/transfers/{{.ID}}" style="font-family:var(--font-data);font-size:11px;">{{shortID .ID}}</a></td>
+          <td>{{if $.AccountNames}}{{index $.AccountNames .InvestorAccountID}}{{else}}{{.InvestorAccountID}}{{end}}</td>
+          <td style="text-align:right;"><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
+          <td style="color:var(--text-secondary);font-size:11px;">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
+
 <div class="panel" style="margin-bottom:12px;">
   <div class="panel-header"><span class="panel-header-title">Generate Batch</span></div>
-  <div class="panel-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+  <div class="panel-body">
     <form method="POST" action="/ui/settlement/generate" style="display:inline;" id="gen-form">
-      <button type="submit" class="btn" data-action="generate" id="gen-btn">
+      <button type="submit" class="btn" data-action="generate" id="gen-btn"{{if eq .EligibleCount 0}} disabled title="No FundsPosted transfers"{{end}}>
         <span class="submit-spinner" id="gen-spinner" style="display:none;"></span>
         <span id="gen-label">Generate Settlement Batch</span>
       </button>
     </form>
-    <span style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">
-      {{if gt .EligibleCount 0}}
-      <span style="color:var(--green-mid);font-weight:600;">{{.EligibleCount}} transfer{{if gt .EligibleCount 1}}s{{end}}</span>
-      <span style="color:var(--text-primary);">(${{formatCents .EligibleAmountCents}})</span>
-      ready to settle ·
-      {{end}}
-      Packages all <span style="color:var(--green-mid);font-weight:600;">FundsPosted</span> transfers into an X9.37 ICL file.
-    </span>
+    {{if eq .EligibleCount 0}}
+    <span style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);margin-left:12px;">No eligible transfers.</span>
+    {{end}}
   </div>
 </div>
 

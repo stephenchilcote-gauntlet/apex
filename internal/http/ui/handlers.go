@@ -225,6 +225,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Get("/ui/images/{transferId}/{side}", h.serveImage)
 	r.Get("/ui/health-status", h.healthStatus)
 	r.Get("/ui/search", h.searchHandler)
+	r.Get("/ui/transfer-autocomplete", h.transferAutocomplete)
 }
 
 // ---------------------------------------------------------------------------
@@ -1145,11 +1146,31 @@ func (h *UIHandlers) settlementPage(w http.ResponseWriter, r *http.Request) {
 	var eligibleCents int64
 	_ = h.DB.QueryRow(`SELECT COUNT(*), COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&eligibleCount, &eligibleCents)
 
+	// Fetch the actual eligible transfers to display in the queue
+	rows, _ := h.DB.Query(`SELECT id, investor_account_id, amount_cents, created_at FROM transfers WHERE state='FundsPosted' ORDER BY created_at ASC`)
+	type eligibleRow struct {
+		ID                string
+		InvestorAccountID string
+		AmountCents       int64
+		CreatedAt         time.Time
+	}
+	var eligible []eligibleRow
+	if rows != nil {
+		defer rows.Close()
+		for rows.Next() {
+			var e eligibleRow
+			rows.Scan(&e.ID, &e.InvestorAccountID, &e.AmountCents, &e.CreatedAt)
+			eligible = append(eligible, e)
+		}
+	}
+
 	data := map[string]interface{}{
 		"ActivePage":          "settlement",
 		"Batches":             batches,
 		"EligibleCount":       eligibleCount,
 		"EligibleAmountCents": eligibleCents,
+		"EligibleTransfers":   eligible,
+		"AccountNames":        h.loadAccountNames(),
 	}
 
 	if msg := r.URL.Query().Get("msg"); msg != "" {
@@ -1461,6 +1482,34 @@ func (h *UIHandlers) searchHandler(w http.ResponseWriter, r *http.Request) {
 			html.EscapeString(res.State),
 			html.EscapeString(res.State),
 		))
+	}
+	fmt.Fprint(w, sb.String())
+}
+
+// transferAutocomplete returns <option> elements for a <datalist> matching a
+// partial transfer UUID typed into a form input.
+func (h *UIHandlers) transferAutocomplete(w http.ResponseWriter, r *http.Request) {
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	if q == "" {
+		q = strings.TrimSpace(r.URL.Query().Get("transferId"))
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	if len(q) < 3 {
+		return
+	}
+	rows, err := h.DB.QueryContext(r.Context(),
+		`SELECT id FROM transfers WHERE id LIKE ? ORDER BY created_at DESC LIMIT 10`,
+		q+"%")
+	if err != nil {
+		return
+	}
+	defer rows.Close()
+	var sb strings.Builder
+	for rows.Next() {
+		var id string
+		if rows.Scan(&id) == nil {
+			sb.WriteString(`<option value="` + html.EscapeString(id) + `">`)
+		}
 	}
 	fmt.Fprint(w, sb.String())
 }
