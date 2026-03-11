@@ -22,7 +22,7 @@
   <div class="dash-card{{if gt .FundsPostedCount 0}} dash-card--settle{{end}}">
     <div class="dash-card-label">Funds posted (unsettled)</div>
     <div class="dash-card-value data-value">${{formatCents .FundsPostedCents}}</div>
-    {{if gt .FundsPostedCount 0}}<a href="/ui/settlement" class="dash-card-action">{{.FundsPostedCount}} ready to settle →</a>{{end}}
+    {{if gt .FundsPostedCount 0}}<a href="/ui/settlement" class="dash-card-action" style="color:var(--blue-bright);">{{.FundsPostedCount}} ready to settle →</a>{{end}}
   </div>
   <div class="dash-card{{if gt .ExceptionsCount 0}} dash-card--exception{{end}}">
     <div class="dash-card-label">Exceptions</div>
@@ -209,7 +209,7 @@
 
 .dash-bar {
   height: 100%;
-  background: var(--accent);
+  background: var(--text-tertiary);
   border-radius: 2px;
   min-width: 2px;
   transition: width 0.3s ease;

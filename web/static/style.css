@@ -237,8 +237,9 @@ body {
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: var(--accent);
-  color: #fff;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
   padding: 2px 5px;
   border-radius: 2px;
   line-height: 1.4;
@@ -283,6 +284,18 @@ body {
 
 .review-badge {
   background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 5px;
+  border-radius: 9px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+.settlement-badge {
+  background: var(--blue);
   color: #fff;
   font-size: 9px;
   font-weight: 700;
@@ -851,7 +864,7 @@ a:hover {
   width: 10px;
   height: 10px;
   border: 2px solid var(--border-default);
-  border-top-color: var(--accent);
+  border-top-color: var(--text-secondary);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
   vertical-align: middle;
@@ -906,7 +919,7 @@ a:hover {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--text-secondary);
   border: 1px solid var(--bg-elevated);
   flex-shrink: 0;
 }

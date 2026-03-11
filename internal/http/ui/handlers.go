@@ -745,7 +745,7 @@ func (h *UIHandlers) settlementCountBadge(w http.ResponseWriter, r *http.Request
 		w.Write([]byte(""))
 		return
 	}
-	fmt.Fprintf(w, `<span class="review-badge">%d</span>`, count)
+	fmt.Fprintf(w, `<span class="settlement-badge">%d</span>`, count)
 }
 
 type reviewQueueItem struct {
