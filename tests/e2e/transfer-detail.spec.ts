@@ -1,5 +1,21 @@
 import { test, expect, submitDepositUI } from './fixtures';
 
+test.describe('Transfers List', () => {
+  test('CSV export download returns csv content', async ({ page }) => {
+    await submitDepositUI(page, { amount: '125.00', scenario: 'clean_pass' });
+
+    // CSV export via page.request preserves the browser session/cookies
+    const resp = await page.request.get('/ui/transfers?format=csv');
+    expect(resp.status()).toBe(200);
+    const contentType = resp.headers()['content-type'];
+    expect(contentType).toMatch(/text\/csv/i);
+    const body = await resp.text();
+    // CSV has header row with column names
+    expect(body).toContain('ID,Account,Amount,State');
+    expect(body).toContain('125.00');
+  });
+});
+
 test.describe('Transfer Detail & Decision Trace', () => {
   test('transfer list shows deposit and clicking navigates to detail', async ({ page }) => {
     await submitDepositUI(page, { amount: '100.00', scenario: 'clean_pass' });

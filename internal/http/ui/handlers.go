@@ -585,6 +585,9 @@ func (h *UIHandlers) transfersCSV(w http.ResponseWriter, _ *http.Request, filter
 		bizDate := ""
 		if t.BusinessDateCT != nil {
 			bizDate = *t.BusinessDateCT
+			if len(bizDate) > 10 {
+				bizDate = bizDate[:10]
+			}
 		}
 		returnReason := ""
 		if t.ReturnReasonCode != nil {
