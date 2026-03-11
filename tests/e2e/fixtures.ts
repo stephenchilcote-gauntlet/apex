@@ -13,7 +13,10 @@ export { expect };
 
 /** Paths to realistic placeholder check images */
 export const CHECK_FRONT = path.join(__dirname, 'tests', 'check-front.png');
-export const CHECK_BACK = path.join(__dirname, 'tests', 'check-back.png');
+export const CHECK_BACK  = path.join(__dirname, 'tests', 'check-back.png');
+/** Check where printed amount ($750) differs from declared amount — triggers real IQA review */
+export const CHECK_FRONT_WRONG_AMOUNT = path.join(__dirname, 'tests', 'check-front-wrong-amount.png');
+export const CHECK_BACK_WRONG_AMOUNT  = path.join(__dirname, 'tests', 'check-back-wrong-amount.png');
 
 /**
  * Submit a deposit through the UI simulate form. Returns the transfer ID.

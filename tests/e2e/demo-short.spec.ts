@@ -1,5 +1,5 @@
 import { test as base, expect, Page } from '@playwright/test';
-import { CHECK_FRONT, CHECK_BACK } from './fixtures';
+import { CHECK_FRONT, CHECK_BACK, CHECK_FRONT_WRONG_AMOUNT, CHECK_BACK_WRONG_AMOUNT } from './fixtures';
 import { VisualJudge, critical, advisory } from './visual-judge';
 
 const test = base.extend({});
@@ -531,9 +531,6 @@ test.describe('Professional Demo', () => {
       await page.waitForTimeout(500);
     }
 
-    await caption(page, 'INV-1001 is the "clean pass" account — all vendor checks pass automatically', 2400);
-    await clearCaption(page);
-
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1001');
     await typeEl(page, 'input[name="amount"]', '1250.00');
     // Uncheck sample images to enable file upload (shows previews)
@@ -547,7 +544,7 @@ test.describe('Professional Demo', () => {
 
     await moveCursor(page, '#frontPreview');
     await highlight(page, '#frontPreview');
-    await caption(page, 'Check images attached — thumbnails shown before upload, SHA256 fingerprints for dedup', 2600);
+    await caption(page, 'Check images uploaded — Claude Haiku performs real IQA, OCR, and MICR analysis on each submission', 2600);
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -618,16 +615,17 @@ test.describe('Professional Demo', () => {
     await page.goto('/ui/simulate');
     await afterNav(page);
 
-    await caption(page, 'INV-1006 triggers an OCR amount mismatch — vendor returns REVIEW instead of PASS', 2400);
-    await clearCaption(page);
-
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1006');
     await typeEl(page, 'input[name="amount"]', '500.00');
-    // Uncheck sample images to enable file upload
+    // Uncheck sample images to enable file upload — use wrong-amount check (printed $750, declared $500)
     const sampleChk2 = page.locator('input[name="useSampleImages"]');
     if (await sampleChk2.isChecked()) await sampleChk2.uncheck();
-    await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
-    await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
+    await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT_WRONG_AMOUNT);
+    await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK_WRONG_AMOUNT);
+    await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(400);
+    await caption(page, 'Check shows $750 — declared amount is $500. Claude Haiku detects the mismatch → Review', 2600);
+    await clearCaption(page);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(500);
 
@@ -645,7 +643,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, 'span[data-state]');
-    await caption(page, 'State: Analyzing — flagged for human review due to OCR amount mismatch', 2500);
+    await caption(page, 'State: Analyzing — Claude Haiku flagged the OCR amount mismatch, routed to human review', 2500);
     await clearHighlights(page);
     await clearCaption(page);
 

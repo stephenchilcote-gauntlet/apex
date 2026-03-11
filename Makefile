@@ -67,14 +67,24 @@ demo:
 	@cat .vendorstub.pid | xargs kill 2>/dev/null || true
 	@rm -f .vendorstub.pid
 
+DEMO_WEBM := tests/e2e/test-results/demo-short-Professional-Demo-Four-Core-Workflows-chromium/video.webm
+DEMO_MP4  := tests/e2e/test-results/demo.mp4
+
 ## demo-video: 3-minute professional demo (4 workflows) — recommended
 demo-video:
 	@echo "Generating short professional demo video..."
 	@cd tests/e2e && npx playwright test demo-short.spec.ts
 	@echo ""
-	@echo "Video: tests/e2e/test-results/demo-short-Professional-Demo-Four-Core-Workflows-chromium/video.webm"
-	@mpv --no-resume-playback "tests/e2e/test-results/demo-short-Professional-Demo-Four-Core-Workflows-chromium/video.webm" 2>/dev/null || \
-	  xdg-open "tests/e2e/test-results/demo-short-Professional-Demo-Four-Core-Workflows-chromium/video.webm" 2>/dev/null || \
+	@echo "Transcoding to H.264 via NVENC..."
+	@ffmpeg -y -i "$(DEMO_WEBM)" \
+	  -c:v h264_nvenc -preset p4 -rc vbr -cq 22 -b:v 0 \
+	  -c:a aac -b:a 128k \
+	  "$(DEMO_MP4)" 2>/dev/null && \
+	  echo "MP4: $(DEMO_MP4)" || \
+	  echo "NVENC transcode failed — raw WebM at $(DEMO_WEBM)"
+	@mpv --no-resume-playback "$(DEMO_MP4)" 2>/dev/null || \
+	  mpv --no-resume-playback "$(DEMO_WEBM)" 2>/dev/null || \
+	  xdg-open "$(DEMO_MP4)" 2>/dev/null || \
 	  echo "(open the file above manually)"
 
 ## video: full 10-minute walkthrough with architecture diagrams

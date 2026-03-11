@@ -37,23 +37,15 @@
       <div class="form-row">
         <div class="form-group" style="flex:1">
           <label class="form-label" for="investorAccountId">Investor Account</label>
-          <select name="investorAccountId" id="investorAccountId" class="input" style="width:100%"
-                  data-scenarios='{"INV-1001":"Auto-approved → FundsPosted (vendor: clean_pass)","INV-1002":"Rejected at analysis (vendor: iqa_blur — image too blurry)","INV-1003":"Rejected at analysis (vendor: iqa_glare — too much glare)","INV-1004":"Flagged for operator review (vendor: micr_failure)","INV-1005":"Rejected (vendor: duplicate_detected — fingerprint match)","INV-1006":"Flagged for review (vendor: amount_mismatch — OCR mismatch)","INV-1007":"Flagged for review (vendor: iqa_pass_review — low confidence)"}'>
-            <optgroup label="Auto-Approved">
-              <option value="INV-1001">INV-1001 — Clean Pass (auto-approves → FundsPosted)</option>
-            </optgroup>
-            <optgroup label="Rejected at Analysis">
-              <option value="INV-1002">INV-1002 — IQA Blur (image too blurry → Rejected)</option>
-              <option value="INV-1003">INV-1003 — IQA Glare (too much glare → Rejected)</option>
-              <option value="INV-1005">INV-1005 — Duplicate Check (fingerprint match → Rejected)</option>
-            </optgroup>
-            <optgroup label="Sent to Review Queue">
-              <option value="INV-1004">INV-1004 — MICR Failure (unreadable routing → Review)</option>
-              <option value="INV-1006">INV-1006 — Amount Mismatch (OCR vs. declared → Review)</option>
-              <option value="INV-1007">INV-1007 — High Risk Score (risk &gt; threshold → Review)</option>
-            </optgroup>
+          <select name="investorAccountId" id="investorAccountId" class="input" style="width:100%">
+            <option value="INV-1001">James Whitfield (INV-1001)</option>
+            <option value="INV-1002">Sarah Chen (INV-1002)</option>
+            <option value="INV-1003">Marcus Johnson (INV-1003)</option>
+            <option value="INV-1004">Priya Patel (INV-1004)</option>
+            <option value="INV-1005">David Okafor (INV-1005)</option>
+            <option value="INV-1006">Elena Rodriguez (INV-1006)</option>
+            <option value="INV-1007">Thomas Nguyen (INV-1007)</option>
           </select>
-          <div id="scenario-hint" style="margin-top:5px;font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);min-height:16px;"></div>
         </div>
         <div class="form-group" style="flex:1">
           <label class="form-label" for="amount">Amount (USD)</label>
@@ -108,20 +100,6 @@
     if (spinner) spinner.style.display = 'inline-block';
     if (label) label.textContent = 'Processing…';
   });
-})();
-
-// Scenario hint — show expected outcome when account selected
-(function () {
-  var sel = document.getElementById('investorAccountId');
-  var hint = document.getElementById('scenario-hint');
-  if (!sel || !hint) return;
-  var scenarios = {};
-  try { scenarios = JSON.parse(sel.getAttribute('data-scenarios') || '{}'); } catch (e) {}
-  function update() {
-    hint.textContent = scenarios[sel.value] || '';
-  }
-  sel.addEventListener('change', update);
-  update();
 })();
 
 // Toggle between sample images and upload mode
