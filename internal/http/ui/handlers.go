@@ -156,7 +156,7 @@ func (h *UIHandlers) Init() error {
 	}
 
 	h.templates = make(map[string]*template.Template)
-	pages := []string{"dashboard", "simulate", "transfers", "transfer_detail", "review", "review_detail", "ledger", "settlement", "returns"}
+	pages := []string{"dashboard", "simulate", "transfers", "transfer_detail", "review", "review_detail", "ledger", "settlement", "settlement_batch_detail", "returns"}
 	for _, page := range pages {
 		t, err := template.New("").Funcs(funcMap).ParseFiles(
 			filepath.Join(h.TemplateDir, "layout.html"),
@@ -193,6 +193,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Get("/ui/ledger", h.ledgerPage)
 	r.Get("/ui/settlement", h.settlementPage)
 	r.Post("/ui/settlement/generate", h.settlementGenerate)
+	r.Get("/ui/settlement/{id}", h.settlementBatchDetailPage)
 	r.Post("/ui/settlement/{id}/ack", h.settlementAck)
 	r.Get("/ui/settlement/{id}/download", h.settlementDownload)
 	r.Get("/ui/returns", h.returnsPage)
@@ -992,6 +993,50 @@ func (h *UIHandlers) settlementPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.render(w, "settlement", data)
+}
+
+func (h *UIHandlers) settlementBatchDetailPage(w http.ResponseWriter, r *http.Request) {
+	id := chi.URLParam(r, "id")
+	batch, items, err := h.SettlementSvc.GetBatch(nil, id)
+	if err != nil {
+		http.Error(w, "batch not found: "+err.Error(), 404)
+		return
+	}
+
+	// Enrich items with account display names
+	type enrichedItem struct {
+		Item           settlement.BatchItem
+		AccountDisplay string
+		TransferState  string
+		MICR           map[string]string
+	}
+	var enriched []enrichedItem
+	for _, item := range items {
+		ei := enrichedItem{Item: item}
+		var extID, name, state string
+		h.DB.QueryRow(`SELECT a.external_account_id, a.account_name, t.state
+			FROM transfers t LEFT JOIN accounts a ON a.id = t.investor_account_id
+			WHERE t.id = ?`, item.TransferID).Scan(&extID, &name, &state)
+		if extID != "" {
+			ei.AccountDisplay = name + " (" + extID + ")"
+		} else {
+			ei.AccountDisplay = item.TransferID
+		}
+		ei.TransferState = state
+		if item.MICRSnapshotJSON != nil && *item.MICRSnapshotJSON != "" {
+			var m map[string]string
+			if json.Unmarshal([]byte(*item.MICRSnapshotJSON), &m) == nil {
+				ei.MICR = m
+			}
+		}
+		enriched = append(enriched, ei)
+	}
+
+	h.render(w, "settlement_batch_detail", map[string]interface{}{
+		"ActivePage": "settlement",
+		"Batch":      batch,
+		"Items":      enriched,
+	})
 }
 
 func (h *UIHandlers) settlementGenerate(w http.ResponseWriter, r *http.Request) {

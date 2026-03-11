@@ -49,7 +49,7 @@
       <tbody>
         {{range .Batches}}
         <tr>
-          <td><span title="{{.ID}}">{{shortID .ID}}</span></td>
+          <td><a href="/ui/settlement/{{.ID}}" title="{{.ID}}" style="font-family:var(--font-data);font-size:11px;">{{shortID .ID}}</a></td>
           <td>{{slice .BusinessDateCT 0 10}}</td>
           <td><span class="badge badge--{{.Status}}" data-state>{{.Status}}</span></td>
           <td>{{.TotalItems}}</td>

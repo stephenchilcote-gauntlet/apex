@@ -1,0 +1,74 @@
+{{define "content"}}
+<nav class="breadcrumb">
+  <a href="/ui/settlement">Settlement</a>
+  <span class="breadcrumb-sep">/</span>
+  <span class="breadcrumb-current">{{shortID .Batch.ID}}</span>
+</nav>
+<div class="page-header">
+  <h1 class="section-title">Batch Detail</h1>
+</div>
+
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header">
+    <span class="panel-header-title">Batch Info</span>
+    {{if eq .Batch.Status "GENERATED"}}
+    <form method="POST" action="/ui/settlement/{{.Batch.ID}}/ack" style="display:inline;margin-left:auto;">
+      <button type="submit" class="btn" data-action="ack">Acknowledge</button>
+    </form>
+    {{end}}
+    {{if .Batch.FilePath}}
+    <a href="/ui/settlement/{{.Batch.ID}}/download" class="btn" style="margin-left:8px;font-size:11px;padding:4px 10px;">↓ Download ICL</a>
+    {{end}}
+  </div>
+  <div class="panel-body">
+    <div class="detail-grid">
+      <span class="detail-label">ID</span><span class="detail-value">{{.Batch.ID}}<button data-copy="{{.Batch.ID}}" title="Copy ID">⎘</button></span>
+      <span class="detail-label">Status</span><span class="detail-value"><span class="badge badge--{{.Batch.Status}}">{{.Batch.Status}}</span></span>
+      <span class="detail-label">Business Date</span><span class="detail-value">{{slice .Batch.BusinessDateCT 0 10}}</span>
+      <span class="detail-label">Total Items</span><span class="detail-value">{{.Batch.TotalItems}}</span>
+      <span class="detail-label">Total Amount</span><span class="detail-value data-value--currency">${{formatCents .Batch.TotalAmountCents}}</span>
+      <span class="detail-label">File Format</span><span class="detail-value">{{.Batch.FileFormat}}</span>
+      {{if .Batch.FilePath}}<span class="detail-label">File</span><span class="detail-value" style="font-family:var(--font-data);font-size:11px;">{{basename (deref .Batch.FilePath)}}</span>{{end}}
+      <span class="detail-label">Created</span><span class="detail-value">{{.Batch.CreatedAt.Format "2006-01-02 15:04:05"}}</span>
+      {{if .Batch.AcknowledgedAt}}<span class="detail-label">Acknowledged</span><span class="detail-value">{{.Batch.AcknowledgedAt.Format "2006-01-02 15:04:05"}}</span>{{end}}
+    </div>
+  </div>
+</div>
+
+{{if .Items}}
+<div class="panel">
+  <div class="panel-header">
+    <span class="panel-header-title">Batch Items</span>
+    <span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">{{len .Items}} item{{if gt (len .Items) 1}}s{{end}}</span>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th style="width:40px;">#</th>
+          <th style="width:90px;">Transfer</th>
+          <th>Account</th>
+          <th style="text-align:right;">Amount</th>
+          <th style="width:130px;">State</th>
+          <th>MICR Routing</th>
+          <th>MICR Account</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .Items}}
+        <tr>
+          <td style="color:var(--text-tertiary);">{{.Item.SequenceNumber}}</td>
+          <td><a href="/ui/transfers/{{.Item.TransferID}}" style="font-family:var(--font-data);font-size:11px;">{{shortID .Item.TransferID}}</a></td>
+          <td style="font-size:11px;">{{.AccountDisplay}}</td>
+          <td style="text-align:right;"><span class="data-value data-value--currency">${{formatCents .Item.AmountCents}}</span></td>
+          <td>{{if .TransferState}}<span class="badge badge--{{.TransferState}}">{{.TransferState}}</span>{{else}}<span style="color:var(--text-tertiary);">—</span>{{end}}</td>
+          <td style="font-family:var(--font-data);font-size:11px;color:var(--text-secondary);">{{if .MICR}}{{index .MICR "routingNumber"}}{{else}}—{{end}}</td>
+          <td style="font-family:var(--font-data);font-size:11px;color:var(--text-secondary);">{{if .MICR}}{{index .MICR "accountNumber"}}{{else}}—{{end}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
+{{end}}
