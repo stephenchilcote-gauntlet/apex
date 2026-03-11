@@ -29,6 +29,7 @@ func (s *FundingService) ApplyRules(ctx context.Context, t *transfers.Transfer, 
 	rules := []func(context.Context, *transfers.Transfer, *model.AnalyzeResponse) (RuleResult, error){
 		s.ruleAccountEligible,
 		s.ruleMaxDepositLimit,
+		s.ruleDailyDepositLimit,
 		s.ruleContributionTypeDefault,
 		s.ruleInternalDuplicate,
 	}
@@ -92,6 +93,49 @@ func (s *FundingService) ruleMaxDepositLimit(_ context.Context, t *transfers.Tra
 		RuleName: "MAX_DEPOSIT_LIMIT",
 		Outcome:  "PASS",
 		Details:  fmt.Sprintf("amount %d cents within limit", t.AmountCents),
+	}, nil
+}
+
+func (s *FundingService) ruleDailyDepositLimit(ctx context.Context, t *transfers.Transfer, _ *model.AnalyzeResponse) (RuleResult, error) {
+	const dailyLimitCents int64 = 1_000_000 // $10,000/day
+
+	// Sum all non-rejected deposits for this account on the same business date,
+	// excluding the current transfer.
+	var totalCents int64
+	businessDate := time.Now().UTC().Format("2006-01-02")
+	if t.BusinessDateCT != nil && *t.BusinessDateCT != "" {
+		businessDate = *t.BusinessDateCT
+	}
+
+	err := s.DB.QueryRowContext(ctx, `
+		SELECT COALESCE(SUM(amount_cents), 0)
+		FROM transfers
+		WHERE investor_account_id = ?
+		  AND date(business_date_ct) = ?
+		  AND id != ?
+		  AND state NOT IN ('Rejected', 'Returned')`,
+		t.InvestorAccountID, businessDate, t.ID,
+	).Scan(&totalCents)
+	if err != nil {
+		return RuleResult{}, fmt.Errorf("query daily deposit total: %w", err)
+	}
+
+	newTotal := totalCents + t.AmountCents
+	if newTotal > dailyLimitCents {
+		return RuleResult{
+			RuleName: "DAILY_DEPOSIT_LIMIT",
+			Outcome:  "FAIL",
+			Details: fmt.Sprintf("daily total $%.2f would exceed $%.2f limit (existing $%.2f + this $%.2f)",
+				float64(newTotal)/100, float64(dailyLimitCents)/100,
+				float64(totalCents)/100, float64(t.AmountCents)/100),
+		}, nil
+	}
+
+	return RuleResult{
+		RuleName: "DAILY_DEPOSIT_LIMIT",
+		Outcome:  "PASS",
+		Details: fmt.Sprintf("daily total $%.2f within $%.2f limit",
+			float64(newTotal)/100, float64(dailyLimitCents)/100),
 	}, nil
 }
 

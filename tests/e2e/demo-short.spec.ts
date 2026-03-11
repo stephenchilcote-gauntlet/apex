@@ -471,7 +471,7 @@ test.describe('Professional Demo', () => {
     await clearHighlights(page);
     await clearCaption(page);
 
-    await caption(page, 'One submit → vendor analysis + 4 business rules + ledger post — all in one API call', 2200);
+    await caption(page, 'One submit → vendor analysis + 5 business rules + ledger post — all in one API call', 2200);
     await clearCaption(page);
     await clickEl(page, 'button[type="submit"]');
 
@@ -522,7 +522,7 @@ test.describe('Professional Demo', () => {
       critical('Is there a table showing business rule evaluations with pass/fail outcomes?'),
     ]);
 
-    await caption(page, 'Rule Evaluations — eligibility ✓  $5K limit ✓  contribution type ✓  duplicate check ✓', 2800);
+    await caption(page, 'Rule Evaluations — eligibility ✓  $5K/deposit ✓  $10K/day ✓  contribution type ✓  duplicate check ✓', 2800);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(500);
