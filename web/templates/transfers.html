@@ -1,9 +1,9 @@
 {{define "content"}}
-<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;">
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
   <div class="compressed-title-wrap"><h1 class="section-title">Transfers</h1></div>
   <form method="GET" action="/ui/transfers" style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-    <input type="text" name="investorAccountId" class="input" style="width:160px;" placeholder="Account ID…" value="{{.AccountFilter}}">
-    <select name="state" class="input" style="width:auto;min-width:150px;" onchange="this.form.submit()">
+    <input type="text" name="investorAccountId" class="input" style="width:140px;" placeholder="Account ID…" value="{{.AccountFilter}}">
+    <select name="state" class="input" style="width:auto;min-width:140px;" onchange="this.form.submit()">
       <option value="">All states</option>
       <option value="Requested"    {{if eq .StateFilter "Requested"   }}selected{{end}}>Requested</option>
       <option value="Validating"   {{if eq .StateFilter "Validating"  }}selected{{end}}>Validating</option>
@@ -15,15 +15,19 @@
       <option value="Rejected"     {{if eq .StateFilter "Rejected"    }}selected{{end}}>Rejected</option>
       <option value="Returned"     {{if eq .StateFilter "Returned"    }}selected{{end}}>Returned</option>
     </select>
+    <input type="date" name="dateFrom" class="input" style="width:140px;" title="From date" value="{{.DateFromFilter}}">
+    <input type="date" name="dateTo"   class="input" style="width:140px;" title="To date"   value="{{.DateToFilter}}">
     <button type="submit" class="btn">Filter</button>
-    {{if or .StateFilter .AccountFilter}}<a href="/ui/transfers" class="btn" style="white-space:nowrap;">Clear</a>{{end}}
+    {{if or .StateFilter .AccountFilter .DateFromFilter .DateToFilter}}<a href="/ui/transfers" class="btn" style="white-space:nowrap;">Clear</a>{{end}}
   </form>
 </div>
 
 <div class="panel">
   <div class="panel-header">
     <span class="panel-header-title">{{if .StateFilter}}{{.StateFilter}}{{if .AccountFilter}} · {{.AccountFilter}}{{end}}{{else if .AccountFilter}}{{.AccountFilter}}{{else}}All{{end}} transfers</span>
-    {{if .Transfers}}<span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">{{len .Transfers}} result{{if gt (len .Transfers) 1}}s{{end}}</span>{{end}}
+    <span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">
+      {{if gt .Total 0}}{{.Total}} total{{if gt .TotalPages 1}} · page {{.Page}} of {{.TotalPages}}{{end}}{{end}}
+    </span>
   </div>
   <div class="panel-body" style="padding:0;">
     <table class="data-table">
@@ -53,6 +57,21 @@
       </tbody>
     </table>
   </div>
+  {{if gt .TotalPages 1}}
+  <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border-top:1px solid var(--border-subtle);">
+    {{if .HasPrev}}
+    <a href="?state={{.StateFilter}}&investorAccountId={{.AccountFilter}}&dateFrom={{.DateFromFilter}}&dateTo={{.DateToFilter}}&page={{.PrevPage}}" class="btn" style="padding:4px 12px;font-size:11px;">← Prev</a>
+    {{else}}
+    <button class="btn" disabled style="padding:4px 12px;font-size:11px;opacity:0.4;">← Prev</button>
+    {{end}}
+    <span style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">{{.Page}} / {{.TotalPages}}</span>
+    {{if .HasNext}}
+    <a href="?state={{.StateFilter}}&investorAccountId={{.AccountFilter}}&dateFrom={{.DateFromFilter}}&dateTo={{.DateToFilter}}&page={{.NextPage}}" class="btn" style="padding:4px 12px;font-size:11px;">Next →</a>
+    {{else}}
+    <button class="btn" disabled style="padding:4px 12px;font-size:11px;opacity:0.4;">Next →</button>
+    {{end}}
+  </div>
+  {{end}}
 </div>
 
 <style>

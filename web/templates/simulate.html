@@ -38,13 +38,19 @@
         <div class="form-group" style="flex:1">
           <label class="form-label" for="investorAccountId">Investor Account</label>
           <select name="investorAccountId" id="investorAccountId" class="input" style="width:100%">
-            <option value="INV-1001">INV-1001 (Clean Pass)</option>
-            <option value="INV-1002">INV-1002 (IQA Blur)</option>
-            <option value="INV-1003">INV-1003 (IQA Glare)</option>
-            <option value="INV-1004">INV-1004 (MICR Failure)</option>
-            <option value="INV-1005">INV-1005 (Duplicate)</option>
-            <option value="INV-1006">INV-1006 (Amount Mismatch)</option>
-            <option value="INV-1007">INV-1007 (Review — High Risk)</option>
+            <optgroup label="Auto-Approved">
+              <option value="INV-1001">INV-1001 — Clean Pass (auto-approves → FundsPosted)</option>
+            </optgroup>
+            <optgroup label="Rejected at Analysis">
+              <option value="INV-1002">INV-1002 — IQA Blur (image too blurry → Rejected)</option>
+              <option value="INV-1003">INV-1003 — IQA Glare (too much glare → Rejected)</option>
+              <option value="INV-1005">INV-1005 — Duplicate Check (fingerprint match → Rejected)</option>
+            </optgroup>
+            <optgroup label="Sent to Review Queue">
+              <option value="INV-1004">INV-1004 — MICR Failure (unreadable routing → Review)</option>
+              <option value="INV-1006">INV-1006 — Amount Mismatch (OCR vs. declared → Review)</option>
+              <option value="INV-1007">INV-1007 — High Risk Score (risk &gt; threshold → Review)</option>
+            </optgroup>
           </select>
         </div>
         <div class="form-group" style="flex:1">

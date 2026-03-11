@@ -367,26 +367,63 @@ func (h *UIHandlers) simulateSubmit(w http.ResponseWriter, r *http.Request) {
 // ---------------------------------------------------------------------------
 
 func (h *UIHandlers) transfersPage(w http.ResponseWriter, r *http.Request) {
+	const pageSize = 50
+	q := r.URL.Query()
+
 	var filters transfers.TransferFilters
-	if v := r.URL.Query().Get("state"); v != "" {
+	if v := q.Get("state"); v != "" {
 		s := transfers.State(v)
 		filters.State = &s
 	}
-	if v := r.URL.Query().Get("investorAccountId"); v != "" {
+	if v := q.Get("investorAccountId"); v != "" {
 		filters.InvestorAccountID = &v
 	}
+	if v := q.Get("dateFrom"); v != "" {
+		if t, err := time.Parse("2006-01-02", v); err == nil {
+			filters.DateFrom = &t
+		}
+	}
+	if v := q.Get("dateTo"); v != "" {
+		if t, err := time.Parse("2006-01-02", v); err == nil {
+			filters.DateTo = &t
+		}
+	}
 
+	page := 1
+	if v := q.Get("page"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			page = n
+		}
+	}
+	filters.Limit = pageSize
+	filters.Offset = (page - 1) * pageSize
+
+	total, _ := h.TransferSvc.Count(h.DB, filters)
 	list, err := h.TransferSvc.List(h.DB, filters)
 	if err != nil {
 		http.Error(w, err.Error(), 500)
 		return
 	}
 
+	totalPages := (total + pageSize - 1) / pageSize
+	if totalPages < 1 {
+		totalPages = 1
+	}
+
 	h.render(w, "transfers", map[string]interface{}{
-		"ActivePage":    "transfers",
-		"Transfers":     list,
-		"StateFilter":   r.URL.Query().Get("state"),
-		"AccountFilter": r.URL.Query().Get("investorAccountId"),
+		"ActivePage":     "transfers",
+		"Transfers":      list,
+		"StateFilter":    q.Get("state"),
+		"AccountFilter":  q.Get("investorAccountId"),
+		"DateFromFilter": q.Get("dateFrom"),
+		"DateToFilter":   q.Get("dateTo"),
+		"Page":           page,
+		"TotalPages":     totalPages,
+		"Total":          total,
+		"HasPrev":        page > 1,
+		"HasNext":        page < totalPages,
+		"PrevPage":       page - 1,
+		"NextPage":       page + 1,
 	})
 }
 
