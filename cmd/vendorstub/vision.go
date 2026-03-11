@@ -276,10 +276,13 @@ func mapEvidenceToResponse(ev *VisionEvidence, requestAmountCents int) *model.An
 	// Manual review
 	resp.ManualReviewRequired = riskScore >= 50
 
+	// Amount mismatch is a hard REVIEW trigger regardless of risk score
+	amountMismatch := resp.OCRAmountCents != nil && !resp.AmountMatches
+
 	// Decision
 	if iqaFailed {
 		resp.Decision = "FAIL"
-	} else if resp.ManualReviewRequired {
+	} else if resp.ManualReviewRequired || amountMismatch {
 		resp.Decision = "REVIEW"
 	} else {
 		resp.Decision = "PASS"

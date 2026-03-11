@@ -79,19 +79,20 @@ func TestVisionModeIntegration(t *testing.T) {
 			wantIQAFail:  true,
 		},
 		{
-			name:        "no_micr_detected",
-			frontImage:  "check-front-no-micr.png",
-			backImage:   "check-back-no-micr.png",
-			amountCents: 50000,
-			// MICR unreadable adds risk but may not hit 50 threshold alone
-			wantIQAFail: false,
+			name:         "no_micr_detected",
+			frontImage:   "check-front-no-micr.png",
+			backImage:    "check-back-no-micr.png",
+			amountCents:  50000,
+			wantDecision: "REVIEW", // unreadable MICR → riskScore += 30 → ≥ 50 → REVIEW
+			wantIQAFail:  false,
 		},
 		{
-			name:        "wrong_amount_detected",
-			frontImage:  "check-front-wrong-amount.png",
-			backImage:   "check-back-wrong-amount.png",
-			amountCents: 50000, // Image shows $750, request says $500
-			wantIQAFail: false,
+			name:         "wrong_amount_detected",
+			frontImage:   "check-front-wrong-amount.png",
+			backImage:    "check-back-wrong-amount.png",
+			amountCents:  50000, // Image shows $750, request says $500
+			wantDecision: "REVIEW",
+			wantIQAFail:  false,
 		},
 	}
 
