@@ -551,6 +551,49 @@ func TestHandlers_GenerateBatch_WithFundsPosted(t *testing.T) {
 	}
 }
 
+func TestHandlers_SubmitDeposit_MissingFields(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Missing investorAccountId — send a proper multipart form
+	body := &bytes.Buffer{}
+	// Use a minimal multipart body with just amount
+	body.WriteString("--boundary\r\n")
+	body.WriteString("Content-Disposition: form-data; name=\"amount\"\r\n\r\n")
+	body.WriteString("100.00\r\n")
+	body.WriteString("--boundary--\r\n")
+
+	req := httptest.NewRequest("POST", "/api/v1/deposits", body)
+	req.Header.Set("Content-Type", "multipart/form-data; boundary=boundary")
+	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for missing investorAccountId, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
+func TestHandlers_SubmitDeposit_InvalidAmount(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	body := &bytes.Buffer{}
+	body.WriteString("--boundary\r\n")
+	body.WriteString("Content-Disposition: form-data; name=\"investorAccountId\"\r\n\r\n")
+	body.WriteString("INV-1001\r\n")
+	body.WriteString("--boundary\r\n")
+	body.WriteString("Content-Disposition: form-data; name=\"amount\"\r\n\r\n")
+	body.WriteString("not-a-number\r\n")
+	body.WriteString("--boundary--\r\n")
+
+	req := httptest.NewRequest("POST", "/api/v1/deposits", body)
+	req.Header.Set("Content-Type", "multipart/form-data; boundary=boundary")
+	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for invalid amount, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
 func TestHandlers_ResponseContentType_IsJSON(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
