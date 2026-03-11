@@ -75,14 +75,52 @@
   </div>
 
   <div class="panel" style="margin-bottom:12px;">
-    <div class="panel-header" data-collapsible aria-expanded="true"><span class="panel-header-title">Check Images</span></div>
+    <div class="panel-header" data-collapsible aria-expanded="true"><span class="panel-header-title">Check Images</span><span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-tertiary);">click to expand</span></div>
     <div class="panel-body">
       <div class="check-images">
-        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/FRONT" alt="Front Check" data-side="front">
-        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/BACK" alt="Back Check" data-side="back">
+        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/FRONT" alt="Front Check" data-side="front" data-label="Front" title="Click to expand">
+        <img class="check-image" src="/ui/images/{{.Transfer.ID}}/BACK" alt="Back Check" data-side="back" data-label="Back" title="Click to expand">
       </div>
     </div>
   </div>
+
+  <!-- Check image lightbox -->
+  <div class="check-lightbox" id="check-lightbox" role="dialog" aria-modal="true" aria-label="Check image viewer">
+    <div class="check-lightbox-inner">
+      <span class="check-lightbox-close" id="lightbox-close" title="Close (Esc)">✕ Close</span>
+      <img id="lightbox-img" src="" alt="">
+      <div class="check-lightbox-label" id="lightbox-label"></div>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    var box = document.getElementById('check-lightbox');
+    var boxImg = document.getElementById('lightbox-img');
+    var boxLabel = document.getElementById('lightbox-label');
+    if (!box) return;
+    function open(src, label) {
+      boxImg.src = src;
+      boxImg.alt = label + ' check image';
+      boxLabel.textContent = label;
+      box.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function close() {
+      box.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.querySelectorAll('.check-image').forEach(function (img) {
+      img.addEventListener('click', function () { open(img.src, img.getAttribute('data-label') || img.alt); });
+    });
+    box.addEventListener('click', function (e) {
+      if (e.target === box || e.target.id === 'lightbox-close') close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && box.classList.contains('open')) close();
+    });
+  })();
+  </script>
 
   {{if .VendorResult}}
   <div class="panel" style="margin-bottom:12px;">

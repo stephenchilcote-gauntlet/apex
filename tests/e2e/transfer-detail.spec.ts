@@ -40,4 +40,30 @@ test.describe('Transfer Detail & Decision Trace', () => {
     await expect(page.locator('img[alt*="Front" i], img[data-side="front"]')).toBeVisible();
     await expect(page.locator('img[alt*="Back" i], img[data-side="back"]')).toBeVisible();
   });
+
+  test('check image lightbox opens and closes', async ({ page }) => {
+    await submitDepositUI(page, { amount: '150.00', scenario: 'clean_pass' });
+
+    await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
+    await page.locator('[data-transfer] a').first().click();
+
+    // Lightbox should be hidden initially
+    await expect(page.locator('#check-lightbox')).not.toHaveClass(/open/);
+
+    // Click front image to open lightbox
+    await page.locator('img[data-side="front"]').click();
+    await expect(page.locator('#check-lightbox')).toHaveClass(/open/);
+    await expect(page.locator('#lightbox-label')).toContainText(/front/i);
+
+    // Press Escape to close
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#check-lightbox')).not.toHaveClass(/open/);
+
+    // Open again and close by clicking backdrop
+    await page.locator('img[data-side="back"]').click();
+    await expect(page.locator('#check-lightbox')).toHaveClass(/open/);
+    await expect(page.locator('#lightbox-label')).toContainText(/back/i);
+    await page.locator('#check-lightbox').click({ position: { x: 5, y: 5 } });
+    await expect(page.locator('#check-lightbox')).not.toHaveClass(/open/);
+  });
 });

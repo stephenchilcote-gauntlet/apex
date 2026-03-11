@@ -694,12 +694,64 @@ label,
   max-width: 100%;
   min-width: 0;
   display: block;
+  cursor: zoom-in;
+  transition: opacity 0.15s, border-color 0.15s;
 }
+.check-image:hover { opacity: 0.85; border-color: var(--border-default); }
 
 .check-images {
   display: flex;
   gap: 8px;
   overflow: hidden;
+}
+
+/* Lightbox overlay */
+.check-lightbox {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(0,0,0,0.82);
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+.check-lightbox.open { display: flex; }
+.check-lightbox-inner {
+  position: relative;
+  max-width: min(90vw, 960px);
+  max-height: 88vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.check-lightbox img {
+  max-width: 100%;
+  max-height: calc(88vh - 36px);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  display: block;
+  object-fit: contain;
+}
+.check-lightbox-label {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.55);
+}
+.check-lightbox-close {
+  position: absolute;
+  top: -32px;
+  right: 0;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  color: rgba(255,255,255,0.45);
+  cursor: pointer;
+  padding: 4px 8px;
+  user-select: none;
 }
 
 /* --------------------------------------------------------------------------
