@@ -21,7 +21,7 @@
           <a href="/ui/transfers"  class="nav-level-tab" {{if eq .ActivePage "transfers" }}aria-selected="true"{{end}}>Transfers</a>
           <a href="/ui/review"     class="nav-level-tab" {{if eq .ActivePage "review"    }}aria-selected="true"{{end}}>Review Queue <span id="review-count" hx-get="/ui/review-count" hx-trigger="load, every 5s" hx-swap="innerHTML"></span></a>
           <a href="/ui/ledger"     class="nav-level-tab" {{if eq .ActivePage "ledger"    }}aria-selected="true"{{end}}>Ledger</a>
-          <a href="/ui/settlement" class="nav-level-tab" {{if eq .ActivePage "settlement"}}aria-selected="true"{{end}}>Settlement</a>
+          <a href="/ui/settlement" class="nav-level-tab" {{if eq .ActivePage "settlement"}}aria-selected="true"{{end}}>Settlement <span id="settlement-count" hx-get="/ui/settlement-count" hx-trigger="load, every 15s" hx-swap="innerHTML"></span></a>
           <a href="/ui/returns"    class="nav-level-tab" {{if eq .ActivePage "returns"   }}aria-selected="true"{{end}}>Returns</a>
         </div>
       </div>
@@ -117,6 +117,26 @@ kbd {
 </style>
 
 <script>
+// Collapsible panels — click [data-collapsible] headers to toggle
+document.addEventListener('click', function (e) {
+  var header = e.target.closest('.panel-header[data-collapsible]');
+  if (!header) return;
+  var panel = header.closest('.panel');
+  if (!panel) return;
+  var body = panel.querySelector('.panel-body');
+  if (!body) return;
+  var collapsed = panel.getAttribute('data-collapsed') === 'true';
+  if (collapsed) {
+    body.style.display = '';
+    panel.removeAttribute('data-collapsed');
+    header.setAttribute('aria-expanded', 'true');
+  } else {
+    body.style.display = 'none';
+    panel.setAttribute('data-collapsed', 'true');
+    header.setAttribute('aria-expanded', 'false');
+  }
+});
+
 // Copy-to-clipboard utility — wire [data-copy] buttons
 document.addEventListener('click', function (e) {
   var btn = e.target.closest('[data-copy]');

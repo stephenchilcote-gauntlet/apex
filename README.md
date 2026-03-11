@@ -231,6 +231,7 @@ apex/
 
 | Page              | Screenshot                                                      |
 |-------------------|-----------------------------------------------------------------|
+| Dashboard         | ![Dashboard](docs/screenshots/01-dashboard.png)                 |
 | Deposit Simulator | ![Deposit Simulator](docs/screenshots/01-deposit-simulator.png) |
 | Deposit Result    | ![Deposit Result](docs/screenshots/02-deposit-result.png)       |
 | Transfers List    | ![Transfers List](docs/screenshots/03-transfers-list.png)       |

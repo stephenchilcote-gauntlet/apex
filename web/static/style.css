@@ -744,6 +744,22 @@ a:hover {
 .status-indicator[data-active] { animation: status-pulse 3s ease-in-out infinite; }
 
 /* --------------------------------------------------------------------------
+   Collapsible panels — data-collapsible on .panel-header
+   -------------------------------------------------------------------------- */
+.panel-header[data-collapsible] { cursor: pointer; }
+.panel-header[data-collapsible]:hover .panel-header-title { color: var(--text-primary); }
+.panel-header[data-collapsible]::after {
+  content: '▾';
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--text-tertiary);
+  transition: transform 0.15s;
+}
+.panel[data-collapsed] > .panel-header[data-collapsible]::after {
+  transform: rotate(-90deg);
+}
+
+/* --------------------------------------------------------------------------
    Copy button — [data-copy] utility
    -------------------------------------------------------------------------- */
 [data-copy] {

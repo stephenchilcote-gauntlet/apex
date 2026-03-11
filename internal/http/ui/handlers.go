@@ -173,6 +173,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Get("/ui/transfers/{id}", h.transferDetailPage)
 	r.Get("/ui/review", h.reviewPage)
 	r.Get("/ui/review-count", h.reviewCountBadge)
+	r.Get("/ui/settlement-count", h.settlementCountBadge)
 	r.Get("/ui/review/{id}", h.reviewDetailPage)
 	r.Post("/ui/review/{id}/approve", h.reviewApprove)
 	r.Post("/ui/review/{id}/reject", h.reviewReject)
@@ -471,6 +472,16 @@ func (h *UIHandlers) reviewCountBadge(w http.ResponseWriter, r *http.Request) {
 	}
 
 	count := len(list)
+	if count == 0 {
+		w.Write([]byte(""))
+		return
+	}
+	fmt.Fprintf(w, `<span class="review-badge">%d</span>`, count)
+}
+
+func (h *UIHandlers) settlementCountBadge(w http.ResponseWriter, r *http.Request) {
+	var count int
+	h.DB.QueryRow(`SELECT COUNT(*) FROM transfers WHERE state='FundsPosted'`).Scan(&count)
 	if count == 0 {
 		w.Write([]byte(""))
 		return

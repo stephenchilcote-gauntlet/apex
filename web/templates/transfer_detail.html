@@ -31,7 +31,7 @@
   </div>
 
   <div class="panel" style="margin-bottom:12px;">
-    <div class="panel-header"><span class="panel-header-title">Check Images</span></div>
+    <div class="panel-header" data-collapsible aria-expanded="true"><span class="panel-header-title">Check Images</span></div>
     <div class="panel-body">
       <div class="check-images">
         <img class="check-image" src="/ui/images/{{.Transfer.ID}}/FRONT" alt="Front Check" data-side="front">
@@ -91,7 +91,7 @@
 
   {{if .RuleEvaluations}}
   <div class="panel" style="margin-bottom:12px;">
-    <div class="panel-header"><span class="panel-header-title">Rule Evaluations</span></div>
+    <div class="panel-header" data-collapsible aria-expanded="true"><span class="panel-header-title">Rule Evaluations</span></div>
     <div class="panel-body">
       <table class="data-table">
         <thead>
@@ -117,7 +117,7 @@
 
   {{if .AuditEvents}}
   <div class="panel" style="margin-bottom:12px;">
-    <div class="panel-header"><span class="panel-header-title">Activity</span></div>
+    <div class="panel-header" data-collapsible aria-expanded="true"><span class="panel-header-title">Activity</span></div>
     <div class="panel-body" style="padding:8px 12px;">
       <div class="timeline">
         {{range .AuditEvents}}
