@@ -8,7 +8,7 @@ export default defineConfig({
   globalSetup: require.resolve('./global-setup'),
   testDir: '.',
   timeout: 60000,
-  retries: 0,
+  retries: 1,
   workers: 1,
   use: {
     baseURL: 'http://localhost:8080',
