@@ -164,7 +164,7 @@
     <div class="panel-body">
       <div class="detail-grid">
         <span class="detail-label">Reason Code</span><span class="detail-value">{{deref .Transfer.ReturnReasonCode}}</span>
-        <span class="detail-label">Return Fee</span><span class="detail-value data-value--currency">${{formatCents .Transfer.ReturnFeeCents}}</span>
+        <span class="detail-label">Return Fee</span><span class="detail-value data-value--currency">{{if .Transfer.ReturnFeeCents}}${{formatCents (derefInt64 .Transfer.ReturnFeeCents)}}{{else}}—{{end}}</span>
         <span class="detail-label">Returned At</span><span class="detail-value">{{if .Transfer.ReturnedAt}}{{.Transfer.ReturnedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
       </div>
     </div>

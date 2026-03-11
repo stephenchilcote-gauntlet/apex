@@ -74,9 +74,10 @@ func main() {
 	}
 
 	returnsSvc := &returns.ReturnsService{
-		DB:          db,
-		TransferSvc: transferSvc,
-		LedgerSvc:   ledgerSvc,
+		DB:             db,
+		TransferSvc:    transferSvc,
+		LedgerSvc:      ledgerSvc,
+		ReturnFeeCents: int64(cfg.ReturnFeeCents),
 	}
 
 	apiHandlers := &api.Handlers{

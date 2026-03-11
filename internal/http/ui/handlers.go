@@ -123,6 +123,12 @@ func (h *UIHandlers) Init() error {
 			}
 			return *s
 		},
+		"derefInt64": func(i *int64) int64 {
+			if i == nil {
+				return 0
+			}
+			return *i
+		},
 		"derefInt": func(i *int) int {
 			if i == nil {
 				return 0
@@ -180,6 +186,14 @@ func (h *UIHandlers) Init() error {
 }
 
 func (h *UIHandlers) render(w http.ResponseWriter, page string, data map[string]interface{}) {
+	// Inject nav badge counts so badges are pre-populated on every page load,
+	// preventing the layout shift caused by HTMX filling them in after render.
+	var reviewCount, settlementCount int
+	h.DB.QueryRow(`SELECT COUNT(*) FROM transfers WHERE state='Analyzing' AND review_required=1 AND review_status='PENDING'`).Scan(&reviewCount)
+	h.DB.QueryRow(`SELECT COUNT(*) FROM transfers WHERE state='FundsPosted'`).Scan(&settlementCount)
+	data["NavReviewCount"] = reviewCount
+	data["NavSettlementCount"] = settlementCount
+
 	t := h.templates[page]
 	if err := t.ExecuteTemplate(w, "layout", data); err != nil {
 		slog.Error("template render error", "page", page, "err", err)
@@ -600,7 +614,7 @@ func (h *UIHandlers) transfersCSV(w http.ResponseWriter, _ *http.Request, filter
 			string(t.State),
 			bizDate,
 			returnReason,
-			fmt.Sprintf("%.2f", float64(t.ReturnFeeCents)/100),
+			formatFeeCents(t.ReturnFeeCents),
 			t.CreatedAt.Format(time.RFC3339),
 		)
 	}
@@ -1473,6 +1487,13 @@ func (h *UIHandlers) loadAccountNames() map[string]string {
 }
 
 // csvEscape wraps a field in double-quotes if it contains commas, quotes, or newlines.
+func formatFeeCents(cents *int64) string {
+	if cents == nil {
+		return ""
+	}
+	return fmt.Sprintf("%.2f", float64(*cents)/100)
+}
+
 func csvEscape(s string) string {
 	if strings.ContainsAny(s, `",`+"\n\r") {
 		s = strings.ReplaceAll(s, `"`, `""`)

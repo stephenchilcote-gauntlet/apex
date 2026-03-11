@@ -60,9 +60,10 @@ func newRouter(t *testing.T, db *sql.DB) *chi.Mux {
 		TransferSvc: transferSvc,
 	}
 	returnsSvc := &returns.ReturnsService{
-		DB:          db,
-		TransferSvc: transferSvc,
-		LedgerSvc:   ledgerSvc,
+		DB:             db,
+		TransferSvc:    transferSvc,
+		LedgerSvc:      ledgerSvc,
+		ReturnFeeCents: 3000,
 	}
 
 	depositSvc := &deposits.DepositService{

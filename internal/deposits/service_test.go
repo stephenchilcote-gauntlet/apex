@@ -508,9 +508,10 @@ func TestLedgerGlobalZeroSumInvariant(t *testing.T) {
 
 	// Process a return on the first deposit
 	returnsSvc := &returns.ReturnsService{
-		DB:          db,
-		TransferSvc: &transfers.TransferService{},
-		LedgerSvc:   &ledger.LedgerService{},
+		DB:             db,
+		TransferSvc:    &transfers.TransferService{},
+		LedgerSvc:      &ledger.LedgerService{},
+		ReturnFeeCents: 3000,
 	}
 	if err := returnsSvc.ProcessReturn(context.Background(), transferIDs[0], "R01", "NSF"); err != nil {
 		t.Fatalf("ProcessReturn: %v", err)

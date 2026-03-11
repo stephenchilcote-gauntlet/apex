@@ -28,9 +28,9 @@ The spec says "X9 ICL or structured equivalent." We generate real X9.37 binary f
 
 `SHA256(routing|account|serial|amount|investorAccountID)` — deterministic, stored on the transfer for auditability. Excludes rejected transfers so retries aren't blocked. Supplements vendor-level dedup.
 
-## 8. Hardcoded $30 Return Fee
+## 8. Configurable Return Fee
 
-The spec says "$30 return fee for MVP." Posted as a separate `RETURN_FEE` ledger journal so the accounting is correct.
+`RETURN_FEE_CENTS` env var (default 3000 = $30, per spec). The actual fee charged is snapshotted on `transfers.return_fee_cents` (nullable — NULL until a return happens) so historical records are accurate even if the fee changes later.
 
 ## 9. Raw SQL (no ORM)
 
@@ -60,7 +60,7 @@ SQLite means no DB server to start. `make dev` runs both services in ~2 seconds.
 
 **`duplicate_fingerprint` on transfers:** Denormalized SHA256 hash stored directly on the transfer. Enables a single indexed lookup (`idx_transfers_fingerprint`) instead of joining through vendor_results to reconstruct MICR fields on every submission.
 
-**`return_fee_cents` on transfers:** Snapshot of the fee actually charged, written by application code. The single source of truth for the $30 amount is `internal/returns/service.go`; the DB columns have no default.
+**`return_fee_cents` on transfers:** Nullable. NULL for non-returned transfers; set to the actual fee charged at return time. The fee amount comes from config (`RETURN_FEE_CENTS` env var), but the transfer records what was actually charged — so changing the fee later doesn't rewrite history.
 
 **`raw_response_json` on vendor_results:** Full vendor response stored alongside parsed fields. Parsed fields (`micr_routing_number`, `risk_score`, etc.) are used for queries and display; the raw JSON preserves the original for audit/debugging without needing to reconstruct it.
 

@@ -18,7 +18,7 @@ type Transfer struct {
 	RejectionCode        *string
 	RejectionMessage     *string
 	ReturnReasonCode     *string
-	ReturnFeeCents       int64
+	ReturnFeeCents       *int64
 	DuplicateFingerprint *string
 	SubmittedAt          *time.Time
 	ApprovedAt           *time.Time

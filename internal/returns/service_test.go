@@ -100,9 +100,10 @@ func TestReturnsService_ProcessReturn_FromFundsPosted(t *testing.T) {
 	transferID := mustSubmitDeposit(t, db, vendor.URL, t.TempDir(), 15000)
 
 	svc := &ReturnsService{
-		DB:          db,
-		TransferSvc: &transfers.TransferService{},
-		LedgerSvc:   &ledger.LedgerService{},
+		DB:             db,
+		TransferSvc:    &transfers.TransferService{},
+		LedgerSvc:      &ledger.LedgerService{},
+		ReturnFeeCents: 3000,
 	}
 
 	err := svc.ProcessReturn(context.Background(), transferID, "R01", "NSF")
@@ -215,9 +216,10 @@ func TestReturnsService_ProcessReturn_FromCompleted(t *testing.T) {
 	}
 
 	svc := &ReturnsService{
-		DB:          db,
-		TransferSvc: transferSvc,
-		LedgerSvc:   &ledger.LedgerService{},
+		DB:             db,
+		TransferSvc:    transferSvc,
+		LedgerSvc:      &ledger.LedgerService{},
+		ReturnFeeCents: 3000,
 	}
 
 	err = svc.ProcessReturn(context.Background(), transferID, "R09", "Uncollected funds")
@@ -262,9 +264,10 @@ func TestReturnsService_ProcessReturn_RejectsIneligibleState(t *testing.T) {
 	}
 
 	svc := &ReturnsService{
-		DB:          db,
-		TransferSvc: transferSvc,
-		LedgerSvc:   &ledger.LedgerService{},
+		DB:             db,
+		TransferSvc:    transferSvc,
+		LedgerSvc:      &ledger.LedgerService{},
+		ReturnFeeCents: 3000,
 	}
 
 	err := svc.ProcessReturn(context.Background(), tr.ID, "R01", "NSF")

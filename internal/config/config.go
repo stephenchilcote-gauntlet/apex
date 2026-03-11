@@ -25,6 +25,7 @@ type Config struct {
 	UIPassword       string
 	SessionSecret    string
 	RateLimitRPM     int // requests per minute per IP; 0 = use default (600)
+	ReturnFeeCents   int // return fee in cents; default 3000 ($30)
 }
 
 func Load() (Config, error) {
@@ -56,6 +57,7 @@ func Load() (Config, error) {
 		UIPassword:           os.Getenv("UI_PASSWORD"),
 		SessionSecret:        os.Getenv("SESSION_SECRET"),
 		RateLimitRPM:         optionalInt("RATE_LIMIT_RPM", 600),
+		ReturnFeeCents:       optionalInt("RETURN_FEE_CENTS", 3000),
 	}
 
 	if len(errs) > 0 {

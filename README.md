@@ -194,6 +194,7 @@ All configuration via environment variables (see `.env.example`):
 | `TIMEZONE`               | `America/Chicago`       | Business timezone                         |
 | `EOD_CUTOFF_HOUR`        | 18                      | EOD cutoff hour (CT)                      |
 | `EOD_CUTOFF_MINUTE`      | 30                      | EOD cutoff minute                         |
+| `RETURN_FEE_CENTS`       | 3000                    | Return fee in cents ($30 default)         |
 | `ENABLE_TEST_RESET`      | true                    | Enable `POST /api/v1/test/reset` endpoint |
 
 ## Project Structure

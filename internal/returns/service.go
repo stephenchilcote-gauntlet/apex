@@ -24,9 +24,10 @@ type ReturnNotification struct {
 }
 
 type ReturnsService struct {
-	DB          *sql.DB
-	TransferSvc *transfers.TransferService
-	LedgerSvc   *ledger.LedgerService
+	DB             *sql.DB
+	TransferSvc    *transfers.TransferService
+	LedgerSvc      *ledger.LedgerService
+	ReturnFeeCents int64
 }
 
 func (s *ReturnsService) ProcessReturn(ctx interface{}, transferID, reasonCode, reasonText string) error {
@@ -51,7 +52,7 @@ func (s *ReturnsService) ProcessReturn(ctx interface{}, transferID, reasonCode, 
 
 	now := time.Now().UTC()
 	notifID := uuid.New().String()
-	var feeCents int64 = 3000
+	feeCents := s.ReturnFeeCents
 
 	// Create return notification
 	_, err = s.DB.Exec(`
