@@ -64,7 +64,7 @@ The main application server, responsible for:
 | Service | Package | Responsibility |
 |---------|---------|----------------|
 | Deposit Service | `internal/deposits` | Orchestrates the deposit submission flow: image storage, vendor call, rule evaluation, state transitions, ledger posting |
-| Funding Service | `internal/funding` | Business rule engine: account eligibility, deposit limits, contribution type defaulting, internal duplicate detection |
+| Funding Service | `internal/funding` | Business rule engine: account eligibility, per-deposit limit ($5K), daily limit ($10K/day), contribution type defaulting, internal duplicate detection |
 | Transfer Service | `internal/transfers` | Transfer CRUD, state machine enforcement, audit logging on every transition |
 | Ledger Service | `internal/ledger` | Double-entry bookkeeping: deposit postings, reversal postings, fee postings |
 | Settlement Service | `internal/settlement` | Batch generation (X9.37 ICL binary via moov-io/imagecashletter), batch acknowledgment |
