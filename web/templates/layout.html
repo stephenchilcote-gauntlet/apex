@@ -46,6 +46,21 @@
   </div>
 </div>
 
+<!-- Command Palette — Ctrl+K / ⌘K -->
+<dialog id="cmd-modal" class="cmd-modal">
+  <div class="cmd-modal-inner">
+    <input type="text" id="cmd-input" class="cmd-input" placeholder="Search transfers by ID or account…"
+      autocomplete="off" spellcheck="false"
+      hx-get="/ui/search"
+      hx-trigger="input changed delay:150ms"
+      hx-target="#cmd-results"
+      hx-vals='js:{"q": document.getElementById("cmd-input")?.value || ""}'>
+    <div id="cmd-results" class="cmd-results">
+      <div class="cmd-empty">Type to search transfers by ID or account…</div>
+    </div>
+  </div>
+</dialog>
+
 <!-- Keyboard shortcuts modal -->
 <dialog id="kbd-modal" class="kbd-modal">
   <div class="kbd-modal-inner">
@@ -55,6 +70,7 @@
     </div>
     <table class="kbd-table">
       <tbody>
+        <tr><td><kbd>Ctrl</kbd>+<kbd>K</kbd></td><td>Command palette — search transfers</td></tr>
         <tr><td><kbd>g</kbd> <kbd>h</kbd></td><td>Go to Overview</td></tr>
         <tr><td><kbd>g</kbd> <kbd>s</kbd></td><td>Go to Simulate</td></tr>
         <tr><td><kbd>g</kbd> <kbd>t</kbd></td><td>Go to Transfers</td></tr>
@@ -208,13 +224,25 @@ document.addEventListener('click', function (e) {
     n: '/ui/returns',
   };
   document.addEventListener('keydown', function (e) {
+    var key = e.key;
+
+    // Ctrl+K / ⌘K → open command palette (check before modifier guard)
+    if ((e.ctrlKey || e.metaKey) && key === 'k') {
+      e.preventDefault();
+      var modal = document.getElementById('cmd-modal');
+      if (modal) {
+        modal.showModal();
+        var inp = document.getElementById('cmd-input');
+        if (inp) { inp.value = ''; inp.focus(); }
+      }
+      return;
+    }
+
     // Ignore when typing in an input, textarea, or select
     var tag = (e.target.tagName || '').toLowerCase();
     if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
-    // Ignore modifier keys
+    // Ignore other modifier keys
     if (e.metaKey || e.ctrlKey || e.altKey) return;
-
-    var key = e.key;
 
     // Show keyboard shortcuts on '?'
     if (key === '?' || key === '/') {
@@ -242,6 +270,53 @@ document.addEventListener('click', function (e) {
 
     pending = null;
     clearTimeout(timer);
+  });
+})();
+
+// Command palette keyboard navigation (↑/↓/Enter/Escape)
+(function () {
+  var modal = document.getElementById('cmd-modal');
+  if (!modal) return;
+
+  function getResults() {
+    return Array.from(modal.querySelectorAll('.cmd-result'));
+  }
+  function setActive(results, idx) {
+    results.forEach(function (r, i) {
+      if (i === idx) r.classList.add('cmd-result--active');
+      else r.classList.remove('cmd-result--active');
+    });
+    if (results[idx]) results[idx].scrollIntoView({ block: 'nearest' });
+  }
+
+  var activeIdx = -1;
+
+  modal.addEventListener('keydown', function (e) {
+    var results = getResults();
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIdx = Math.min(activeIdx + 1, results.length - 1);
+      setActive(results, activeIdx);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIdx = Math.max(activeIdx - 1, 0);
+      setActive(results, activeIdx);
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (results[activeIdx]) window.location.href = results[activeIdx].href;
+    } else if (e.key === 'Escape') {
+      modal.close();
+    }
+  });
+
+  // Reset active index when results change
+  var observer = new MutationObserver(function () { activeIdx = -1; });
+  var resultsEl = document.getElementById('cmd-results');
+  if (resultsEl) observer.observe(resultsEl, { childList: true, subtree: true });
+
+  // Close on backdrop click
+  modal.addEventListener('click', function (e) {
+    if (e.target === modal) modal.close();
   });
 })();
 </script>
