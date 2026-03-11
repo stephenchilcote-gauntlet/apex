@@ -39,6 +39,16 @@ test.describe('Transfers List', () => {
     expect(text).not.toContain('$200.00');
   });
 
+  test('date range filter hides deposits outside range', async ({ page }) => {
+    await submitDepositUI(page, { amount: '225.00', scenario: 'clean_pass' });
+
+    // Filter to a far-future date range — should show no transfers
+    await page.goto('/ui/transfers?dateFrom=2099-01-01&dateTo=2099-01-31');
+    // Either empty message or no row with $225.00
+    const text = await page.locator('body').textContent();
+    expect(text).not.toContain('$225.00');
+  });
+
   test('CSV export download returns csv content', async ({ page }) => {
     await submitDepositUI(page, { amount: '125.00', scenario: 'clean_pass' });
 

@@ -49,4 +49,27 @@ test.describe('Ledger View', () => {
     // Should NOT show "Out of balance"
     await expect(page.locator('body')).not.toContainText(/Out of balance/);
   });
+
+  test('recent journal entries show deposit after clean pass', async ({ page }) => {
+    await submitDepositUI(page, { amount: '300.00', scenario: 'clean_pass' });
+
+    await page.locator('a.nav-level-tab', { hasText: 'Ledger' }).click();
+
+    // Should show recent journal entries panel
+    await expect(page.locator('.panel', { hasText: 'Recent journal entries' })).toBeVisible();
+    // Should contain a $300 entry
+    await expect(page.locator('body')).toContainText(/300/);
+    // Journal entry should link back to the transfer
+    const transferLink = page.locator('.panel:has-text("Recent journal entries") a[href*="/ui/transfers/"]').first();
+    await expect(transferLink).toBeVisible();
+  });
+
+  test('account type badges show correct classification', async ({ page }) => {
+    await page.goto('/ui/ledger');
+
+    // Should show account type badges
+    await expect(page.locator('.ledger-type').first()).toBeVisible();
+    // investor accounts are typed as 'asset' or similar
+    await expect(page.locator('body')).toContainText(/asset|liability|revenue/i);
+  });
 });
