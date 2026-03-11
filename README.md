@@ -79,6 +79,7 @@ make dev
 | Ledger            | `/ui/ledger`         | Account balances and journal entry drill-down                                     |
 | Settlement        | `/ui/settlement`     | Generate batch files, view batches, acknowledge settlement                        |
 | Returns           | `/ui/returns`        | Simulate bounced check returns with reversal posting                              |
+| Audit Log         | `/ui/audit`          | Browse all audit events; filter by transfer ID; up to 500 events                  |
 
 ## API Endpoints
 

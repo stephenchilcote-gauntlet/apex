@@ -161,7 +161,10 @@
 
   {{if .AuditEvents}}
   <div class="panel" style="margin-bottom:12px;">
-    <div class="panel-header" data-collapsible aria-expanded="true"><span class="panel-header-title">Activity</span></div>
+    <div class="panel-header" data-collapsible aria-expanded="true">
+      <span class="panel-header-title">Activity</span>
+      <a href="/ui/audit?transferId={{.Transfer.ID}}" style="margin-left:auto;font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);text-decoration:none;">View in audit log →</a>
+    </div>
     <div class="panel-body" style="padding:8px 12px;">
       <div class="timeline">
         {{range .AuditEvents}}
