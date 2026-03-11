@@ -864,6 +864,89 @@ func TestHandlers_SubmitDeposit_InvalidAmount(t *testing.T) {
 	}
 }
 
+func TestHandlers_TestReset_ClearsTransfers(t *testing.T) {
+	t.Setenv("ENABLE_TEST_RESET", "true")
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Confirm seeded data exists before reset
+	var before int
+	db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&before)
+	if before == 0 {
+		t.Fatal("expected seeded transfers before reset")
+	}
+
+	rr := doRequest(r, "POST", "/api/v1/test/reset", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var after int
+	db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&after)
+	if after != 0 {
+		t.Errorf("expected 0 transfers after reset, got %d", after)
+	}
+}
+
+func TestHandlers_TestSeed_InsertsDemoTransfers(t *testing.T) {
+	t.Setenv("ENABLE_TEST_RESET", "true")
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Reset first so the seed inserts fresh rows
+	doRequest(r, "POST", "/api/v1/test/reset", nil)
+
+	var before int
+	db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&before)
+	if before != 0 {
+		t.Fatalf("expected 0 transfers after reset, got %d", before)
+	}
+
+	rr := doRequest(r, "POST", "/api/v1/test/seed", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var body map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if _, ok := body["inserted"]; !ok {
+		t.Error("missing inserted field in response")
+	}
+	if int(body["inserted"].(float64)) == 0 {
+		t.Error("expected at least 1 inserted row")
+	}
+
+	var after int
+	db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&after)
+	if after == 0 {
+		t.Error("expected transfers to exist after seed")
+	}
+}
+
+func TestHandlers_TestSeed_IdempotentOnRerun(t *testing.T) {
+	t.Setenv("ENABLE_TEST_RESET", "true")
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Seed twice — second run should insert 0 rows (all IDs exist)
+	doRequest(r, "POST", "/api/v1/test/reset", nil)
+	doRequest(r, "POST", "/api/v1/test/seed", nil)
+
+	var afterFirst int
+	db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&afterFirst)
+
+	rr := doRequest(r, "POST", "/api/v1/test/seed", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("second seed expected 200, got %d", rr.Code)
+	}
+
+	var afterSecond int
+	db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&afterSecond)
+	if afterFirst != afterSecond {
+		t.Errorf("seed is not idempotent: count changed %d→%d", afterFirst, afterSecond)
+	}
+}
+
 func TestHandlers_ResponseContentType_IsJSON(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
