@@ -14,6 +14,7 @@ import (
 	"sync"
 	"sync/atomic"
 	"testing"
+	"time"
 
 	"github.com/apex-checkout/mobile-check-deposit/internal/funding"
 	"github.com/apex-checkout/mobile-check-deposit/internal/ledger"
@@ -301,6 +302,24 @@ func TestDepositService_SubmitDeposit_FundingRuleRejections(t *testing.T) {
 			externalAcctID: "INV-1002",
 			amount:         10000,
 			wantFailRule:   "ACCOUNT_ELIGIBLE",
+		},
+		{
+			name: "exceeds_daily_deposit_limit",
+			setup: func(db *sql.DB) {
+				// Seed a prior FundsPosted deposit of $9,500 today for INV-1003
+				var acctID string
+				db.QueryRow("SELECT id FROM accounts WHERE external_account_id = 'INV-1003'").Scan(&acctID)
+				today := time.Now().UTC().Format("2006-01-02")
+				db.Exec(`INSERT INTO transfers
+					(id, investor_account_id, correspondent_id, omnibus_account_id, state,
+					 amount_cents, currency, business_date_ct, created_at, updated_at)
+					VALUES (?, ?, '00000000-0000-0000-0000-000000000010', '00000000-0000-0000-0000-000000000001',
+					 'FundsPosted', 950000, 'USD', ?, datetime('now'), datetime('now'))`,
+					"prior-daily-"+acctID, acctID, today)
+			},
+			externalAcctID: "INV-1003",
+			amount:         100_000, // $1,000 — would push daily total to $10,500 > $10,000
+			wantFailRule:   "DAILY_DEPOSIT_LIMIT",
 		},
 	}
 
