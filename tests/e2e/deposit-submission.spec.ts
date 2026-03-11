@@ -34,4 +34,17 @@ test.describe('Deposit Submission', () => {
     await expect(page.locator('body')).toContainText(/transfer|deposit/i);
     await expect(page.locator('body')).toContainText(/requested|validating|analyzing|approved|fundsposted/i);
   });
+
+  test('simulate page shows recent deposits table after submission', async ({ page }) => {
+    await page.goto('/ui/simulate');
+    await page.locator('select[name="investorAccountId"]').selectOption({ value: 'INV-1001' });
+    await page.locator('input[name="amount"]').fill('325.00');
+    await page.locator('button[type="submit"]').click();
+    await page.waitForLoadState('networkidle');
+
+    // Recent deposits panel should appear
+    await expect(page.locator('.panel', { hasText: 'Recent deposits' })).toBeVisible();
+    // Should show the deposit we just submitted
+    await expect(page.locator('body')).toContainText('$325.00');
+  });
 });
