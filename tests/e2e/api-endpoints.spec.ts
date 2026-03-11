@@ -89,4 +89,25 @@ test.describe('API Endpoints', () => {
     // API returns [] (not null) for empty list
     expect(Array.isArray(body)).toBe(true);
   });
+
+  test('GET /api/v1/operator/review-queue returns flagged deposits', async ({ page }) => {
+    await submitDepositUI(page, { scenario: 'micr_failure' });
+
+    const resp = await page.request.get('/api/v1/operator/review-queue');
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    // Verify the deposit is flagged for review
+    expect(body[0].ReviewRequired).toBe(true);
+    expect(body[0].State).toBe('Analyzing');
+  });
+
+  test('GET /api/v1/operator/review-queue returns empty array when no items', async ({ page }) => {
+    const resp = await page.request.get('/api/v1/operator/review-queue');
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBe(0);
+  });
 });
