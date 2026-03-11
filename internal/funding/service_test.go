@@ -128,6 +128,72 @@ func TestRuleMaxDepositLimit_AtExactLimitPasses(t *testing.T) {
 	}
 }
 
+func TestRuleInternalDuplicate_NoMICRSkips(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	_, _ = db.Exec(`INSERT INTO transfers (id, investor_account_id, amount_cents, state) VALUES ('tx-nomicr', 'acct-1', 10000, 'Analyzing')`)
+
+	svc := &FundingService{DB: db}
+	tx := &transfers.Transfer{ID: "tx-nomicr", InvestorAccountID: "acct-1", AmountCents: 10000}
+	result, err := svc.ruleInternalDuplicate(context.Background(), tx, &model.AnalyzeResponse{MICR: nil})
+	if err != nil {
+		t.Fatalf("ruleInternalDuplicate: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS when no MICR data", result.Outcome)
+	}
+}
+
+func TestRuleInternalDuplicate_NoDuplicatePasses(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	_, _ = db.Exec(`INSERT INTO transfers (id, investor_account_id, amount_cents, state) VALUES ('tx-uniq', 'acct-1', 10000, 'Analyzing')`)
+
+	svc := &FundingService{DB: db}
+	tx := &transfers.Transfer{ID: "tx-uniq", InvestorAccountID: "acct-1", AmountCents: 10000}
+	vendorResp := &model.AnalyzeResponse{
+		MICR: &model.MICRResult{Routing: "021000021", Account: "123456789", Serial: "1001"},
+	}
+	result, err := svc.ruleInternalDuplicate(context.Background(), tx, vendorResp)
+	if err != nil {
+		t.Fatalf("ruleInternalDuplicate: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS for unique transfer", result.Outcome)
+	}
+}
+
+func TestRuleInternalDuplicate_DuplicateFails(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+
+	// Run ruleInternalDuplicate for tx-dup-1 first to store its fingerprint;
+	// then run it for tx-dup-2 (same MICR+amount+account) and expect FAIL.
+	_, _ = db.Exec(`INSERT INTO transfers (id, investor_account_id, amount_cents, state) VALUES ('tx-dup-1', 'acct-1', 15000, 'FundsPosted')`)
+	_, _ = db.Exec(`INSERT INTO transfers (id, investor_account_id, amount_cents, state) VALUES ('tx-dup-2', 'acct-1', 15000, 'Analyzing')`)
+
+	svc := &FundingService{DB: db}
+	vendorResp := &model.AnalyzeResponse{
+		MICR: &model.MICRResult{Routing: "021000021", Account: "987654321", Serial: "2001"},
+	}
+
+	// Run the rule on tx-dup-1 first to set its fingerprint
+	tx1 := &transfers.Transfer{ID: "tx-dup-1", InvestorAccountID: "acct-1", AmountCents: 15000}
+	if _, err := svc.ruleInternalDuplicate(context.Background(), tx1, vendorResp); err != nil {
+		t.Fatalf("ruleInternalDuplicate tx1: %v", err)
+	}
+
+	// Run the rule on tx-dup-2 with the same MICR+amount+account — should detect duplicate
+	tx2 := &transfers.Transfer{ID: "tx-dup-2", InvestorAccountID: "acct-1", AmountCents: 15000}
+	result, err := svc.ruleInternalDuplicate(context.Background(), tx2, vendorResp)
+	if err != nil {
+		t.Fatalf("ruleInternalDuplicate tx2: %v", err)
+	}
+	if result.Outcome != "FAIL" {
+		t.Errorf("outcome = %q, want FAIL for duplicate MICR+amount+account", result.Outcome)
+	}
+}
+
 func TestRuleDailyDepositLimit(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
