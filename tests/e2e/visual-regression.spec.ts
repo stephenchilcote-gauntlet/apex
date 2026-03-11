@@ -1,15 +1,18 @@
 import { test, expect, submitDepositUI } from './fixtures';
 import { VisualJudge, critical, advisory } from './visual-judge';
 
-let judge: VisualJudge;
+const HAS_API_KEY = !!process.env.ANTHROPIC_API_KEY;
+let judge: VisualJudge | undefined;
 
 test.beforeAll(() => {
-  judge = new VisualJudge({
-    artifactDir: 'tests/artifacts/visual',
-  });
+  if (HAS_API_KEY) {
+    judge = new VisualJudge({ artifactDir: 'tests/artifacts/visual' });
+  }
 });
 
 test.describe('Visual Regression', () => {
+  // Skip the entire suite when ANTHROPIC_API_KEY is not available
+  test.skip(!HAS_API_KEY, 'ANTHROPIC_API_KEY not set — skipping visual regression tests');
 
   // ── Layout & Navigation ──────────────────────────────────────────
 

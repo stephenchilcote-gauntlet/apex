@@ -25,7 +25,8 @@ test.describe('Settlement', () => {
     // Verify status and that amount includes at least $600
     await expect(batchRow).toBeVisible();
 
-    // Visual layout checks — catch overlapping/overflow issues
+    // Visual layout checks — catch overlapping/overflow issues (skip without API key)
+    if (!process.env.ANTHROPIC_API_KEY) return;
     if (!judge) {
       judge = new VisualJudge({ artifactDir: 'tests/artifacts/visual' });
     }

@@ -23,7 +23,22 @@ test:
 	go test ./... -v -count=1
 
 test-e2e:
-	cd tests/e2e && npx playwright test
+	cd tests/e2e && npx playwright test \
+		api-endpoints.spec.ts \
+		audit-log.spec.ts \
+		business-rules.spec.ts \
+		deposit-submission.spec.ts \
+		empty-states.spec.ts \
+		happy-path.spec.ts \
+		keyboard.spec.ts \
+		ledger.spec.ts \
+		navigation.spec.ts \
+		operator-review.spec.ts \
+		returns.spec.ts \
+		settlement.spec.ts \
+		transfer-detail.spec.ts \
+		vendor-scenarios.spec.ts \
+		visual-regression.spec.ts
 
 reset:
 	rm -rf data/sqlite/mcd.db data/images/* reports/settlement/*
