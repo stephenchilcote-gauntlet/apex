@@ -51,6 +51,83 @@ func setupTestDB(t *testing.T) *sql.DB {
 
 func ptr(s string) *string { return &s }
 
+func TestRuleAccountEligible_ActivePasses(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	_, _ = db.Exec(`INSERT INTO accounts (id, status) VALUES ('acct-active', 'ACTIVE')`)
+
+	svc := &FundingService{DB: db}
+	tx := &transfers.Transfer{ID: "tx-acct", InvestorAccountID: "acct-active"}
+	result, err := svc.ruleAccountEligible(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleAccountEligible: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS", result.Outcome)
+	}
+}
+
+func TestRuleAccountEligible_InactiveFails(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	_, _ = db.Exec(`INSERT INTO accounts (id, status) VALUES ('acct-inactive', 'INACTIVE')`)
+
+	svc := &FundingService{DB: db}
+	tx := &transfers.Transfer{ID: "tx-inactive", InvestorAccountID: "acct-inactive"}
+	result, err := svc.ruleAccountEligible(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleAccountEligible: %v", err)
+	}
+	if result.Outcome != "FAIL" {
+		t.Errorf("outcome = %q, want FAIL for inactive account", result.Outcome)
+	}
+}
+
+func TestRuleMaxDepositLimit_WithinLimitPasses(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	svc := &FundingService{DB: db}
+
+	tx := &transfers.Transfer{ID: "tx-ok", AmountCents: 499_999}
+	result, err := svc.ruleMaxDepositLimit(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleMaxDepositLimit: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS for $4,999.99", result.Outcome)
+	}
+}
+
+func TestRuleMaxDepositLimit_ExceedsLimitFails(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	svc := &FundingService{DB: db}
+
+	tx := &transfers.Transfer{ID: "tx-over", AmountCents: 500_001}
+	result, err := svc.ruleMaxDepositLimit(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleMaxDepositLimit: %v", err)
+	}
+	if result.Outcome != "FAIL" {
+		t.Errorf("outcome = %q, want FAIL for $5,000.01", result.Outcome)
+	}
+}
+
+func TestRuleMaxDepositLimit_AtExactLimitPasses(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+	svc := &FundingService{DB: db}
+
+	tx := &transfers.Transfer{ID: "tx-exact", AmountCents: 500_000} // exactly $5,000
+	result, err := svc.ruleMaxDepositLimit(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleMaxDepositLimit: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS for exactly $5,000", result.Outcome)
+	}
+}
+
 func TestRuleDailyDepositLimit(t *testing.T) {
 	db := setupTestDB(t)
 	defer db.Close()
