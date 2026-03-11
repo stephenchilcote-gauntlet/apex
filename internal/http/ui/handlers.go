@@ -453,6 +453,12 @@ func (h *UIHandlers) transfersPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// CSV export: return all matching transfers as a CSV file
+	if q.Get("format") == "csv" {
+		h.transfersCSV(w, r, filters)
+		return
+	}
+
 	page := 1
 	if v := q.Get("page"); v != "" {
 		if n, err := strconv.Atoi(v); err == nil && n > 0 {
@@ -490,6 +496,49 @@ func (h *UIHandlers) transfersPage(w http.ResponseWriter, r *http.Request) {
 		"NextPage":       page + 1,
 		"AccountNames":   h.loadAccountNames(),
 	})
+}
+
+// transfersCSV writes all transfers matching filters as CSV attachment.
+func (h *UIHandlers) transfersCSV(w http.ResponseWriter, _ *http.Request, filters transfers.TransferFilters) {
+	// No pagination — export everything
+	filters.Limit = 0
+	filters.Offset = 0
+	list, err := h.TransferSvc.List(h.DB, filters)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	accountNames := h.loadAccountNames()
+
+	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
+	w.Header().Set("Content-Disposition", "attachment; filename=transfers.csv")
+	w.Header().Set("Cache-Control", "no-store")
+
+	fmt.Fprint(w, "ID,Account,Amount,State,BusinessDate,ReturnReason,ReturnFee,CreatedAt\n")
+	for _, t := range list {
+		acct := t.InvestorAccountID
+		if n, ok := accountNames[t.InvestorAccountID]; ok {
+			acct = n
+		}
+		bizDate := ""
+		if t.BusinessDateCT != nil {
+			bizDate = *t.BusinessDateCT
+		}
+		returnReason := ""
+		if t.ReturnReasonCode != nil {
+			returnReason = *t.ReturnReasonCode
+		}
+		fmt.Fprintf(w, "%s,%s,%s,%s,%s,%s,%s,%s\n",
+			t.ID,
+			csvEscape(acct),
+			fmt.Sprintf("%.2f", float64(t.AmountCents)/100),
+			string(t.State),
+			bizDate,
+			returnReason,
+			fmt.Sprintf("%.2f", float64(t.ReturnFeeCents)/100),
+			t.CreatedAt.Format(time.RFC3339),
+		)
+	}
 }
 
 func (h *UIHandlers) transferDetailPage(w http.ResponseWriter, r *http.Request) {
@@ -1122,6 +1171,15 @@ func (h *UIHandlers) loadAccountNames() map[string]string {
 		}
 	}
 	return m
+}
+
+// csvEscape wraps a field in double-quotes if it contains commas, quotes, or newlines.
+func csvEscape(s string) string {
+	if strings.ContainsAny(s, `",`+"\n\r") {
+		s = strings.ReplaceAll(s, `"`, `""`)
+		return `"` + s + `"`
+	}
+	return s
 }
 
 func parseCents(s string) (int64, error) {

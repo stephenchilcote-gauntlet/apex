@@ -20,6 +20,8 @@
     <button type="submit" class="btn">Filter</button>
     {{if or .StateFilter .AccountFilter .DateFromFilter .DateToFilter}}<a href="/ui/transfers" class="btn" style="white-space:nowrap;">Clear</a>{{end}}
   </form>
+  <a href="?state={{.StateFilter}}&investorAccountId={{.AccountFilter}}&dateFrom={{.DateFromFilter}}&dateTo={{.DateToFilter}}&format=csv"
+     class="btn" style="white-space:nowrap;margin-left:auto;" title="Download current view as CSV">↓ CSV</a>
 </div>
 
 <div class="panel">
