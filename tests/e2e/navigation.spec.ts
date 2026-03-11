@@ -8,6 +8,7 @@ test.describe('Navigation', () => {
     { label: 'Ledger', url: '/ui/ledger', heading: /ledger/i },
     { label: 'Settlement', url: '/ui/settlement', heading: /settlement/i },
     { label: 'Returns', url: '/ui/returns', heading: /return/i },
+    { label: 'Audit Log', url: '/ui/audit', heading: /audit/i },
   ];
 
   for (const tab of tabs) {
