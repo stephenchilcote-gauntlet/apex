@@ -475,6 +475,82 @@ func TestHandlers_GetMetrics_SeededDataCounts(t *testing.T) {
 	}
 }
 
+func TestHandlers_ApproveTransfer_SeededAnalyzingTransfer(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Use a known seeded Analyzing+review_required transfer (T5)
+	const transferID = "00000000-seed-0000-0000-000000000005"
+	body := `{"operatorId": "test-op-1", "notes": "Approved in unit test"}`
+	rr := doRequest(r, "POST", "/api/v1/operator/transfers/"+transferID+"/approve", []byte(body))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &resp)
+	if resp["state"] != "FundsPosted" {
+		t.Errorf("expected state=FundsPosted, got %v", resp["state"])
+	}
+	if resp["transferId"] != transferID {
+		t.Errorf("expected transferId=%s, got %v", transferID, resp["transferId"])
+	}
+}
+
+func TestHandlers_RejectTransfer_SeededAnalyzingTransfer(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Use the other seeded Analyzing+review_required transfer (T6)
+	const transferID = "00000000-seed-0000-0000-000000000006"
+	body := `{"operatorId": "test-op-1", "notes": "MICR unreadable", "rejectionCode": "MICR_FAILURE"}`
+	rr := doRequest(r, "POST", "/api/v1/operator/transfers/"+transferID+"/reject", []byte(body))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &resp)
+	if resp["state"] != "Rejected" {
+		t.Errorf("expected state=Rejected, got %v", resp["state"])
+	}
+}
+
+func TestHandlers_GenerateBatch_WithFundsPosted(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Insert a FundsPosted transfer for today with no images (avoids filesystem access)
+	const bizDate = "2099-01-15"
+	_, err := db.Exec(`INSERT INTO transfers
+		(id, investor_account_id, correspondent_id, omnibus_account_id, state,
+		 amount_cents, currency, contribution_type, business_date_ct, created_at, updated_at)
+		VALUES ('test-batch-transfer', '00000000-0000-0000-0000-000000001001', '00000000-0000-0000-0000-000000000010',
+		        '00000000-0000-0000-0000-000000000001', 'FundsPosted', 75000, 'USD', 'INDIVIDUAL', ?, datetime('now'), datetime('now'))`,
+		bizDate)
+	if err != nil {
+		t.Fatalf("seed FundsPosted transfer: %v", err)
+	}
+
+	body := `{"businessDateCT": "` + bizDate + `"}`
+	rr := doRequest(r, "POST", "/api/v1/settlement/batches/generate", []byte(body))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var batch map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &batch)
+	if _, ok := batch["ID"]; !ok {
+		t.Error("missing ID in batch response")
+	}
+	if batch["Status"] != "GENERATED" {
+		t.Errorf("expected Status=GENERATED, got %v", batch["Status"])
+	}
+	if int(batch["TotalItems"].(float64)) != 1 {
+		t.Errorf("expected TotalItems=1, got %v", batch["TotalItems"])
+	}
+}
+
 func TestHandlers_ResponseContentType_IsJSON(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
