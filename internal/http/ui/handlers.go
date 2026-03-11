@@ -752,6 +752,28 @@ func (h *UIHandlers) reviewDetailPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	// Account history: last 5 deposits from the same investor (for pattern context)
+	if t, ok := data["Transfer"].(*transfers.Transfer); ok {
+		acctID := t.InvestorAccountID
+		history, _ := h.TransferSvc.List(h.DB, transfers.TransferFilters{
+			InvestorAccountID: &acctID,
+			Limit:             6, // fetch 6, will skip the current one
+		})
+		var filtered []transfers.Transfer
+		for _, hist := range history {
+			if hist.ID != id {
+				filtered = append(filtered, hist)
+				if len(filtered) == 5 {
+					break
+				}
+			}
+		}
+		if len(filtered) > 0 {
+			data["AccountHistory"] = filtered
+			data["AccountNames"] = h.loadAccountNames()
+		}
+	}
+
 	h.render(w, "review_detail", data)
 }
 

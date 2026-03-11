@@ -89,6 +89,37 @@
   </div>
   {{end}}
 
+  {{if .AccountHistory}}
+  <div class="panel" style="margin-bottom:12px;">
+    <div class="panel-header">
+      <span class="panel-header-title">Recent account activity</span>
+      <span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">last 5 deposits from this account</span>
+    </div>
+    <div class="panel-body" style="padding:0;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th style="text-align:right;">Amount</th>
+            <th>State</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{range .AccountHistory}}
+          <tr class="row-link" onclick="window.location='/ui/transfers/{{.ID}}'">
+            <td><a href="/ui/transfers/{{.ID}}">{{shortID .ID}}</a></td>
+            <td style="text-align:right;"><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
+            <td><span class="badge badge--{{.State}}">{{.State}}</span></td>
+            <td>{{if .BusinessDateCT}}{{deref .BusinessDateCT}}{{else}}{{.CreatedAt.Format "2006-01-02"}}{{end}}</td>
+          </tr>
+          {{end}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {{end}}
+
   {{if .AuditEvents}}
   <div class="panel" style="margin-bottom:12px;">
     <div class="panel-header"><span class="panel-header-title">Activity</span></div>
