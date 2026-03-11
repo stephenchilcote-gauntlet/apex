@@ -15,6 +15,10 @@ type TransferFilters struct {
 	InvestorAccountID *string
 	ReviewRequired    *bool
 	ReviewStatus      *string
+	DateFrom          *time.Time
+	DateTo            *time.Time
+	Limit             int
+	Offset            int
 }
 
 type TransferService struct{}
@@ -118,8 +122,21 @@ func (s *TransferService) List(db *sql.DB, filters TransferFilters) ([]Transfer,
 		query += " AND review_status = ?"
 		args = append(args, *filters.ReviewStatus)
 	}
+	if filters.DateFrom != nil {
+		query += " AND created_at >= ?"
+		args = append(args, filters.DateFrom.Format("2006-01-02"))
+	}
+	if filters.DateTo != nil {
+		query += " AND created_at < ?"
+		// add one day so "to" date is inclusive
+		args = append(args, filters.DateTo.AddDate(0, 0, 1).Format("2006-01-02"))
+	}
 
 	query += " ORDER BY created_at DESC"
+
+	if filters.Limit > 0 {
+		query += fmt.Sprintf(" LIMIT %d OFFSET %d", filters.Limit, filters.Offset)
+	}
 
 	rows, err := db.Query(query, args...)
 	if err != nil {
@@ -136,6 +153,33 @@ func (s *TransferService) List(db *sql.DB, filters TransferFilters) ([]Transfer,
 		transfers = append(transfers, *t)
 	}
 	return transfers, rows.Err()
+}
+
+// Count returns total matching transfers, ignoring Limit/Offset.
+func (s *TransferService) Count(db *sql.DB, filters TransferFilters) (int, error) {
+	query := "SELECT COUNT(*) FROM transfers WHERE 1=1"
+	var args []any
+	if filters.State != nil {
+		query += " AND state = ?"
+		args = append(args, string(*filters.State))
+	}
+	if filters.InvestorAccountID != nil {
+		query += " AND investor_account_id = ?"
+		args = append(args, *filters.InvestorAccountID)
+	}
+	if filters.DateFrom != nil {
+		query += " AND created_at >= ?"
+		args = append(args, filters.DateFrom.Format("2006-01-02"))
+	}
+	if filters.DateTo != nil {
+		query += " AND created_at < ?"
+		args = append(args, filters.DateTo.AddDate(0, 0, 1).Format("2006-01-02"))
+	}
+	var n int
+	if err := db.QueryRow(query, args...).Scan(&n); err != nil {
+		return 0, err
+	}
+	return n, nil
 }
 
 func (s *TransferService) Transition(db *sql.DB, transferID string, to State, actorType, actorID string) error {
