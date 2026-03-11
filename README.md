@@ -249,6 +249,7 @@ apex/
 | Ledger            | ![Ledger](docs/screenshots/06-ledger.png)                       |
 | Settlement        | ![Settlement](docs/screenshots/07-settlement.png)               |
 | Returns           | ![Returns](docs/screenshots/08-returns.png)                     |
+| Audit Log         | ![Audit Log](docs/screenshots/09-audit-log.png)                 |
 
 ## Disclaimers
 

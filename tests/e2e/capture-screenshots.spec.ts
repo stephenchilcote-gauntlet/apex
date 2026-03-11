@@ -27,6 +27,13 @@ test.describe('Screenshot Gallery', () => {
   test('capture all UI pages', async ({ page, request }) => {
     // Reset state first
     await request.post('/api/v1/test/reset');
+    // Seed demo data for richer screenshots
+    await request.post('/api/v1/test/seed');
+
+    // 0. Dashboard
+    await page.goto('/ui');
+    await page.waitForLoadState('networkidle');
+    await page.screenshot({ path: path.join(screenshotDir, '01-dashboard.png'), fullPage: true });
 
     // 1. Deposit Simulator (empty)
     await page.goto('/ui/simulate');
@@ -74,5 +81,10 @@ test.describe('Screenshot Gallery', () => {
     await page.goto('/ui/returns');
     await page.waitForLoadState('networkidle');
     await page.screenshot({ path: path.join(screenshotDir, '08-returns.png'), fullPage: true });
+
+    // 11. Audit Log
+    await page.goto('/ui/audit');
+    await page.waitForLoadState('networkidle');
+    await page.screenshot({ path: path.join(screenshotDir, '09-audit-log.png'), fullPage: true });
   });
 });
