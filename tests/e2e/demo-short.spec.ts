@@ -67,7 +67,7 @@ async function afterNav(page: Page) {
         const el = document.createElement('div');
         el.id = 'demo-progress';
         el.style.cssText = `
-          position: fixed; top: 16px; right: 16px; z-index: 99997;
+          position: fixed; top: 58px; right: 16px; z-index: 99997;
           background: rgba(0,0,0,0.78);
           border: 1px solid rgba(243,78,63,0.35);
           border-radius: 6px;
@@ -292,6 +292,40 @@ async function selectEl(page: Page, selector: string, value: string) {
 }
 
 // ============================================================================
+// Key-press badge — shows a floating key label on screen while a key is pressed
+// ============================================================================
+
+async function showKeyBadge(page: Page, label: string, holdMs = 700) {
+  await page.evaluate(({ label }) => {
+    document.querySelectorAll('.demo-key-badge').forEach(e => e.remove());
+    const el = document.createElement('div');
+    el.className = 'demo-key-badge';
+    el.style.cssText = `
+      position: fixed; bottom: 88px; left: 50%; transform: translateX(-50%);
+      z-index: 100002;
+      background: #1a1a1a; border: 1.5px solid #f34e3f; border-radius: 8px;
+      padding: 10px 24px;
+      font-family: 'SF Mono','Fira Mono','Consolas',monospace;
+      font-size: 22px; font-weight: 700; color: #f0f0f0; letter-spacing: 0.04em;
+      box-shadow: 0 4px 24px rgba(243,78,63,0.4);
+      opacity: 0; transition: opacity 0.1s ease; pointer-events: none;
+    `;
+    el.textContent = label;
+    document.body.appendChild(el);
+    requestAnimationFrame(() => { (el as HTMLElement).style.opacity = '1'; });
+  }, { label });
+  await page.waitForTimeout(holdMs);
+  // Cleanup is best-effort — swallow if navigation has already destroyed the context.
+  await page.evaluate(() => {
+    document.querySelectorAll('.demo-key-badge').forEach(e => {
+      (e as HTMLElement).style.opacity = '0';
+      setTimeout(() => e.remove(), 120);
+    });
+  }).catch(() => {});
+  await page.waitForTimeout(130);
+}
+
+// ============================================================================
 // Progress indicator — persists via module state + afterNav() restore
 // ============================================================================
 
@@ -402,6 +436,11 @@ test.describe('Professional Demo', () => {
       console.warn('[demo] VisualJudge disabled — set ANTHROPIC_API_KEY to enable');
     }
 
+    // Force dark mode for the entire demo (set before first navigation)
+    await page.addInitScript(() => {
+      localStorage.setItem('apex-theme', 'dark');
+    });
+
     // Reset to deterministic clean state, then seed demo data
     const resetResp = await request.post('/api/v1/test/reset');
     expect(resetResp.ok()).toBeTruthy();
@@ -428,17 +467,41 @@ test.describe('Professional Demo', () => {
 
     await clearCaption(page);
 
-    // Show keyboard shortcuts modal — demonstrates UX polish
-    await moveCursor(page, '.kbd-help-btn');
-    await highlight(page, '.kbd-help-btn');
-    await caption(page, 'Press ? for keyboard shortcuts — navigate with g+key, ? for help, / for command palette', 2200);
-    await clearHighlights(page);
+    // ── Keyboard power-user demo ──────────────────────────────────────────────
+    await caption(page, 'Keyboard-first — navigate without touching the mouse', 1800);
     await clearCaption(page);
-    await page.locator('.kbd-help-btn').first().click();
-    await page.waitForSelector('#kbd-modal[open]', { timeout: 3000 }).catch(() => {});
-    await page.waitForTimeout(1800);
-    await page.keyboard.press('Escape');
+
+    // g → t  (Transfers)
+    await showKeyBadge(page, 'g → t', 900);
+    await page.keyboard.press('g');
+    await page.waitForTimeout(80);
+    await page.keyboard.press('t');
+    await page.waitForURL('**/ui/transfers', { timeout: 8000 });
+    await afterNav(page);
     await page.waitForTimeout(500);
+    await caption(page, 'g → t — Transfers, g → r — Review Queue, g → e — Settlement…', 2000);
+    await clearCaption(page);
+
+    // g → h  (back to Overview)
+    await showKeyBadge(page, 'g → h', 900);
+    await page.keyboard.press('g');
+    await page.waitForTimeout(80);
+    await page.keyboard.press('h');
+    await page.waitForURL('**/ui', { timeout: 8000 });
+    await afterNav(page);
+    await page.waitForTimeout(400);
+
+    // Ctrl+K — command palette search
+    await showKeyBadge(page, 'Ctrl+K', 700);
+    await page.keyboard.press('Control+k');
+    await page.waitForSelector('#cmd-modal[open]', { timeout: 3000 }).catch(() => {});
+    await page.waitForTimeout(300);
+    await page.locator('#cmd-input').pressSequentially('INV-1001', { delay: 65 });
+    await page.waitForTimeout(900);
+    await caption(page, 'Ctrl+K — command palette searches any transfer by ID or account', 2000);
+    await clearCaption(page);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(400);
 
     // =========================================================================
     // WORKFLOW 1 — Happy Path  (~0:18–1:05)
