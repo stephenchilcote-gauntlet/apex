@@ -705,6 +705,34 @@ func TestHandlers_ProcessReturn_SeededFundsPostedTransfer(t *testing.T) {
 	}
 }
 
+func TestParseCents(t *testing.T) {
+	tests := []struct {
+		input   string
+		want    int64
+		wantErr bool
+	}{
+		{"1.00", 100, false},
+		{"100.00", 10000, false},
+		{"0.01", 1, false},
+		{"5000.00", 500000, false},
+		{"0.00", 0, true},  // zero → error
+		{"-1.00", 0, true}, // negative → error
+		{"not-a-number", 0, true},
+		{"100000.01", 0, true}, // exceeds $100,000
+		{"99999.99", 9999999, false},
+	}
+	for _, tc := range tests {
+		got, err := parseCents(tc.input)
+		if (err != nil) != tc.wantErr {
+			t.Errorf("parseCents(%q): err=%v, wantErr=%v", tc.input, err, tc.wantErr)
+			continue
+		}
+		if err == nil && got != tc.want {
+			t.Errorf("parseCents(%q): got %d, want %d", tc.input, got, tc.want)
+		}
+	}
+}
+
 func TestHandlers_SubmitDeposit_MissingFields(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
