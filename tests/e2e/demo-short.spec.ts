@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { test as base, expect, Page } from '@playwright/test';
 import { CHECK_FRONT, CHECK_BACK, CHECK_FRONT_WRONG_AMOUNT, CHECK_BACK_WRONG_AMOUNT } from './fixtures';
 import { VisualJudge, critical, advisory } from './visual-judge';
@@ -29,6 +30,12 @@ const test = base.extend({});
 
 const cursor = { x: 960, y: 540 };
 const progress = { current: 0, total: 4, label: '' };
+
+// Timing log — records when each caption fires (ms since test start)
+// Written to audio-clips/timing.json at end of test for audio assembly.
+let _t0 = 0;
+const timingLog: { id: string; t: number; duration: number }[] = [];
+let _captionSeq = 0;
 
 // ============================================================================
 // Post-navigation restore — call after every page.goto() or nav click
@@ -134,35 +141,113 @@ async function moveCursor(page: Page, selector: string) {
 }
 
 // ============================================================================
-// Caption
+// Caption — context-aware positioning
+//
+// When anchorSelector is provided, the caption floats near that element.
+// Otherwise it falls back to a slim bar positioned relative to the cursor:
+//   - cursor in top 55% of screen → bottom bar
+//   - cursor in bottom 45% of screen → top bar
 // ============================================================================
 
-async function caption(page: Page, text: string, durationMs = 2800) {
+async function caption(page: Page, text: string, durationMs = 2800, anchorSelector?: string) {
   await page.waitForLoadState('domcontentloaded');
+
+  // Record timing for audio assembly
+  const tOffset = _t0 ? Date.now() - _t0 : 0;
+  timingLog.push({ id: `cap-${++_captionSeq}`, t: tOffset, duration: durationMs });
+
+  // Resolve anchor bounding box in Node.js context (not available in evaluate)
+  let anchorBox: { x: number; y: number; width: number; height: number } | null = null;
+  if (anchorSelector) {
+    anchorBox = await page.locator(anchorSelector).first().boundingBox().catch(() => null);
+  }
+
+  const cx = cursor.x;
+  const cy = cursor.y;
+
   await page.evaluate(
-    ({ text }) => {
+    ({ text, ab, cx, cy }) => {
+      const VW = 1920;
+      const VH = 1080;
+
       let cap = document.getElementById('demo-caption');
       if (!cap) {
         cap = document.createElement('div');
         cap.id = 'demo-caption';
-        cap.style.cssText = `
-          position: fixed; bottom: 0; left: 0; right: 0; z-index: 100000;
-          background: rgba(8,8,8,0.88);
-          border-top: 2px solid #f34e3f;
-          padding: 14px 56px;
-          font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
-          color: #f0f0f0;
-          font-size: 17px; line-height: 1.5;
-          text-align: center; letter-spacing: 0.01em;
-          pointer-events: none;
-          transition: opacity 0.22s ease;
-        `;
         document.body.appendChild(cap);
       }
+      cap.style.opacity = '0';
+      cap.style.transition = 'opacity 0.22s ease';
+
+      if (ab) {
+        // ── Floating bubble near anchor element ──────────────────────────────
+        const capW = Math.min(520, VW - 80);
+        const elemCY = ab.y + ab.height / 2;
+
+        let top: number;
+        if (elemCY < VH * 0.5) {
+          // Element in upper half — place caption below it
+          top = Math.min(ab.y + ab.height + 14, VH - 130);
+        } else {
+          // Element in lower half — place caption above it (estimate height ~90px)
+          top = Math.max(ab.y - 104, 80);
+        }
+
+        let left = ab.x + ab.width / 2 - capW / 2;
+        left = Math.max(24, Math.min(left, VW - capW - 24));
+
+        cap.style.cssText = `
+          position: fixed; z-index: 100000;
+          left: ${left}px; top: ${top}px;
+          width: ${capW}px;
+          background: rgba(6,6,6,0.93);
+          border: 1.5px solid rgba(243,78,63,0.55);
+          border-radius: 10px;
+          padding: 11px 18px;
+          font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+          color: #f0f0f0;
+          font-size: 15px; line-height: 1.5;
+          text-align: left; letter-spacing: 0.01em;
+          pointer-events: none;
+          transition: opacity 0.22s ease;
+          box-shadow: 0 6px 28px rgba(0,0,0,0.65);
+        `;
+      } else {
+        // ── Slim bar, top or bottom based on cursor position ─────────────────
+        const barAtBottom = cy < VH * 0.55;
+        if (barAtBottom) {
+          cap.style.cssText = `
+            position: fixed; bottom: 0; left: 0; right: 0; z-index: 100000;
+            background: rgba(8,8,8,0.90);
+            border-top: 2px solid #f34e3f;
+            padding: 12px 80px;
+            font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+            color: #f0f0f0;
+            font-size: 16px; line-height: 1.5;
+            text-align: center; letter-spacing: 0.01em;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+          `;
+        } else {
+          cap.style.cssText = `
+            position: fixed; top: 54px; left: 0; right: 0; z-index: 100000;
+            background: rgba(8,8,8,0.90);
+            border-bottom: 2px solid #f34e3f;
+            padding: 12px 80px;
+            font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+            color: #f0f0f0;
+            font-size: 16px; line-height: 1.5;
+            text-align: center; letter-spacing: 0.01em;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+          `;
+        }
+      }
+
       cap.textContent = text;
-      cap.style.opacity = '1';
+      requestAnimationFrame(() => { (cap as HTMLElement).style.opacity = '1'; });
     },
-    { text },
+    { text, ab: anchorBox, cx, cy },
   );
   await page.waitForTimeout(durationMs);
 }
@@ -436,6 +521,8 @@ test.describe('Professional Demo', () => {
       console.warn('[demo] VisualJudge disabled — set ANTHROPIC_API_KEY to enable');
     }
 
+    _t0 = Date.now();
+
     // Force dark mode for the entire demo (set before first navigation)
     await page.addInitScript(() => {
       localStorage.setItem('apex-theme', 'dark');
@@ -459,7 +546,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     // DASHBOARD OVERVIEW  (~0:07–0:18)
     // =========================================================================
-    await caption(page, 'Overview dashboard — live stats, exception counts, and quick links to all pages', 2800);
+    await caption(page, 'Live activity across all investor accounts — deposits, exceptions, and what needs attention now', 9905, '.dash-cards');
 
     await assertVisual(page, 'dashboard', [
       critical('Does the page show a dashboard with stat cards or metric panels?'),
@@ -468,7 +555,7 @@ test.describe('Professional Demo', () => {
     await clearCaption(page);
 
     // ── Keyboard power-user demo ──────────────────────────────────────────────
-    await caption(page, 'Keyboard-first — navigate without touching the mouse', 1800);
+    await caption(page, 'Operators can navigate the entire system without touching the mouse', 7862);
     await clearCaption(page);
 
     // g → t  (Transfers)
@@ -479,7 +566,7 @@ test.describe('Professional Demo', () => {
     await page.waitForURL('**/ui/transfers', { timeout: 8000 });
     await afterNav(page);
     await page.waitForTimeout(500);
-    await caption(page, 'g → t — Transfers, g → r — Review Queue, g → e — Settlement…', 2000);
+    await caption(page, 'Single-key shortcuts — anywhere in the system, instantly', 10370, 'nav.nav-level-tabs, .nav-level-tabs');
     await clearCaption(page);
 
     // g → h  (back to Overview)
@@ -498,7 +585,7 @@ test.describe('Professional Demo', () => {
     await page.waitForTimeout(300);
     await page.locator('#cmd-input').pressSequentially('INV-1001', { delay: 65 });
     await page.waitForTimeout(900);
-    await caption(page, 'Ctrl+K — command palette searches any transfer by ID or account', 2000);
+    await caption(page, 'Search any transfer or account instantly — from anywhere in the app', 7072, '#cmd-modal');
     await clearCaption(page);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(400);
@@ -515,7 +602,7 @@ test.describe('Professional Demo', () => {
     await clickEl(page, 'a.nav-level-tab:has-text("Simulate")');
     await afterNav(page);
 
-    await caption(page, 'Simulate page — realistic demo data pre-seeded with 9 investor transfers', 2400);
+    await caption(page, 'Submit a deposit — front and back check images, investor account, and amount', 8419, 'form[action="/ui/simulate"]');
     await clearCaption(page);
 
     // Briefly show the Recent Deposits section
@@ -524,7 +611,7 @@ test.describe('Professional Demo', () => {
       await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' }));
       await page.waitForTimeout(600);
       await highlight(page, '.panel:has-text("Recent deposits") table');
-      await caption(page, 'Recent deposits — real-time feed showing last 10 submissions with state badges', 2000);
+      await caption(page, 'Recent submissions — live status updates as each deposit processes', 7537, '.panel:has-text("Recent deposits") table');
       await clearHighlights(page);
       await clearCaption(page);
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
@@ -544,11 +631,11 @@ test.describe('Professional Demo', () => {
 
     await moveCursor(page, '#frontPreview');
     await highlight(page, '#frontPreview');
-    await caption(page, 'Check images uploaded — Claude Haiku performs real IQA, OCR, and MICR analysis on each submission', 2600);
+    await caption(page, 'AI analyzes image quality, the printed amount, and routing information — on every submission', 10555, '#frontPreview');
     await clearHighlights(page);
     await clearCaption(page);
 
-    await caption(page, 'One submit → vendor analysis + 5 business rules + ledger post — all in one API call', 2200);
+    await caption(page, 'One submission — automated analysis, compliance checks, and accounting. All in seconds.', 8140, 'button[type="submit"]');
     await clearCaption(page);
     await clickEl(page, 'button[type="submit"]');
 
@@ -559,7 +646,7 @@ test.describe('Professional Demo', () => {
     await page.goto(`/ui/transfers/${transferId1}`);
     await afterNav(page);
 
-    await caption(page, 'Transfer detail — state badge live-polls via HTMX every 3 seconds', 2500);
+    await caption(page, 'Transfer status updates automatically in real time — no refresh needed', 7119, 'span[data-state]');
     await clearCaption(page);
 
     await waitForTerminalState(page);
@@ -572,12 +659,12 @@ test.describe('Professional Demo', () => {
 
     // Highlight the state badge specifically (span[data-state], not the pipeline)
     await highlight(page, 'span[data-state]');
-    await caption(page, 'FundsPosted ✓ — vendor passed, all 4 rules passed, investor ledger credited', 2800);
+    await caption(page, 'Funds Posted ✓ — all checks passed, investor account credited', 6515, 'span[data-state]');
     await clearHighlights(page);
     await clearCaption(page);
 
     await highlight(page, '.pipeline');
-    await caption(page, 'Stage pipeline: Requested → Validating → Analyzing → Approved → FundsPosted', 2600);
+    await caption(page, 'Every stage is recorded for compliance and audit', 2200, '.pipeline');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -586,7 +673,7 @@ test.describe('Professional Demo', () => {
     if (await returnBtn.count() > 0) {
       await moveCursor(page, 'a:has-text("Process Return")');
       await highlight(page, 'a:has-text("Process Return")');
-      await caption(page, 'Process Return → available for FundsPosted transfers — R codes, fee calculation, reversal posting', 2400);
+      await caption(page, 'If a check bounces later, a return can be initiated in one click', 7769, 'a:has-text("Process Return")');
       await clearHighlights(page);
       await clearCaption(page);
     }
@@ -599,7 +686,7 @@ test.describe('Professional Demo', () => {
       critical('Is there a table showing business rule evaluations with pass/fail outcomes?'),
     ]);
 
-    await caption(page, 'Rule Evaluations — eligibility ✓  $5K/deposit ✓  $10K/day ✓  contribution type ✓  duplicate check ✓', 2800);
+    await caption(page, 'Compliance checks — account eligibility, deposit limits, contribution type, and duplicate detection — all passed', 9905);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(500);
@@ -624,7 +711,7 @@ test.describe('Professional Demo', () => {
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK_WRONG_AMOUNT);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(400);
-    await caption(page, 'Check shows $750 — declared amount is $500. Claude Haiku detects the mismatch → Review', 2600);
+    await caption(page, 'This check shows $750 — declared amount is $500. The system catches the discrepancy automatically.', 11298, '#frontPreview');
     await clearCaption(page);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(500);
@@ -643,7 +730,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, 'span[data-state]');
-    await caption(page, 'State: Analyzing — Claude Haiku flagged the OCR amount mismatch, routed to human review', 2500);
+    await caption(page, 'Flagged for review — amount discrepancy detected, routed to the review queue', 5679, 'span[data-state]');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -656,7 +743,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, 'table');
-    await caption(page, 'Review Queue — flagged deposits with waiting time, reason, and a Review action', 2500);
+    await caption(page, 'Review Queue — everything waiting for an operator decision, with time elapsed', 7444, 'table');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -673,23 +760,23 @@ test.describe('Professional Demo', () => {
       critical('Does the page show a review form with transfer info and check images?'),
     ]);
 
-    await caption(page, 'Review detail — transfer info and check images at a glance', 2000);
+    await caption(page, 'Review detail — transfer information and check images side by side', 6654);
     await clearCaption(page);
 
     // Highlight check images panel
     await highlight(page, '.check-images');
-    await caption(page, 'Front and back check images — operator verifies against vendor OCR results', 2400);
+    await caption(page, 'Compare the images directly against the AI\'s findings', 6051, '.check-images');
     await clearHighlights(page);
     await clearCaption(page);
 
     await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
     await page.waitForTimeout(700);
-    await caption(page, 'Vendor Analysis — OCR detected $505, entered $500 — amount mismatch triggered review', 2400);
+    await caption(page, 'The AI read the printed amount as $750 — that discrepancy triggered this review', 7165);
     await clearCaption(page);
 
     await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
     await page.waitForTimeout(700);
-    await caption(page, 'Activity timeline — complete state history with actor, reason, and timestamps', 2200);
+    await caption(page, 'Full audit trail — every action, who took it, and when', 7304);
     await clearCaption(page);
 
     // Scroll to action panel (approve button) — use element-based scroll for reliability
@@ -700,7 +787,7 @@ test.describe('Professional Demo', () => {
       critical('Are Approve and Reject buttons visible at the bottom of the review form?'),
     ]);
 
-    await caption(page, 'Operator has verified the images and vendor data — approving this deposit', 2000);
+    await caption(page, 'After reviewing images and AI findings, the operator approves with a note', 6747, '#approve-btn, button:has-text("Approve")');
     await clearCaption(page);
 
     // Type notes and approve
@@ -720,7 +807,7 @@ test.describe('Professional Demo', () => {
       critical('Does the page indicate success — transfer in Approved or FundsPosted state?'),
     ]);
 
-    await caption(page, 'Approved ✓ — transfer advances to FundsPosted, investor ledger credited', 2500);
+    await caption(page, 'Approved ✓ — funds posted to the investor account immediately', 6329, 'span[data-state]');
     await clearCaption(page);
 
     // =========================================================================
@@ -738,11 +825,11 @@ test.describe('Professional Demo', () => {
       critical('Is there a settlement page with a button to generate a settlement batch?'),
     ]);
 
-    await caption(page, 'Settlement — collects FundsPosted transfers and writes a binary X9.37 ICL file', 2500);
+    await caption(page, 'Settlement — packages cleared deposits into the format required by the Federal Reserve', 7676);
     await clearCaption(page);
 
     await highlight(page, '#gen-btn, button:has-text("Generate")');
-    await caption(page, 'X9.37 ICL is the real US clearing network format — proper record types, embedded images', 2200);
+    await caption(page, 'The same clearing format used by US banks — with check images embedded as required', 7676, '#gen-btn, button:has-text("Generate")');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -756,7 +843,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, 'table tbody tr:first-child');
-    await caption(page, 'Batch generated — X9.37 ICL file contains embedded check images in binary record format', 2500);
+    await caption(page, 'Settlement file ready — queued for transmission to the clearing network', 5493, 'table tbody tr:first-child');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -765,7 +852,7 @@ test.describe('Professional Demo', () => {
     if (await ackBtn.count() > 0) {
       await moveCursor(page, '[data-action="ack"], button:has-text("Acknowledge")');
       await highlight(page, '[data-action="ack"], button:has-text("Acknowledge")');
-      await caption(page, 'Acknowledge — simulates the clearing bank confirming receipt of the ICL file', 2200);
+      await caption(page, 'Acknowledge — confirm the clearing bank has received the settlement file', 6190, '[data-action="ack"], button:has-text("Acknowledge")');
       await clearHighlights(page);
       await clearCaption(page);
       await ackBtn.click();
@@ -777,7 +864,7 @@ test.describe('Professional Demo', () => {
         critical('Is the settlement batch now showing ACKNOWLEDGED status?'),
       ]);
 
-      await caption(page, 'Acknowledged ✓ — all transfers in this batch are now marked Completed', 2500);
+      await caption(page, 'Settlement complete ✓ — all deposits in this batch are fully settled', 5586, '.badge--ACKNOWLEDGED, td:has-text("ACKNOWLEDGED")');
       await clearCaption(page);
     }
 
@@ -792,7 +879,7 @@ test.describe('Professional Demo', () => {
     await clickEl(page, 'a.nav-level-tab:has-text("Returns")');
     await afterNav(page);
 
-    await caption(page, 'Returns — simulate a bounced check with standard bank return reason codes', 2200);
+    await caption(page, 'Returns — process a bounced check using standard bank return reason codes', 6422);
     await clearCaption(page);
 
     // Show UUID autocomplete: type first 8 chars, wait for dropdown, Tab to complete
@@ -800,17 +887,17 @@ test.describe('Professional Demo', () => {
     await page.locator('#transferId').focus();
     await page.locator('#transferId').fill(transferId1!.substring(0, 8));
     await page.waitForTimeout(600); // let HTMX fetch + render dropdown
-    await caption(page, 'UUID autocomplete — type a prefix, Tab to fill the full transfer ID', 1800);
+    await caption(page, 'Type a few characters, Tab to auto-complete the transfer ID', 6051, '#transferId');
     await clearCaption(page);
     await page.locator('#transferId').press('Tab');
     await page.waitForTimeout(300);
 
     await highlight(page, 'select[name="reasonCode"]');
-    await caption(page, 'Return Code NSF — Non-Sufficient Funds, the most common reason for returned checks', 2000);
+    await caption(page, 'NSF — Non-Sufficient Funds — the most common return reason', 5865, 'select[name="reasonCode"]');
     await clearHighlights(page);
     await clearCaption(page);
 
-    await caption(page, 'Processing posts a reversal journal entry plus a $30 NSF fee — double-entry accounting', 2000);
+    await caption(page, 'Reversal posted and NSF fee applied — automatically', 7026);
     await clearCaption(page);
 
     await clickEl(page, '#returns-submit-btn, button:has-text("Process Return")');
@@ -826,7 +913,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, '.flash--success, .badge--Returned');
-    await caption(page, 'Return processed ✓ — transfer state: Returned, $30 NSF fee posted to investor account', 2800);
+    await caption(page, 'Return processed ✓ — deposit reversed, $30 NSF fee recorded against investor account', 8048, '.flash--success, .badge--Returned');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -840,7 +927,7 @@ test.describe('Professional Demo', () => {
     await page.waitForTimeout(600);
 
     await highlight(page, 'table');
-    await caption(page, 'Ledger — account balances updated across investor, omnibus, and fee revenue accounts', 2800);
+    await caption(page, 'Every transaction is reflected in the ledger — investor accounts, clearing, and fee revenue', 8233, 'table');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -851,7 +938,7 @@ test.describe('Professional Demo', () => {
     const journalSection = page.locator('.panel-header-title:has-text("Recent journal")');
     if (await journalSection.count() > 0) {
       await highlight(page, '.panel:has(.panel-header-title:has-text("Recent journal")) table');
-      await caption(page, 'Journal entries — deposit posting (green), return reversal (amber), $30 NSF fee (red) — every debit has a matching credit', 2800);
+      await caption(page, 'Deposit, reversal, and fee — every dollar accounted for, every debit matched by a credit', 8698, '.panel:has(.panel-header-title:has-text("Recent journal")) table');
       await clearHighlights(page);
       await clearCaption(page);
     }
@@ -870,7 +957,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, '.dash-cards');
-    await caption(page, 'Four workflows complete — all key metrics updated live via HTMX', 2000);
+    await caption(page, 'Four core workflows complete — dashboard reflects all live activity', 6608, '.dash-cards');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -878,14 +965,26 @@ test.describe('Professional Demo', () => {
     await page.evaluate(() => window.scrollBy({ top: 500, behavior: 'smooth' }));
     await page.waitForTimeout(700);
     await highlight(page, 'table');
-    await caption(page, 'Transfers by State — click any row to filter the Transfers view by that state', 2800);
+    await caption(page, 'Live activity by status — click any row to filter instantly', 6840, 'table');
     await clearHighlights(page);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(400);
 
-    await titleCard(page, 'Apex Mobile Check Deposit', 'Go · SQLite · HTMX · X9.37 ICL · Operator Review · Returns');
+    await titleCard(page, 'Apex Mobile Check Deposit', 'Automated Analysis · Operator Review · Settlement · Full Audit Trail');
     await page.waitForTimeout(3200);
+
+    // =========================================================================
+    // Write timing log for audio assembly
+    // =========================================================================
+    try {
+      const timingPath = new URL('audio-clips/timing.json', `file://${__dirname}/`).pathname;
+      fs.mkdirSync(new URL('audio-clips/', `file://${__dirname}/`).pathname, { recursive: true });
+      fs.writeFileSync(timingPath, JSON.stringify(timingLog, null, 2));
+      console.log(`\n  ⏱  Timing log written to ${timingPath}`);
+    } catch (e) {
+      console.warn(`  ⚠  Could not write timing log: ${e}`);
+    }
 
     // =========================================================================
     // DEFERRED VISUAL CHECKS — run after video ends to avoid dead time in recording

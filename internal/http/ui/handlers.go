@@ -141,8 +141,52 @@ func (h *UIHandlers) Init() error {
 			}
 			return i
 		},
+		// sparklineSVG generates an inline SVG polyline from daily volume data.
+		// Returns safe HTML for use with the template.HTML type.
+		"sparklineSVG": func(volumes []dailyVolume, maxCount int) template.HTML {
+			if len(volumes) == 0 || maxCount == 0 {
+				return template.HTML(`<svg width="80" height="24"></svg>`)
+			}
+			w, h := 80.0, 22.0
+			n := len(volumes)
+			pts := make([]string, n)
+			for i, dv := range volumes {
+				var x float64
+				if n > 1 {
+					x = float64(i) / float64(n-1) * w
+				} else {
+					x = w / 2
+				}
+				frac := float64(dv.Count) / float64(maxCount)
+				y := h - frac*(h-2) - 1
+				pts[i] = fmt.Sprintf("%.1f,%.1f", x, y)
+			}
+			return template.HTML(fmt.Sprintf(
+				`<svg width="80" height="24" viewBox="0 0 80 24" preserveAspectRatio="none" aria-hidden="true"><polyline points="%s" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" opacity="0.7"/></svg>`,
+				strings.Join(pts, " "),
+			))
+		},
 		"lower":    strings.ToLower,
 		"basename": filepath.Base,
+		// parseDetails extracts a human-readable string from a details JSON blob.
+		// Tries {"notes":"..."} then {"details":"..."}, falls back to raw string.
+		"parseDetails": func(raw string) string {
+			if raw == "" || raw == "null" {
+				return ""
+			}
+			var m map[string]interface{}
+			if err := json.Unmarshal([]byte(raw), &m); err != nil {
+				return raw
+			}
+			for _, key := range []string{"notes", "details", "message", "reason"} {
+				if v, ok := m[key]; ok {
+					if s, ok := v.(string); ok && s != "" {
+						return s
+					}
+				}
+			}
+			return raw
+		},
 		// dateOnly trims ISO timestamps to just the YYYY-MM-DD date portion
 		"dateOnly": func(s string) string {
 			if len(s) >= 10 {

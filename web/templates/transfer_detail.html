@@ -221,7 +221,7 @@
               <span class="timeline-time">{{.CreatedAt.Format "Jan 2, 15:04:05"}}</span>
             </div>
             {{if and .DetailsJSON (ne (deref .DetailsJSON) "null")}}
-            <div class="timeline-details">{{deref .DetailsJSON}}</div>
+            {{with parseDetails (deref .DetailsJSON)}}<div class="timeline-details">{{.}}</div>{{end}}
             {{end}}
             {{if .ActorID}}<div class="timeline-actor">by {{.ActorID}}</div>{{end}}
           </div>

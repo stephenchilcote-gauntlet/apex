@@ -1,54 +1,129 @@
 {{define "content"}}
+
+<!-- Scanline overlay — CRT atmosphere, pointer-events:none -->
+<div class="scanline-overlay" aria-hidden="true"></div>
+
+<!-- Page header -->
 <div class="page-header">
-  <h1 class="section-title">Overview</h1>
+  <div class="compressed-title-wrap"><h1 class="section-title">Overview</h1></div>
+  <div class="dash-system-status">
+    <span class="status-dot" data-active></span>
+    <span>{{.TotalTransfers}} transfers</span>
+    <span class="status-sep">·</span>
+    <span>${{formatCents .TotalVolumeCents}} active volume</span>
+    {{if .LatestBatch}}
+    <span class="status-sep">·</span>
+    <span>last batch <span class="badge badge--{{.LatestBatch.Status}}">{{.LatestBatch.Status}}</span></span>
+    {{end}}
+  </div>
 </div>
 
-<!-- Summary stat cards — HTMX live-refresh every 15s -->
-<div class="dash-cards" style="margin-bottom:16px;"
+<!-- KPI action cards — HTMX live-refresh every 15s -->
+<div class="dash-action-row"
      hx-get="/ui"
      hx-trigger="every 15s"
-     hx-target=".dash-cards"
-     hx-select=".dash-cards"
+     hx-target=".dash-action-row"
+     hx-select=".dash-action-row"
      hx-swap="outerHTML">
-  <div class="dash-card">
-    <div class="dash-card-label">Total transfers</div>
-    <div class="dash-card-value">{{.TotalTransfers}}</div>
+
+  <a href="/ui/review" class="action-card{{if gt .PendingReview 0}} action-card--alert{{end}}">
+    <div class="action-card-label">Pending Review</div>
+    <div class="action-card-value">{{.PendingReview}}</div>
+    <div class="action-card-sub">{{if gt .PendingReview 0}}awaiting decision{{else}}queue empty{{end}}</div>
+    {{if gt .PendingReview 0}}<div class="action-card-cta action-card-cta--alert">Review now →</div>{{end}}
+  </a>
+
+  <a href="/ui/settlement" class="action-card{{if gt .FundsPostedCount 0}} action-card--settle{{end}}">
+    <div class="action-card-label">Unsettled Funds</div>
+    <div class="action-card-value">${{formatCents .FundsPostedCents}}</div>
+    {{if .DailyVolume}}<div class="action-card-sparkline">{{sparklineSVG .DailyVolume .MaxDailyCount}}</div>{{end}}
+    <div class="action-card-sub">{{if gt .FundsPostedCount 0}}{{.FundsPostedCount}} transfers ready{{else}}fully settled{{end}}</div>
+    {{if gt .FundsPostedCount 0}}<div class="action-card-cta action-card-cta--settle">Settle now →</div>{{end}}
+  </a>
+
+  <a href="/ui/transfers?state=Rejected" class="action-card{{if gt .ExceptionsCount 0}} action-card--exception{{end}}">
+    <div class="action-card-label">Exceptions</div>
+    <div class="action-card-value">{{.ExceptionsCount}}</div>
+    <div class="action-card-sub">rejected + returned</div>
+    {{if gt .ExceptionsCount 0}}<div class="action-card-cta action-card-cta--exception">View exceptions →</div>{{end}}
+  </a>
+
+  <div class="action-card action-card--stat">
+    <div class="action-card-label">Total Transfers</div>
+    <div class="action-card-value">{{.TotalTransfers}}</div>
+    <div class="action-card-sub">all time</div>
   </div>
-  <div class="dash-card{{if gt .PendingReview 0}} dash-card--alert{{end}}">
-    <div class="dash-card-label">Pending review</div>
-    <div class="dash-card-value">{{.PendingReview}}</div>
-    {{if gt .PendingReview 0}}<a href="/ui/review" class="dash-card-action">Review now →</a>{{end}}
-  </div>
-  <div class="dash-card{{if gt .FundsPostedCount 0}} dash-card--settle{{end}}">
-    <div class="dash-card-label">Funds posted (unsettled)</div>
-    <div class="dash-card-value data-value">${{formatCents .FundsPostedCents}}</div>
-    {{if gt .FundsPostedCount 0}}<a href="/ui/settlement" class="dash-card-action" style="color:var(--blue-bright);">{{.FundsPostedCount}} ready to settle →</a>{{end}}
-  </div>
-  <div class="dash-card{{if gt .ExceptionsCount 0}} dash-card--exception{{end}}">
-    <div class="dash-card-label">Exceptions</div>
-    <div class="dash-card-value">{{.ExceptionsCount}}</div>
-    {{if gt .ExceptionsCount 0}}<a href="/ui/transfers?state=Rejected" class="dash-card-action" style="color:var(--amber);">View rejected →</a>{{end}}
-  </div>
-  <div class="dash-card">
-    <div class="dash-card-label">Total volume (active)</div>
-    <div class="dash-card-value data-value">${{formatCents .TotalVolumeCents}}</div>
-  </div>
-  {{if .LatestBatch}}
-  <div class="dash-card">
-    <div class="dash-card-label">Latest settlement</div>
-    <div class="dash-card-value" style="font-size:14px;">
-      <span class="badge badge--{{.LatestBatch.Status}}">{{.LatestBatch.Status}}</span>
+
+</div>
+
+<!-- State hex map + volume chart -->
+<div class="dash-main-grid">
+
+  {{if .StateCounts}}
+  <div class="panel dash-hex-panel">
+    <div class="panel-header">
+      <span class="panel-header-title">Transfer States</span>
+      <span style="font-family:var(--font-data);font-size:9px;color:var(--text-tertiary);margin-left:auto;">click to filter</span>
     </div>
-    <div style="font-family:var(--font-data);font-size:11px;color:var(--text-secondary);margin-top:4px;">
-      {{.LatestBatch.BusinessDateCT}} · {{.LatestBatch.TotalItems}} items · ${{formatCents .LatestBatch.TotalAmountCents}}
+    <div class="panel-body" style="padding:20px 16px 16px;">
+      <div class="hex-grid">
+        <div class="hex-row">
+          {{range $i, $sc := .StateCounts}}{{if lt $i 4}}
+          <a href="/ui/transfers?state={{$sc.State}}" class="hex-cell hex-cell--{{$sc.State}}" title="{{$sc.State}}: {{$sc.Count}}">
+            <span class="hex-count">{{$sc.Count}}</span>
+            <span class="hex-label">{{$sc.State}}</span>
+          </a>
+          {{end}}{{end}}
+        </div>
+        <div class="hex-row hex-row--offset">
+          {{range $i, $sc := .StateCounts}}{{if ge $i 4}}
+          <a href="/ui/transfers?state={{$sc.State}}" class="hex-cell hex-cell--{{$sc.State}}" title="{{$sc.State}}: {{$sc.Count}}">
+            <span class="hex-count">{{$sc.Count}}</span>
+            <span class="hex-label">{{$sc.State}}</span>
+          </a>
+          {{end}}{{end}}
+        </div>
+      </div>
+      {{if .LatestBatch}}
+      <div class="batch-summary">
+        <span class="batch-summary-label">Latest batch</span>
+        <a href="/ui/settlement/{{.LatestBatch.ID}}" class="batch-summary-link">
+          <span class="badge badge--{{.LatestBatch.Status}}">{{.LatestBatch.Status}}</span>
+          <span class="batch-summary-meta">{{.LatestBatch.BusinessDateCT}} · {{.LatestBatch.TotalItems}} items · ${{formatCents .LatestBatch.TotalAmountCents}}</span>
+        </a>
+      </div>
+      {{end}}
     </div>
   </div>
   {{end}}
+
+  {{if .DailyVolume}}
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-header-title">Daily Deposit Volume</span>
+      <span style="font-family:var(--font-data);font-size:9px;color:var(--text-tertiary);margin-left:auto;">last 7 active days</span>
+    </div>
+    <div class="panel-body">
+      <div class="daily-vol-chart">
+        {{range .DailyVolume}}
+        <a href="/ui/transfers?dateFrom={{.Date}}&dateTo={{.Date}}" class="daily-vol-bar-wrap" title="{{.Label}}: {{.Count}} deposits · ${{formatCents .AmountCents}}">
+          <div class="daily-vol-bar-outer">
+            <div class="daily-vol-bar-inner" style="height:{{pct .Count $.MaxDailyCount}};"></div>
+          </div>
+          <div class="daily-vol-label">{{.Label}}</div>
+          <div class="daily-vol-count">{{.Count}}</div>
+        </a>
+        {{end}}
+      </div>
+    </div>
+  </div>
+  {{end}}
+
 </div>
 
-<!-- Recent transfers — Amp-style thread cards -->
+<!-- Recent transfers thread cards -->
 {{if .Recent}}
-<div style="margin-bottom:16px;">
+<div style="margin-bottom:16px;position:relative;z-index:1;">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
     <span style="font-family:var(--font-ui);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);">Recent transfers</span>
     <a href="/ui/transfers" style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);text-decoration:none;">View all →</a>
@@ -69,253 +144,255 @@
 </div>
 {{end}}
 
-<!-- Daily deposit volume — last 7 active business days -->
-{{if .DailyVolume}}
-<div class="panel" style="margin-bottom:16px;">
-  <div class="panel-header">
-    <span class="panel-header-title">Daily deposit volume</span>
-    <span style="font-family:var(--font-data);font-size:10px;color:var(--text-secondary);margin-left:auto;">last 7 active days</span>
-  </div>
-  <div class="panel-body">
-    <div class="daily-vol-chart">
-      {{range .DailyVolume}}
-      <a href="/ui/transfers?dateFrom={{.Date}}&dateTo={{.Date}}" class="daily-vol-bar-wrap" title="{{.Label}}: {{.Count}} deposits · ${{formatCents .AmountCents}}">
-        <div class="daily-vol-bar-outer">
-          <div class="daily-vol-bar-inner" style="height:{{pct .Count $.MaxDailyCount}};"></div>
-        </div>
-        <div class="daily-vol-label">{{.Label}}</div>
-        <div class="daily-vol-count">{{.Count}}</div>
-      </a>
-      {{end}}
-    </div>
-  </div>
-</div>
-{{end}}
-
-<!-- Transfer breakdown by state -->
-{{if .StateCounts}}
-<div class="panel" style="margin-bottom:16px;">
-  <div class="panel-header"><span class="panel-header-title">Transfers by state</span></div>
-  <div class="panel-body" style="padding:0;">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>State</th>
-          <th style="text-align:right;">Count</th>
-          <th style="width:60%;padding-right:16px;"></th>
-        </tr>
-      </thead>
-      <tbody>
-        {{range .StateCounts}}
-        <tr>
-          <td><a href="/ui/transfers?state={{.State}}"><span class="badge badge--{{.State}}">{{.State}}</span></a></td>
-          <td data-numeric>{{.Count}}</td>
-          <td style="padding-right:16px;">
-            <div class="dash-bar-wrap">
-              <div class="dash-bar" style="width:{{pct .Count $.MaxStateCount}};"></div>
-            </div>
-          </td>
-        </tr>
-        {{end}}
-      </tbody>
-    </table>
-  </div>
-</div>
-{{end}}
-
-<!-- Quick links — Amp-style action cards -->
-<div class="workspace-grid">
-  <a href="/ui/simulate" class="dash-link-card">
-    <div class="dash-link-title">Simulate deposit</div>
-    <div class="dash-link-desc">Submit a test check deposit and see it processed through the pipeline.</div>
-  </a>
-  <a href="/ui/settlement" class="dash-link-card">
-    <div class="dash-link-title">Settlement</div>
-    <div class="dash-link-desc">Generate an X9.37 ICL batch file for all FundsPosted transfers.</div>
-  </a>
-  <a href="/ui/returns" class="dash-link-card">
-    <div class="dash-link-title">Process return</div>
-    <div class="dash-link-desc">Mark a completed deposit as returned (NSF, fraud, stop payment, etc.).</div>
-  </a>
-  <a href="/ui/ledger" class="dash-link-card">
-    <div class="dash-link-title">Ledger</div>
-    <div class="dash-link-desc">Inspect double-entry account balances across the correspondent network.</div>
-  </a>
-</div>
-
 <style>
-.dash-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 10px;
+/* ── Scanline overlay ───────────────────────────────────────── */
+.scanline-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px, transparent 1px,
+    rgba(0,0,0,0.07) 1px, rgba(0,0,0,0.07) 2px
+  );
 }
 
-.dash-card {
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  padding: 14px 16px;
-}
-
-.dash-card--alert {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent-dim);
-}
-
-.dash-card--exception {
-  border-color: var(--amber-dim);
-}
-
-.dash-card--settle {
-  border-color: var(--green-dim);
-}
-
-.dash-card-label {
-  font-family: var(--font-ui);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-secondary);
-  margin-bottom: 6px;
-}
-
-.dash-card-value {
-  font-family: var(--font-data);
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-.dash-card-action {
-  display: inline-block;
-  margin-top: 8px;
-  font-family: var(--font-ui);
-  font-size: 11px;
-  color: var(--accent);
-  text-decoration: none;
-}
-
-.dash-card-action:hover { text-decoration: underline; }
-
-.dash-bar-wrap {
-  height: 4px;
-  background: var(--bg-surface);
-  border-radius: 2px;
-  overflow: hidden;
-}
-
-.dash-bar {
-  height: 100%;
-  background: var(--text-tertiary);
-  border-radius: 2px;
-  min-width: 2px;
-  transition: width 0.3s ease;
-}
-
-/* Link cards — Amp-style action grid */
-.dash-link-card {
-  display: block;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  padding: 16px;
-  text-decoration: none;
-  transition: border-color 0.12s, background 0.12s;
-}
-
-.dash-link-card:hover {
-  border-color: var(--accent);
-  background: var(--accent-dim);
-  text-decoration: none;
-}
-
-.dash-link-title {
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 6px;
-}
-
-.dash-link-desc {
-  font-family: var(--font-ui);
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-/* Thread cards — Amp-style recent-transfers grid */
-.thread-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 8px;
-}
-
-.thread-card {
-  display: block;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 4px;
-  padding: 12px 14px;
-  text-decoration: none;
-  transition: border-color 0.12s, background 0.12s;
-  cursor: pointer;
-}
-
-.thread-card:hover {
-  border-color: var(--border-default);
-  background: var(--bg-surface);
-  text-decoration: none;
-}
-
-.thread-card-header {
+/* ── System status strip ────────────────────────────────────── */
+.dash-system-status {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-  margin-bottom: 6px;
-}
-
-.thread-card-id {
+  gap: 8px;
   font-family: var(--font-data);
   font-size: 10px;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
+  margin-left: auto;
+}
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green-bright, #00e03c);
+  flex-shrink: 0;
+}
+.status-dot[data-active] {
+  animation: status-pulse 3s ease-in-out infinite;
+}
+@keyframes status-pulse {
+  0%, 100% { opacity: 0.7; }
+  50%       { opacity: 1.0; }
+}
+.status-sep { color: var(--text-tertiary); }
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
-.thread-card-account {
+/* ── Action cards ───────────────────────────────────────────── */
+.dash-action-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.action-card {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--green-dim, #004d15);
+  padding: 14px 16px;
+  text-decoration: none;
+  display: block;
+  transition: border-left-color 0.15s, background 0.12s;
+}
+.action-card:hover {
+  background: var(--bg-surface);
+  text-decoration: none;
+}
+.action-card--alert {
+  border-left-color: var(--accent);
+  box-shadow: inset 4px 0 12px var(--accent-dim);
+}
+.action-card--alert:hover { border-left-color: var(--accent); }
+.action-card--settle {
+  border-left-color: var(--green-mid, #00aa2e);
+  box-shadow: inset 4px 0 12px var(--green-surface, rgba(0,224,60,0.06));
+}
+.action-card--settle:hover { border-left-color: var(--green-bright, #00e03c); }
+.action-card--exception {
+  border-left-color: var(--amber, #e8a000);
+  box-shadow: inset 4px 0 12px var(--amber-glow, rgba(232,160,0,0.08));
+}
+.action-card--exception:hover { border-left-color: var(--amber); }
+.action-card--stat { cursor: default; }
+.action-card--stat:hover { background: var(--bg-elevated); }
+
+.action-card-label {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+  margin-bottom: 5px;
+}
+.action-card-value {
+  font-family: var(--font-data);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+.action-card-sparkline {
+  color: var(--green-mid, #00aa2e);
+  margin: 6px 0 2px;
+  line-height: 0;
+  opacity: 0.8;
+}
+.action-card-sub {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 5px;
+}
+.action-card-cta {
   font-family: var(--font-ui);
   font-size: 11px;
   font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 3px;
+  margin-top: 7px;
+}
+.action-card-cta--alert   { color: var(--accent); }
+.action-card-cta--settle  { color: var(--green-mid, #00aa2e); }
+.action-card-cta--exception { color: var(--amber, #e8a000); }
+
+/* ── Main 2-col grid ────────────────────────────────────────── */
+.dash-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+@media (max-width: 860px) {
+  .dash-main-grid { grid-template-columns: 1fr; }
 }
 
-.thread-card-amount {
+/* ── Hex state grid ─────────────────────────────────────────── */
+.dash-hex-panel { border-left: 2px solid var(--green-dim, #004d15); }
+
+.hex-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+.hex-row {
+  display: flex;
+  gap: 5px;
+}
+.hex-row--offset {
+  margin-left: 37px;
+  margin-top: -11px;
+}
+.hex-cell {
+  width: 66px;
+  height: 57px;
+  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: var(--bg-surface);
+  cursor: pointer;
+  transition: filter 0.12s;
+  flex-shrink: 0;
+}
+.hex-cell:hover { filter: brightness(1.4); text-decoration: none; }
+
+.hex-count {
   font-family: var(--font-data);
-  font-size: 13px;
-  color: var(--green-mid);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
   font-variant-numeric: tabular-nums;
-  margin-bottom: 6px;
 }
-
-.thread-card-date {
+.hex-label {
   font-family: var(--font-ui);
-  font-size: 10px;
-  color: var(--text-tertiary);
+  font-size: 6.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  text-align: center;
+  max-width: 56px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
 }
 
-/* Daily volume bar chart */
+/* State-specific hex colors */
+.hex-cell--Requested  { background: #131320; }
+.hex-cell--Validating { background: #0c1428; }
+.hex-cell--Analyzing  { background: #221800; }
+.hex-cell--Analyzing .hex-count { color: var(--amber, #e8a000); }
+.hex-cell--Analyzing .hex-label { color: var(--amber-dim, #6b4a00); }
+.hex-cell--FundsPosted { background: #00280f; }
+.hex-cell--FundsPosted .hex-count { color: var(--green-bright, #00e03c); }
+.hex-cell--FundsPosted .hex-label { color: var(--green-mid, #00aa2e); }
+.hex-cell--Settled    { background: #0a1a0a; }
+.hex-cell--Settled .hex-count { color: var(--green-mid, #00aa2e); }
+.hex-cell--Rejected   { background: #260808; }
+.hex-cell--Rejected .hex-count { color: var(--accent, #f34e3f); }
+.hex-cell--Rejected .hex-label { color: var(--accent-dim, rgba(243,78,63,0.5)); }
+.hex-cell--Returned   { background: #201000; }
+.hex-cell--Returned .hex-count { color: var(--amber, #e8a000); }
+.hex-cell--Returned .hex-label { color: var(--amber-dim, #6b4a00); }
+.hex-cell--Completed  { background: #0a1a0a; }
+.hex-cell--Completed .hex-count { color: var(--green-mid, #00aa2e); }
+
+/* Batch summary row */
+.batch-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border-subtle);
+}
+.batch-summary-label {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+.batch-summary-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+}
+.batch-summary-link:hover { text-decoration: none; }
+.batch-summary-meta {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--text-secondary);
+}
+
+/* ── Daily volume chart ─────────────────────────────────────── */
 .daily-vol-chart {
   display: flex;
   align-items: flex-end;
   gap: 8px;
-  height: 80px;
-  padding-bottom: 0;
+  height: 100px;
 }
-
 .daily-vol-bar-wrap {
   display: flex;
   flex-direction: column;
@@ -325,30 +402,26 @@
   text-decoration: none;
   cursor: pointer;
 }
-
 .daily-vol-bar-wrap:hover .daily-vol-bar-inner {
   background: var(--accent);
   opacity: 0.85;
 }
-
 .daily-vol-bar-outer {
   width: 100%;
-  height: 52px;
+  height: 62px;
   display: flex;
   align-items: flex-end;
   background: var(--bg-surface);
   border-radius: 2px 2px 0 0;
   overflow: hidden;
 }
-
 .daily-vol-bar-inner {
   width: 100%;
   min-height: 2px;
-  background: var(--accent-dim);
+  background: var(--green-dim, #004d15);
   border-radius: 2px 2px 0 0;
   transition: height 0.3s ease, background 0.15s;
 }
-
 .daily-vol-label {
   font-family: var(--font-ui);
   font-size: 9px;
@@ -357,12 +430,71 @@
   white-space: nowrap;
   letter-spacing: 0.03em;
 }
-
 .daily-vol-count {
   font-family: var(--font-data);
   font-size: 10px;
   color: var(--text-secondary);
   text-align: center;
 }
+
+/* ── Thread cards ───────────────────────────────────────────── */
+.thread-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+.thread-card {
+  display: block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-left: 2px solid var(--border-subtle);
+  border-radius: 2px;
+  padding: 12px 14px;
+  text-decoration: none;
+  transition: border-color 0.12s, background 0.12s;
+}
+.thread-card:hover {
+  border-color: var(--border-default);
+  border-left-color: var(--green-dim, #004d15);
+  background: var(--bg-surface);
+  text-decoration: none;
+}
+.thread-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.thread-card-id {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+.thread-card-account {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+.thread-card-amount {
+  font-family: var(--font-data);
+  font-size: 13px;
+  color: var(--green-mid, #00aa2e);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+.thread-card-date {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanline-overlay { display: none; }
+  .status-dot[data-active] { animation: none; }
+}
 </style>
+
 {{end}}

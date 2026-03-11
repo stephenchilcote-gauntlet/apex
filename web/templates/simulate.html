@@ -62,22 +62,22 @@
         <div class="form-group" style="flex:1">
           <label class="form-label" for="frontImage">Front Image</label>
           <input type="file" name="frontImage" id="frontImage" class="input" style="width:100%" accept="image/*">
-          <img id="frontPreview" style="display:none;margin-top:8px;max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;" alt="Front preview">
+          <img id="frontPreview" style="display:none;margin-top:8px;width:100%;max-height:160px;object-fit:contain;object-position:left;border:1px solid var(--border-subtle);border-radius:3px;" alt="Front preview">
         </div>
         <div class="form-group" style="flex:1">
           <label class="form-label" for="backImage">Back Image</label>
           <input type="file" name="backImage" id="backImage" class="input" style="width:100%" accept="image/*">
-          <img id="backPreview" style="display:none;margin-top:8px;max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;" alt="Back preview">
+          <img id="backPreview" style="display:none;margin-top:8px;width:100%;max-height:160px;object-fit:contain;object-position:left;border:1px solid var(--border-subtle);border-radius:3px;" alt="Back preview">
         </div>
       </div>
       <div id="sample-preview-row" style="display:flex;gap:16px;margin-bottom:12px;">
         <div style="flex:1;">
           <div style="font-family:var(--font-ui);font-size:10px;color:var(--text-tertiary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">Front (sample)</div>
-          <img src="/static/sample-check-front.png" style="max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;display:block;" alt="Sample front">
+          <img src="/static/sample-check-front.png" class="check-thumb" style="width:100%;max-height:160px;object-fit:contain;object-position:left;border:1px solid var(--border-subtle);border-radius:3px;display:block;cursor:zoom-in;" alt="Sample front" onclick="openLightbox(this.src)">
         </div>
         <div style="flex:1;">
           <div style="font-family:var(--font-ui);font-size:10px;color:var(--text-tertiary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">Back (sample)</div>
-          <img src="/static/sample-check-back.png" style="max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;display:block;" alt="Sample back">
+          <img src="/static/sample-check-back.png" class="check-thumb" style="width:100%;max-height:160px;object-fit:contain;object-position:left;border:1px solid var(--border-subtle);border-radius:3px;display:block;cursor:zoom-in;" alt="Sample back" onclick="openLightbox(this.src)">
         </div>
       </div>
       <button type="submit" class="btn" id="submit-btn">
@@ -159,6 +159,23 @@
   setTimeout(function () {
     window.location.href = '/ui/transfers/' + transferId;
   }, 1500);
+})();
+</script>
+
+<div class="check-lightbox" id="sim-lightbox" role="dialog" aria-modal="true" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;">
+  <div style="position:relative;max-width:90vw;max-height:90vh;">
+    <span id="sim-lightbox-close" style="position:absolute;top:-28px;right:0;color:#fff;cursor:pointer;font-family:var(--font-ui);font-size:13px;">✕ Close</span>
+    <img id="sim-lightbox-img" src="" style="max-width:90vw;max-height:85vh;border-radius:4px;" alt="">
+  </div>
+</div>
+<script>
+(function(){
+  var lb = document.getElementById('sim-lightbox');
+  var img = document.getElementById('sim-lightbox-img');
+  window.openLightbox = function(src){ img.src=src; lb.style.display='flex'; document.body.style.overflow='hidden'; };
+  document.getElementById('sim-lightbox-close').onclick = function(){ lb.style.display='none'; document.body.style.overflow=''; };
+  lb.addEventListener('click', function(e){ if(e.target===lb){ lb.style.display='none'; document.body.style.overflow=''; } });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape'&&lb.style.display==='flex'){ lb.style.display='none'; document.body.style.overflow=''; } });
 })();
 </script>
 
