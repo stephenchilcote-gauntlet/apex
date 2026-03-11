@@ -218,12 +218,15 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Total, pending review count, and max per-state count for bar chart
-	var totalTransfers, pendingReview, maxStateCount int
+	// Total, pending review count, exceptions, and max per-state count for bar chart
+	var totalTransfers, pendingReview, maxStateCount, exceptionsCount int
 	for _, sc := range counts {
 		totalTransfers += sc.Count
 		if sc.State == "PendingReview" {
 			pendingReview = sc.Count
+		}
+		if sc.State == "Rejected" || sc.State == "Returned" {
+			exceptionsCount += sc.Count
 		}
 		if sc.Count > maxStateCount {
 			maxStateCount = sc.Count
@@ -257,6 +260,7 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		"StateCounts":      counts,
 		"TotalTransfers":   totalTransfers,
 		"PendingReview":    pendingReview,
+		"ExceptionsCount":  exceptionsCount,
 		"MaxStateCount":    maxStateCount,
 		"LatestBatch":      latestBatch,
 		"FundsPostedCents": fundsPostedCents,

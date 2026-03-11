@@ -23,6 +23,11 @@
     <div class="dash-card-label">Funds posted (unsettled)</div>
     <div class="dash-card-value data-value">${{formatCents .FundsPostedCents}}</div>
   </div>
+  <div class="dash-card{{if gt .ExceptionsCount 0}} dash-card--exception{{end}}">
+    <div class="dash-card-label">Exceptions</div>
+    <div class="dash-card-value">{{.ExceptionsCount}}</div>
+    {{if gt .ExceptionsCount 0}}<a href="/ui/transfers?state=Rejected" class="dash-card-action" style="color:var(--amber);">View rejected →</a>{{end}}
+  </div>
   {{if .LatestBatch}}
   <div class="dash-card">
     <div class="dash-card-label">Latest settlement</div>
@@ -127,6 +132,10 @@
 .dash-card--alert {
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent-dim);
+}
+
+.dash-card--exception {
+  border-color: var(--amber-dim);
 }
 
 .dash-card-label {
