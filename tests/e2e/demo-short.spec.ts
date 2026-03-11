@@ -524,6 +524,7 @@ test.describe('Professional Demo', () => {
     await typeEl(page, 'input[name="amount"]', '500.00');
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
+    await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(500);
 
     await clickEl(page, 'button[type="submit"]');
@@ -699,8 +700,20 @@ test.describe('Professional Demo', () => {
       critical('Does the overview dashboard show non-zero statistics reflecting the completed workflows?'),
     ]);
 
-    await caption(page, 'Three workflows complete — clean pass, operator review, and settlement batch all processed', 2600);
+    await highlight(page, '.dash-cards');
+    await caption(page, 'Three workflows complete — all key metrics updated', 2000);
+    await clearHighlights(page);
     await clearCaption(page);
+
+    // Scroll to state breakdown
+    await page.evaluate(() => window.scrollBy(0, 500));
+    await page.waitForTimeout(600);
+    await highlight(page, 'table');
+    await caption(page, 'Transfers by State — 6 completed, 2 pending review, 3 exceptions — clickable for filtered views', 2800);
+    await clearHighlights(page);
+    await clearCaption(page);
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(400);
 
     await titleCard(page, 'Apex Mobile Check Deposit', 'Go · SQLite · HTMX · X9.37 ICL · Operator Review UI');
     await page.waitForTimeout(3200);
