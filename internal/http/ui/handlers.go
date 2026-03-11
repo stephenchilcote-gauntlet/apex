@@ -137,6 +137,13 @@ func (h *UIHandlers) Init() error {
 		},
 		"lower":    strings.ToLower,
 		"basename": filepath.Base,
+		// dateOnly trims ISO timestamps to just the YYYY-MM-DD date portion
+		"dateOnly": func(s string) string {
+			if len(s) >= 10 {
+				return s[:10]
+			}
+			return s
+		},
 		// shortID truncates UUID-style IDs to 8 chars, but shows full IDs for short human-readable IDs
 		"shortID": func(id string) string {
 			// UUID format: 36 chars with dashes (e.g., "abc12345-...")

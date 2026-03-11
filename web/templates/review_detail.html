@@ -26,7 +26,7 @@
         {{if .VendorResult}}{{if .VendorResult.OCRAmountCents}}
         <span class="detail-label">OCR Amount</span><span class="detail-value data-value--currency"{{if not .VendorResult.AmountMatches}} style="color:var(--red)"{{end}}>${{formatCentsInt (derefInt .VendorResult.OCRAmountCents)}}</span>
         {{end}}{{end}}
-        <span class="detail-label">Business Date</span><span class="detail-value">{{if .Transfer.BusinessDateCT}}{{deref .Transfer.BusinessDateCT}}{{else}}—{{end}}</span>
+        <span class="detail-label">Business Date</span><span class="detail-value">{{if .Transfer.BusinessDateCT}}{{dateOnly (deref .Transfer.BusinessDateCT)}}{{else}}—{{end}}</span>
         <span class="detail-label">Created</span><span class="detail-value">{{.Transfer.CreatedAt.Format "2006-01-02 15:04:05"}}</span>
       </div>
     </div>
@@ -140,7 +140,7 @@
             <td><a href="/ui/transfers/{{.ID}}">{{shortID .ID}}</a></td>
             <td style="text-align:right;"><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
             <td><span class="badge badge--{{.State}}">{{.State}}</span></td>
-            <td>{{if .BusinessDateCT}}{{deref .BusinessDateCT}}{{else}}{{.CreatedAt.Format "2006-01-02"}}{{end}}</td>
+            <td>{{if .BusinessDateCT}}{{dateOnly (deref .BusinessDateCT)}}{{else}}{{.CreatedAt.Format "2006-01-02"}}{{end}}</td>
           </tr>
           {{end}}
         </tbody>
