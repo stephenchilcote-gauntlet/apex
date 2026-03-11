@@ -451,8 +451,21 @@ test.describe('Professional Demo', () => {
     await clickEl(page, 'a.nav-level-tab:has-text("Simulate")');
     await afterNav(page);
 
-    await caption(page, 'Simulate page — models the mobile app capture interface', 2200);
+    await caption(page, 'Simulate page — realistic demo data pre-seeded with 9 investor transfers', 2400);
     await clearCaption(page);
+
+    // Briefly show the Recent Deposits section
+    const recentSection = page.locator('.panel:has-text("Recent deposits")');
+    if (await recentSection.count() > 0) {
+      await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' }));
+      await page.waitForTimeout(600);
+      await highlight(page, '.panel:has-text("Recent deposits") table');
+      await caption(page, 'Recent deposits — real-time feed showing last 10 submissions with state badges', 2000);
+      await clearHighlights(page);
+      await clearCaption(page);
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
+      await page.waitForTimeout(500);
+    }
 
     await caption(page, 'INV-1001 is the "clean pass" account — all vendor checks pass automatically', 2400);
     await clearCaption(page);
