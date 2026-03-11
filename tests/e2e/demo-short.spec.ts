@@ -595,18 +595,18 @@ test.describe('Professional Demo', () => {
     await caption(page, 'Review detail — transfer info, check images, vendor analysis, rule evaluations, audit trail', 2800);
     await clearCaption(page);
 
-    await page.evaluate(() => window.scrollBy(0, 360));
-    await page.waitForTimeout(600);
-    await caption(page, 'Vendor Analysis shows OCR amount mismatch — declared vs recognized amounts differ', 2400);
+    await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
+    await page.waitForTimeout(700);
+    await caption(page, 'Vendor Analysis — OCR detected $505, entered $500 — amount mismatch triggered review', 2400);
     await clearCaption(page);
 
-    await page.evaluate(() => window.scrollBy(0, 360));
-    await page.waitForTimeout(600);
-    await caption(page, 'Audit trail shows the full state history — operator decision will be appended', 2200);
+    await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
+    await page.waitForTimeout(700);
+    await caption(page, 'Activity timeline — complete state history with actor, reason, and timestamps', 2200);
     await clearCaption(page);
 
-    // Scroll to action panel
-    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    // Scroll to action panel (approve button) — use element-based scroll for reliability
+    await page.locator('#approve-btn, button:has-text("Approve")').first().scrollIntoViewIfNeeded();
     await page.waitForTimeout(600);
 
     await assertVisual(page, 'approve-reject-buttons', [
@@ -727,8 +727,8 @@ test.describe('Professional Demo', () => {
     await clearCaption(page);
 
     // Scroll to state breakdown
-    await page.evaluate(() => window.scrollBy(0, 500));
-    await page.waitForTimeout(600);
+    await page.evaluate(() => window.scrollBy({ top: 500, behavior: 'smooth' }));
+    await page.waitForTimeout(700);
     await highlight(page, 'table');
     await caption(page, 'Transfers by State — 6 completed, 2 pending review, 3 exceptions — clickable for filtered views', 2800);
     await clearHighlights(page);
