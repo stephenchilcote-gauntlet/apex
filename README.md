@@ -73,7 +73,7 @@ make dev
 | Page              | URL                  | Description                                                                       |
 |-------------------|----------------------|-----------------------------------------------------------------------------------|
 | Deposit Simulator | `/ui/simulate`       | Submit check deposits with image upload, amount, account, and scenario picker     |
-| Transfers         | `/ui/transfers`      | List all deposits with state filters; click through to detail                     |
+| Transfers         | `/ui/transfers`      | List all deposits with state/account/date filters; click through to detail; CSV export (`?format=csv`) |
 | Transfer Detail   | `/ui/transfers/{id}` | Full deposit detail with decision trace, images, vendor results, rule evaluations |
 | Operator Review   | `/ui/review`         | Queue of flagged deposits; approve/reject with audit logging                      |
 | Ledger            | `/ui/ledger`         | Account balances and journal entry drill-down                                     |
@@ -109,6 +109,9 @@ make dev
 
 ### Returns
 - `POST /api/v1/returns` — Process a check return (creates reversal + $30 fee)
+
+### Metrics
+- `GET /api/v1/metrics` — Summary statistics: transfer counts by state, volume, pending review count, exceptions
 
 ## Vendor Stub Scenarios
 

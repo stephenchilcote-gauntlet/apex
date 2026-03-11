@@ -58,6 +58,9 @@ func (h *Handlers) RegisterRoutes(r chi.Router) {
 	// Returns
 	r.Post("/api/v1/returns", h.processReturn)
 
+	// Metrics
+	r.Get("/api/v1/metrics", h.getMetrics)
+
 	// Test / Demo
 	if os.Getenv("ENABLE_TEST_RESET") == "true" {
 		r.Post("/api/v1/test/reset", h.testReset)
@@ -874,4 +877,54 @@ func getRuleEvaluations(db *sql.DB, transferID string) ([]ruleEvaluation, error)
 		evals = append(evals, e)
 	}
 	return evals, rows.Err()
+}
+
+// ---------------------------------------------------------------------------
+// Metrics
+// ---------------------------------------------------------------------------
+
+func (h *Handlers) getMetrics(w http.ResponseWriter, r *http.Request) {
+	// Counts by state
+	stateRows, err := h.DB.QueryContext(r.Context(), `SELECT state, COUNT(*) FROM transfers GROUP BY state`)
+	if err != nil {
+		internalError(w, "getMetrics/states", err)
+		return
+	}
+	defer stateRows.Close()
+
+	byState := make(map[string]int)
+	total := 0
+	for stateRows.Next() {
+		var s string
+		var c int
+		if scanErr := stateRows.Scan(&s, &c); scanErr == nil {
+			byState[s] = c
+			total += c
+		}
+	}
+
+	var fundsPostedCents, totalVolumeCents int64
+	h.DB.QueryRowContext(r.Context(), `SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&fundsPostedCents)
+	h.DB.QueryRowContext(r.Context(), `SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state NOT IN ('Rejected','Returned')`).Scan(&totalVolumeCents)
+
+	var pendingReview int
+	h.DB.QueryRowContext(r.Context(), `SELECT COUNT(*) FROM transfers WHERE state='Analyzing' AND review_required=1 AND review_status='PENDING'`).Scan(&pendingReview)
+
+	exceptions := byState["Rejected"] + byState["Returned"]
+
+	respondJSON(w, http.StatusOK, map[string]interface{}{
+		"transfers": map[string]interface{}{
+			"total":           total,
+			"by_state":        byState,
+			"pending_review":  pendingReview,
+			"exceptions":      exceptions,
+			"funds_posted":    byState["FundsPosted"],
+			"completed":       byState["Completed"],
+		},
+		"volume": map[string]interface{}{
+			"total_cents":        totalVolumeCents,
+			"funds_posted_cents": fundsPostedCents,
+		},
+		"generated_at": time.Now().UTC().Format(time.RFC3339),
+	})
 }

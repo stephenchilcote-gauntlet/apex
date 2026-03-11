@@ -28,6 +28,10 @@
     <div class="dash-card-value">{{.ExceptionsCount}}</div>
     {{if gt .ExceptionsCount 0}}<a href="/ui/transfers?state=Rejected" class="dash-card-action" style="color:var(--amber);">View rejected →</a>{{end}}
   </div>
+  <div class="dash-card">
+    <div class="dash-card-label">Total volume (active)</div>
+    <div class="dash-card-value data-value">${{formatCents .TotalVolumeCents}}</div>
+  </div>
   {{if .LatestBatch}}
   <div class="dash-card">
     <div class="dash-card-label">Latest settlement</div>

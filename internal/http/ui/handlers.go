@@ -275,6 +275,10 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 	var fundsPostedCents int64
 	h.DB.QueryRow(`SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&fundsPostedCents)
 
+	// Total volume across all non-rejected, non-returned deposits
+	var totalVolumeCents int64
+	h.DB.QueryRow(`SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state NOT IN ('Rejected','Returned')`).Scan(&totalVolumeCents)
+
 	// Daily deposit volume — last 7 calendar days with at least one transfer
 	var daily []dailyVolume
 	var maxDailyCount int
@@ -325,6 +329,7 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		"FundsPostedCents": fundsPostedCents,
 		"DailyVolume":      daily,
 		"MaxDailyCount":    maxDailyCount,
+		"TotalVolumeCents": totalVolumeCents,
 		"Recent":           recentList,
 		"AccountNames":     h.loadAccountNames(),
 	})
