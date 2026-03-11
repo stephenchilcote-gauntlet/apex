@@ -176,6 +176,26 @@ func (h *Handlers) listDeposits(w http.ResponseWriter, r *http.Request) {
 	if v := r.URL.Query().Get("reviewStatus"); v != "" {
 		filters.ReviewStatus = &v
 	}
+	if v := r.URL.Query().Get("dateFrom"); v != "" {
+		if t, err := time.Parse("2006-01-02", v); err == nil {
+			filters.DateFrom = &t
+		}
+	}
+	if v := r.URL.Query().Get("dateTo"); v != "" {
+		if t, err := time.Parse("2006-01-02", v); err == nil {
+			filters.DateTo = &t
+		}
+	}
+	if v := r.URL.Query().Get("limit"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 {
+			filters.Limit = n
+		}
+	}
+	if v := r.URL.Query().Get("offset"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n >= 0 {
+			filters.Offset = n
+		}
+	}
 
 	list, err := h.TransferSvc.List(h.DB, filters)
 	if err != nil {

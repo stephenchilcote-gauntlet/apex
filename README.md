@@ -88,7 +88,7 @@ make dev
 
 ### Deposits
 - `POST /api/v1/deposits` — Submit a deposit (multipart: frontImage, backImage, amount, investorAccountId, vendorScenario)
-- `GET /api/v1/deposits` — List deposits (filters: state, investorAccountId, reviewRequired, reviewStatus)
+- `GET /api/v1/deposits` — List deposits (filters: state, investorAccountId, reviewRequired, reviewStatus, dateFrom, dateTo, limit, offset)
 - `GET /api/v1/deposits/{transferId}` — Get deposit detail with vendor result, rule evaluations, audit events
 - `GET /api/v1/deposits/{transferId}/decision-trace` — Full audit trail for a deposit
 
@@ -153,12 +153,12 @@ All transitions are validated by a centralized function in `internal/transfers/s
 
 ## Testing
 
-**Go tests (143 test functions across 14 packages):**
+**Go tests (145 test functions across 14 packages):**
 ```bash
 make test
 ```
 
-Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, contribution type default (sets/preserves/no-default), state machine transitions (valid + invalid), transfer CRUD (Create auto-ID, List state/review/pagination/date-range filters, Count), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, double-entry ledger (PostDeposit/PostReversal, zero-sum invariant, balance deltas), audit event logging (LogEvent, LogEventTx rollback/commit, ordering), config loading (required fields, defaults, error accumulation), database migration runner (idempotency, tracking, error handling), vendor client HTTP (mock server, error propagation), vendor result persistence (SaveVendorResult/GetVendorResult, MICR round-trip, nil MICR), API key + UI session auth middleware (X-API-Key, Bearer, session signing/validation, HMAC tamper detection), security headers (CSP, X-Frame-Options), global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping, REST API handler integration (GET/POST endpoint correctness, error paths, content-type, 404 handling, test/seed idempotency, test/reset, unknown-account 400).
+Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, contribution type default (sets/preserves/no-default), state machine transitions (valid + invalid), transfer CRUD (Create auto-ID, List state/review/pagination/date-range filters, Count), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, double-entry ledger (PostDeposit/PostReversal, zero-sum invariant, balance deltas), audit event logging (LogEvent, LogEventTx rollback/commit, ordering), config loading (required fields, defaults, error accumulation), database migration runner (idempotency, tracking, error handling), vendor client HTTP (mock server, error propagation), vendor result persistence (SaveVendorResult/GetVendorResult, MICR round-trip, nil MICR), API key + UI session auth middleware (X-API-Key, Bearer, session signing/validation, HMAC tamper detection), security headers (CSP, X-Frame-Options), global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping, REST API handler integration (GET/POST endpoint correctness, error paths, content-type, 404 handling, test/seed idempotency, test/reset, unknown-account 400, date-range + pagination filters).
 
 **Playwright E2E tests (15 functional spec files, 103 test cases):**
 ```bash

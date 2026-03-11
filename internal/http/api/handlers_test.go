@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -189,6 +190,54 @@ func TestHandlers_ListDeposits_ReviewRequiredFilter(t *testing.T) {
 		if d["ReviewRequired"] != true {
 			t.Errorf("expected ReviewRequired=true, got %v", d["ReviewRequired"])
 		}
+	}
+}
+
+func TestHandlers_ListDeposits_DateFromFilter(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// future dateFrom should return empty (seed data is historical)
+	rr := doRequest(r, "GET", "/api/v1/deposits?dateFrom=2099-01-01", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d", rr.Code)
+	}
+	var body []map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if len(body) != 0 {
+		t.Errorf("expected 0 deposits with future dateFrom, got %d", len(body))
+	}
+}
+
+func TestHandlers_ListDeposits_LimitOffset(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Get total count first
+	rrAll := doRequest(r, "GET", "/api/v1/deposits", nil)
+	var allDeposits []map[string]interface{}
+	json.Unmarshal(rrAll.Body.Bytes(), &allDeposits)
+	total := len(allDeposits)
+	if total == 0 {
+		t.Fatal("expected seed data in test DB, got 0 transfers")
+	}
+
+	// limit=2 should return exactly 2
+	rr := doRequest(r, "GET", "/api/v1/deposits?limit=2", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d", rr.Code)
+	}
+	var body []map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if len(body) != 2 {
+		t.Errorf("expected 2 deposits with limit=2, got %d", len(body))
+	}
+
+	// limit=1000&offset=total should return 0 (beyond all seed data)
+	rr2 := doRequest(r, "GET", fmt.Sprintf("/api/v1/deposits?limit=1000&offset=%d", total), nil)
+	json.Unmarshal(rr2.Body.Bytes(), &body)
+	if len(body) != 0 {
+		t.Errorf("expected 0 deposits with offset=%d (beyond all seed), got %d", total, len(body))
 	}
 }
 

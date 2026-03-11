@@ -113,6 +113,12 @@ test.describe('Screenshot Regenerator', () => {
     await page.screenshot({ path: path.join(DOCS, '08-returns.png'), fullPage: false });
     console.log('08-returns.png ✓');
 
+    // 09 Audit Log
+    await page.goto('/ui/audit');
+    await page.waitForLoadState('networkidle');
+    await page.screenshot({ path: path.join(DOCS, '09-audit-log.png'), fullPage: false });
+    console.log('09-audit-log.png ✓');
+
     console.log(`\nAll screenshots saved to ${DOCS}/`);
   });
 });
