@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"testing"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -273,5 +274,78 @@ func TestTransferService_List_ReviewRequiredFilter(t *testing.T) {
 	}
 	if !found {
 		t.Errorf("expected transfer %s in review_required=true list", tr.ID)
+	}
+}
+
+func TestTransferService_List_DateFromFilter(t *testing.T) {
+	db := newTestDB(t)
+	svc := &TransferService{}
+
+	// Create two Requested transfers seeded now (created_at = now by default)
+	tr1 := seedTransfer(t, db, StateRequested)
+	tr2 := seedTransfer(t, db, StateRequested)
+	_ = tr2
+
+	// Filter with DateFrom = yesterday — both should appear
+	yesterday := time.Now().UTC().AddDate(0, 0, -1)
+	all, err := svc.List(db, TransferFilters{DateFrom: &yesterday})
+	if err != nil {
+		t.Fatalf("List with DateFrom: %v", err)
+	}
+	found := 0
+	for _, tr := range all {
+		if tr.ID == tr1.ID {
+			found++
+		}
+	}
+	if found == 0 {
+		t.Errorf("expected tr1 in results with DateFrom=yesterday")
+	}
+
+	// Filter with DateFrom = tomorrow — neither should appear (all transfers are today or earlier)
+	tomorrow := time.Now().UTC().AddDate(0, 0, 1)
+	future, err := svc.List(db, TransferFilters{DateFrom: &tomorrow})
+	if err != nil {
+		t.Fatalf("List with future DateFrom: %v", err)
+	}
+	for _, tr := range future {
+		if tr.ID == tr1.ID {
+			t.Errorf("tr1 should not appear with DateFrom=tomorrow")
+		}
+	}
+}
+
+func TestTransferService_List_DateToFilter(t *testing.T) {
+	db := newTestDB(t)
+	svc := &TransferService{}
+
+	tr := seedTransfer(t, db, StateRequested)
+
+	// Filter with DateTo = tomorrow — transfer should appear (inclusive)
+	tomorrow := time.Now().UTC().AddDate(0, 0, 1)
+	list, err := svc.List(db, TransferFilters{DateTo: &tomorrow})
+	if err != nil {
+		t.Fatalf("List with DateTo=tomorrow: %v", err)
+	}
+	found := false
+	for _, t2 := range list {
+		if t2.ID == tr.ID {
+			found = true
+		}
+	}
+	if !found {
+		t.Errorf("expected transfer in results with DateTo=tomorrow")
+	}
+
+	// Filter with DateTo = 2 days ago — transfer should NOT appear
+	twoDaysAgo := time.Now().UTC().AddDate(0, 0, -2)
+	old, err := svc.List(db, TransferFilters{DateTo: &twoDaysAgo})
+	if err != nil {
+		t.Fatalf("List with DateTo=2daysago: %v", err)
+	}
+	for _, t2 := range old {
+		if t2.ID == tr.ID {
+			t.Errorf("transfer should not appear with DateTo=2daysago")
+		}
 	}
 }

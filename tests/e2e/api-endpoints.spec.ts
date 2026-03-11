@@ -138,6 +138,39 @@ test.describe('API Endpoints', () => {
     }
   });
 
+  test('GET /api/v1/deposits?investorAccountId filters to specific account', async ({ page }) => {
+    // Submit using INV-1002 (iqa_blur scenario routes to INV-1002)
+    await submitDepositUI(page, { scenario: 'iqa_blur' });
+
+    // Get the account UUID for INV-1002
+    const acctResp = await page.request.get('/api/v1/ledger/accounts');
+    const accounts = await acctResp.json();
+    const acct1002 = accounts.find((a: any) => a.externalAccountId === 'INV-1002');
+    expect(acct1002).toBeTruthy();
+
+    const resp = await page.request.get(`/api/v1/deposits?investorAccountId=${acct1002.id}`);
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    for (const deposit of body) {
+      expect(deposit.InvestorAccountID).toBe(acct1002.id);
+    }
+  });
+
+  test('GET /api/v1/deposits?reviewRequired=true filters to review queue only', async ({ page }) => {
+    await submitDepositUI(page, { scenario: 'micr_failure' });
+
+    const resp = await page.request.get('/api/v1/deposits?reviewRequired=true');
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    for (const deposit of body) {
+      expect(deposit.ReviewRequired).toBe(true);
+    }
+  });
+
   test('GET /api/v1/ledger/accounts/{accountId} returns account with entries', async ({ page }) => {
     await submitDepositUI(page, { amount: '125.00', scenario: 'clean_pass' });
 
