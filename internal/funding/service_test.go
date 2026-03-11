@@ -285,3 +285,69 @@ func TestRuleDailyDepositLimit(t *testing.T) {
 		}
 	})
 }
+
+func TestRuleContributionTypeDefault_SetsFromAccount(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+
+	ct := "INDIVIDUAL"
+	_, _ = db.Exec(`INSERT INTO accounts (id, status, contribution_type_default) VALUES ('acct-ct', 'ACTIVE', ?)`, ct)
+	_, _ = db.Exec(`INSERT INTO transfers (id, investor_account_id, amount_cents, state) VALUES ('tx-ct', 'acct-ct', 10000, 'Analyzing')`)
+
+	svc := &FundingService{DB: db}
+	tx := &transfers.Transfer{ID: "tx-ct", InvestorAccountID: "acct-ct"}
+	result, err := svc.ruleContributionTypeDefault(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleContributionTypeDefault: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS", result.Outcome)
+	}
+	if tx.ContributionType == nil || *tx.ContributionType != ct {
+		t.Errorf("ContributionType = %v, want %q", tx.ContributionType, ct)
+	}
+}
+
+func TestRuleContributionTypeDefault_AlreadySet(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+
+	_, _ = db.Exec(`INSERT INTO accounts (id, status, contribution_type_default) VALUES ('acct-ct2', 'ACTIVE', 'INDIVIDUAL')`)
+	_, _ = db.Exec(`INSERT INTO transfers (id, investor_account_id, amount_cents, state) VALUES ('tx-ct2', 'acct-ct2', 10000, 'Analyzing')`)
+
+	svc := &FundingService{DB: db}
+	existing := "ROLLOVER"
+	tx := &transfers.Transfer{ID: "tx-ct2", InvestorAccountID: "acct-ct2", ContributionType: &existing}
+	result, err := svc.ruleContributionTypeDefault(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleContributionTypeDefault: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS", result.Outcome)
+	}
+	// Should NOT overwrite the already-set contribution type
+	if tx.ContributionType == nil || *tx.ContributionType != "ROLLOVER" {
+		t.Errorf("ContributionType = %v, want ROLLOVER (should not be overwritten)", tx.ContributionType)
+	}
+}
+
+func TestRuleContributionTypeDefault_NoDefaultConfigured(t *testing.T) {
+	db := setupTestDB(t)
+	defer db.Close()
+
+	_, _ = db.Exec(`INSERT INTO accounts (id, status) VALUES ('acct-noct', 'ACTIVE')`)
+	_, _ = db.Exec(`INSERT INTO transfers (id, investor_account_id, amount_cents, state) VALUES ('tx-noct', 'acct-noct', 10000, 'Analyzing')`)
+
+	svc := &FundingService{DB: db}
+	tx := &transfers.Transfer{ID: "tx-noct", InvestorAccountID: "acct-noct"}
+	result, err := svc.ruleContributionTypeDefault(context.Background(), tx, &model.AnalyzeResponse{})
+	if err != nil {
+		t.Fatalf("ruleContributionTypeDefault: %v", err)
+	}
+	if result.Outcome != "PASS" {
+		t.Errorf("outcome = %q, want PASS when no default configured", result.Outcome)
+	}
+	if tx.ContributionType != nil {
+		t.Errorf("ContributionType should be nil when no default, got %v", *tx.ContributionType)
+	}
+}
