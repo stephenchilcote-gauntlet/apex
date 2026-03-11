@@ -38,4 +38,15 @@ test.describe('Ledger View', () => {
     const omnibusRow = rows.filter({ hasText: /omnibus/i });
     await expect(omnibusRow).toBeVisible();
   });
+
+  test('ledger shows balanced indicator after deposit', async ({ page }) => {
+    await submitDepositUI(page, { amount: '175.00', scenario: 'clean_pass' });
+
+    await page.locator('a.nav-level-tab', { hasText: 'Ledger' }).click();
+
+    // Zero-sum invariant — "Balanced" indicator should appear
+    await expect(page.locator('body')).toContainText(/Balanced/);
+    // Should NOT show "Out of balance"
+    await expect(page.locator('body')).not.toContainText(/Out of balance/);
+  });
 });
