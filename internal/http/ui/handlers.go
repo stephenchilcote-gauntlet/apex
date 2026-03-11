@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"html"
 	"html/template"
+	"io"
 	"log/slog"
 	"math"
 	"net/http"
 	"net/url"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -391,27 +393,65 @@ func (h *UIHandlers) simulateSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	frontFile, _, err := r.FormFile("frontImage")
-	if err != nil {
-		h.render(w, "simulate", map[string]interface{}{
-			"ActivePage": "simulate",
-			"Flash":      map[string]string{"Type": "error", "Text": "Front image required: " + err.Error()},
-		})
-		return
-	}
-	defer frontFile.Close()
+	var frontReader io.ReadCloser
+	var backReader io.ReadCloser
 
-	backFile, _, err := r.FormFile("backImage")
-	if err != nil {
-		h.render(w, "simulate", map[string]interface{}{
-			"ActivePage": "simulate",
-			"Flash":      map[string]string{"Type": "error", "Text": "Back image required: " + err.Error()},
-		})
-		return
-	}
-	defer backFile.Close()
+	frontFile, _, fErr := r.FormFile("frontImage")
+	backFile, _, bErr := r.FormFile("backImage")
 
-	result, err := h.DepositSvc.SubmitDeposit(r.Context(), investorAccountID, amountCents, frontFile, backFile)
+	useSample := r.FormValue("useSampleImages") == "true" || (fErr != nil && bErr != nil)
+
+	if useSample {
+		// Fall back to bundled sample images
+		staticDir := filepath.Join(h.TemplateDir, "..", "static")
+		f, err2 := os.Open(filepath.Join(staticDir, "sample-check-front.png"))
+		if err2 != nil {
+			h.render(w, "simulate", map[string]interface{}{
+				"ActivePage": "simulate",
+				"Flash":      map[string]string{"Type": "error", "Text": "Sample images not found — please upload images manually"},
+			})
+			return
+		}
+		b, err3 := os.Open(filepath.Join(staticDir, "sample-check-back.png"))
+		if err3 != nil {
+			f.Close()
+			h.render(w, "simulate", map[string]interface{}{
+				"ActivePage": "simulate",
+				"Flash":      map[string]string{"Type": "error", "Text": "Sample images not found — please upload images manually"},
+			})
+			return
+		}
+		frontReader = f
+		backReader = b
+		if frontFile != nil {
+			frontFile.Close()
+		}
+		if backFile != nil {
+			backFile.Close()
+		}
+	} else {
+		if fErr != nil {
+			h.render(w, "simulate", map[string]interface{}{
+				"ActivePage": "simulate",
+				"Flash":      map[string]string{"Type": "error", "Text": "Front image required: " + fErr.Error()},
+			})
+			return
+		}
+		if bErr != nil {
+			frontFile.Close()
+			h.render(w, "simulate", map[string]interface{}{
+				"ActivePage": "simulate",
+				"Flash":      map[string]string{"Type": "error", "Text": "Back image required: " + bErr.Error()},
+			})
+			return
+		}
+		frontReader = frontFile
+		backReader = backFile
+	}
+	defer frontReader.Close()
+	defer backReader.Close()
+
+	result, err := h.DepositSvc.SubmitDeposit(r.Context(), investorAccountID, amountCents, frontReader, backReader)
 	if err != nil {
 		h.render(w, "simulate", map[string]interface{}{
 			"ActivePage": "simulate",

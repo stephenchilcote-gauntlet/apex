@@ -58,7 +58,13 @@
           <input type="text" name="amount" id="amount" class="input" placeholder="500.00" style="width:100%">
         </div>
       </div>
-      <div class="form-row">
+      <div class="form-row" style="align-items:center;margin-bottom:4px;">
+        <label style="display:flex;align-items:center;gap:6px;font-family:var(--font-ui);font-size:12px;color:var(--text-secondary);cursor:pointer;">
+          <input type="checkbox" name="useSampleImages" id="useSampleImages" value="true" checked style="accent-color:var(--accent);">
+          Use bundled sample check images
+        </label>
+      </div>
+      <div id="image-upload-row" class="form-row" style="display:none;">
         <div class="form-group" style="flex:1">
           <label class="form-label" for="frontImage">Front Image</label>
           <input type="file" name="frontImage" id="frontImage" class="input" style="width:100%" accept="image/*">
@@ -68,6 +74,16 @@
           <label class="form-label" for="backImage">Back Image</label>
           <input type="file" name="backImage" id="backImage" class="input" style="width:100%" accept="image/*">
           <img id="backPreview" style="display:none;margin-top:8px;max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;" alt="Back preview">
+        </div>
+      </div>
+      <div id="sample-preview-row" style="display:flex;gap:16px;margin-bottom:12px;">
+        <div style="flex:1;">
+          <div style="font-family:var(--font-ui);font-size:10px;color:var(--text-tertiary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">Front (sample)</div>
+          <img src="/static/sample-check-front.png" style="max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;display:block;" alt="Sample front">
+        </div>
+        <div style="flex:1;">
+          <div style="font-family:var(--font-ui);font-size:10px;color:var(--text-tertiary);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.05em;">Back (sample)</div>
+          <img src="/static/sample-check-back.png" style="max-height:80px;border:1px solid var(--border-subtle);border-radius:3px;display:block;" alt="Sample back">
         </div>
       </div>
       <button type="submit" class="btn" id="submit-btn">
@@ -90,6 +106,25 @@
     if (spinner) spinner.style.display = 'inline-block';
     if (label) label.textContent = 'Processing…';
   });
+})();
+
+// Toggle between sample images and upload mode
+(function () {
+  var chk = document.getElementById('useSampleImages');
+  var uploadRow = document.getElementById('image-upload-row');
+  var sampleRow = document.getElementById('sample-preview-row');
+  if (!chk || !uploadRow || !sampleRow) return;
+  function update() {
+    if (chk.checked) {
+      uploadRow.style.display = 'none';
+      sampleRow.style.display = 'flex';
+    } else {
+      uploadRow.style.display = '';
+      sampleRow.style.display = 'none';
+    }
+  }
+  chk.addEventListener('change', update);
+  update();
 })();
 
 // Image preview — show thumbnail when file selected
