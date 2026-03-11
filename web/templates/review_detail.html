@@ -126,7 +126,10 @@
             <label class="form-label" for="approve-notes">Operator Notes</label>
             <textarea name="notes" id="approve-notes" class="input" rows="3" style="width:100%"></textarea>
           </div>
-          <button type="submit" class="btn" data-action="approve">Approve</button>
+          <button type="submit" class="btn" data-action="approve" id="approve-btn">
+            <span class="submit-spinner" id="approve-spinner" style="display:none;"></span>
+            <span id="approve-label">Approve</span>
+          </button>
         </form>
       </div>
     </div>
@@ -139,11 +142,33 @@
             <label class="form-label" for="reject-notes">Rejection Reason</label>
             <textarea name="notes" id="reject-notes" class="input" rows="3" style="width:100%"></textarea>
           </div>
-          <button type="submit" class="btn btn-destructive" data-action="reject">Reject</button>
+          <button type="submit" class="btn btn-destructive" data-action="reject" id="reject-btn">
+            <span class="submit-spinner" id="reject-spinner" style="display:none;"></span>
+            <span id="reject-label">Reject</span>
+          </button>
         </form>
       </div>
     </div>
   </div>
 
 </div>
+
+<script>
+// Spinners for approve/reject forms
+(function () {
+  function wireSpinner(btnId, spinnerId, labelId, submittingText) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.closest('form').addEventListener('submit', function () {
+      btn.disabled = true;
+      var spinner = document.getElementById(spinnerId);
+      var label = document.getElementById(labelId);
+      if (spinner) spinner.style.display = 'inline-block';
+      if (label) label.textContent = submittingText;
+    });
+  }
+  wireSpinner('approve-btn', 'approve-spinner', 'approve-label', 'Approving…');
+  wireSpinner('reject-btn', 'reject-spinner', 'reject-label', 'Rejecting…');
+})();
+</script>
 {{end}}
