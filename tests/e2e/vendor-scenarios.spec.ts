@@ -22,7 +22,8 @@ test.describe('Vendor Stub Scenarios', () => {
 
     // Check it appears in review queue
     await page.locator('a.nav-level-tab', { hasText: 'Review Queue' }).click();
-    await expect(page.locator('[data-review-item]').first()).toBeVisible();
+    await page.waitForURL(/\/ui\/review/);
+    await expect(page.locator('[data-review-item]').first()).toBeVisible({ timeout: 10000 });
     await expect(page.locator('body')).toContainText(/micr_failure/);
   });
 
@@ -40,7 +41,8 @@ test.describe('Vendor Stub Scenarios', () => {
 
     // Check it appears in review queue
     await page.locator('a.nav-level-tab', { hasText: 'Review Queue' }).click();
-    await expect(page.locator('[data-review-item]').first()).toBeVisible();
+    await page.waitForURL(/\/ui\/review/);
+    await expect(page.locator('[data-review-item]').first()).toBeVisible({ timeout: 10000 });
     await expect(page.locator('body')).toContainText(/mismatch|amount/i);
   });
 
@@ -51,6 +53,7 @@ test.describe('Vendor Stub Scenarios', () => {
 
     // Check it appears in review queue
     await page.locator('a.nav-level-tab', { hasText: 'Review Queue' }).click();
-    await expect(page.locator('[data-review-item]').first()).toBeVisible();
+    await page.waitForURL(/\/ui\/review/);
+    await expect(page.locator('[data-review-item]').first()).toBeVisible({ timeout: 10000 });
   });
 });
