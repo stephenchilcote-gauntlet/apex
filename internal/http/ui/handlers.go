@@ -1009,7 +1009,7 @@ func (h *UIHandlers) ledgerPage(w http.ResponseWriter, r *http.Request) {
 	}
 	eRows, eErr := h.DB.Query(`
 		SELECT a.external_account_id, a.account_name, e.signed_amount_cents,
-		       j.purpose, j.transfer_id, e.created_at
+		       j.journal_type, j.transfer_id, e.created_at
 		FROM ledger_entries e
 		JOIN ledger_journals j ON j.id = e.journal_id
 		JOIN accounts a ON a.id = e.account_id

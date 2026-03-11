@@ -52,8 +52,8 @@ test.describe('Audit Log', () => {
     const table = page.locator('table.data-table');
     await expect(table).toBeVisible();
 
-    // All visible event-type cells should say STATE_TRANSITION
-    const eventTypeCells = table.locator('tbody tr td:nth-child(5)');
+    // All visible event-type cells should say STATE_TRANSITION (col 2: Time, Event, Transfer, Transition, Actor, Details)
+    const eventTypeCells = table.locator('tbody tr td:nth-child(2)');
     const count = await eventTypeCells.count();
     expect(count).toBeGreaterThan(0);
     for (let i = 0; i < count; i++) {

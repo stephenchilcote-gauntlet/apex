@@ -29,8 +29,8 @@ test.describe('Ledger View', () => {
     await page.locator('a.nav-level-tab', { hasText: 'Ledger' }).click();
     await expect(page.locator('body')).toContainText(/250/);
 
-    // Verify INV-1001 was credited
-    const rows = page.locator('table tbody tr');
+    // Verify INV-1001 was credited (scope to accounts table, not journal entries table)
+    const rows = page.locator('table.data-table').first().locator('tbody tr');
     const inv1001Row = rows.filter({ hasText: 'INV-1001' });
     await expect(inv1001Row).toContainText('$250.00');
 

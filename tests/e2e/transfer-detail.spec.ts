@@ -16,7 +16,7 @@ test.describe('Transfers List', () => {
 
     // Filter to FundsPosted — should show our deposit
     await page.goto('/ui/transfers?state=FundsPosted');
-    await expect(page.locator('table tbody')).toBeVisible();
+    await expect(page.locator('table.data-table tbody')).toBeVisible();
     await expect(page.locator('body')).toContainText('$175.00');
 
     // All visible state badges should be FundsPosted
@@ -91,6 +91,7 @@ test.describe('Transfer Detail & Decision Trace', () => {
     // Navigate to transfer detail via click-through
     await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
     await page.locator('[data-transfer] a').first().click();
+    await page.waitForURL(/\/ui\/transfers\/.+/);
 
     // Should show state
     await expect(page.locator('[data-state]')).toBeVisible();
