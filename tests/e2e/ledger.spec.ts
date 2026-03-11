@@ -5,7 +5,7 @@ test.describe('Ledger View', () => {
     await page.goto('/ui/ledger');
     await expect(page.locator('h1, h2')).toContainText(/ledger/i);
 
-    const table = page.locator('table');
+    const table = page.locator('table.data-table');
     await expect(table).toBeVisible();
 
     // Verify table headers
