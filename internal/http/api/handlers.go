@@ -330,6 +330,12 @@ func (h *Handlers) rejectTransfer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Verify transfer exists before taking any action
+	if _, err := h.TransferSvc.GetByID(h.DB, transferID); err != nil {
+		respondError(w, http.StatusNotFound, "transfer not found: "+err.Error())
+		return
+	}
+
 	// 1. Create operator_action row
 	now := time.Now().UTC()
 	_, err := h.DB.Exec(`
