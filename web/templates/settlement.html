@@ -19,9 +19,10 @@
         <tr>
           <th>Transfer ID</th>
           <th>Account</th>
+          <th style="width:180px;"></th>
           <th style="text-align:right;">Amount</th>
           <th>Posted</th>
-          <th style="width:180px;">Batch</th>
+          <th style="width:90px;">Batch</th>
         </tr>
       </thead>
       <tbody>
@@ -29,12 +30,12 @@
         <tr{{if .BatchID}} class="settle-row-batched"{{end}}>
           <td><a href="/ui/transfers/{{.ID}}" style="font-family:var(--font-data);font-size:11px;">{{shortID .ID}}</a></td>
           <td>{{if $.AccountNames}}{{index $.AccountNames .InvestorAccountID}}{{else}}{{.InvestorAccountID}}{{end}}</td>
+          <td>{{if .BatchID}}<span class="settle-ack-badge">Awaiting acknowledgment</span>{{end}}</td>
           <td style="text-align:right;"><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
           <td style="color:var(--text-secondary);font-size:11px;">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
           <td>
             {{if .BatchID}}
-            <a href="/ui/settlement/{{.BatchID}}" class="settle-batch-chip" title="{{.BatchID}}">{{shortID .BatchID}} →</a><br>
-            <span class="settle-ack-badge">Awaiting acknowledgment</span>
+            <a href="/ui/settlement/{{.BatchID}}" class="settle-batch-chip" title="{{.BatchID}}">{{shortID .BatchID}} →</a>
             {{else}}
             <span style="color:var(--text-tertiary);">—</span>
             {{end}}
@@ -81,7 +82,6 @@
   border: 1px solid var(--blue-dim, rgba(59,130,246,0.25));
   border-radius: 3px;
   padding: 2px 6px;
-  margin-top: 4px;
   white-space: nowrap;
 }
 </style>
