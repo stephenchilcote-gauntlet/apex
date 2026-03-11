@@ -421,8 +421,8 @@ async function runDeferredChecks() {
 // ============================================================================
 
 test.use({
-  video: { mode: 'on', size: { width: 1920, height: 1080 } },
-  viewport: { width: 1920, height: 1080 },
+  video: { mode: 'on', size: { width: 3840, height: 2160 } },
+  viewport: { width: 3840, height: 2160 },
 });
 
 test.describe('Professional Demo', () => {

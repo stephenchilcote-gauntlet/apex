@@ -77,7 +77,8 @@ demo-video:
 	@echo ""
 	@echo "Transcoding to H.264 via NVENC..."
 	@ffmpeg -y -i "$(DEMO_WEBM)" \
-	  -c:v h264_nvenc -preset p4 -rc vbr -cq 22 -b:v 0 \
+	  -vf "scale=1920:1080:flags=lanczos" \
+	  -c:v h264_nvenc -preset p4 -rc vbr -cq 20 -b:v 0 \
 	  -c:a aac -b:a 128k \
 	  "$(DEMO_MP4)" 2>/dev/null && \
 	  echo "MP4: $(DEMO_MP4)" || \
