@@ -392,8 +392,6 @@ document.addEventListener('click', function (e) {
     var dd = getDropdown(input);
     if (dd) dd.innerHTML = '';
     input.focus();
-    // Fire native input event so any other listeners (e.g. form validation) notice
-    input.dispatchEvent(new Event('input', { bubbles: true }));
   }
 
   // Track active index per dropdown

@@ -797,9 +797,15 @@ test.describe('Professional Demo', () => {
     await caption(page, 'Returns — simulate a bounced check with standard bank return reason codes', 2200);
     await clearCaption(page);
 
-    // Pre-fill transfer ID from Workflow 1 (now Completed after settlement ack)
-    await typeEl(page, '#transferId', transferId1!);
-    await page.waitForTimeout(400);
+    // Show UUID autocomplete: type first 8 chars, wait for dropdown, Tab to complete
+    await page.locator('#transferId').fill('');
+    await page.locator('#transferId').focus();
+    await page.locator('#transferId').fill(transferId1!.substring(0, 8));
+    await page.waitForTimeout(600); // let HTMX fetch + render dropdown
+    await caption(page, 'UUID autocomplete — type a prefix, Tab to fill the full transfer ID', 1800);
+    await clearCaption(page);
+    await page.locator('#transferId').press('Tab');
+    await page.waitForTimeout(300);
 
     await highlight(page, 'select[name="reasonCode"]');
     await caption(page, 'Return Code NSF — Non-Sufficient Funds, the most common reason for returned checks', 2000);
