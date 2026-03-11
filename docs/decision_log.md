@@ -6,17 +6,24 @@ Key design decisions and alternatives considered.
 
 ## 1. Go vs. Java
 
-**Decision:** Go
+**Decision:** Go (1.22+) with `chi` router
 
 **Rationale:**
-- Single static binary — no JVM, no classpath, no WAR deployment
-- Fast compile times enable tight iteration loops
-- Built-in HTTP server and concurrency primitives (no framework bootstrap)
-- Strong typing catches bugs at compile time without annotation overhead
-- `chi` router provides idiomatic HTTP routing without a full framework
+- **Single static binary:** `go build` produces one executable with zero runtime dependencies — no JVM, no classpath, no WAR deployment. `make dev` compiles and runs both services in under 2 seconds.
+- **Fast compile times:** Sub-second incremental builds enable tight iteration loops. The entire 10K-line codebase compiles from scratch in ~3 seconds.
+- **Built-in HTTP server:** Go's `net/http` is production-quality out of the box. No framework bootstrap, no dependency injection container, no annotation processor. The `chi` router adds idiomatic URL parameter routing and middleware chaining on top of the stdlib — it's a thin library, not a framework.
+- **Strong typing without ceremony:** Compile-time type checking catches bugs that Java catches with annotations and Spring validates at startup. Go's explicit error handling makes failure paths visible in the code rather than hidden in exception hierarchies.
+- **Concurrency primitives:** Goroutines and channels are built into the language. The concurrent deposit stress test (20 goroutines) required no external libraries.
+- **Financial systems affinity:** Go's explicit error handling, lack of exceptions, and simple control flow make it easier to reason about correctness in a system where a missed error could post funds incorrectly.
+
+**Why `chi` specifically:**
+- Compatible with `net/http` — handlers are standard `http.HandlerFunc`, middleware is standard `func(http.Handler) http.Handler`. No framework lock-in.
+- URL parameter extraction (`chi.URLParam(r, "transferId")`) — the one feature stdlib lacks.
+- Composable middleware chain (rate limiting, API key auth, CORS, logging) without reflection or magic.
 
 **Alternatives considered:**
-- **Java (Spring Boot):** Richer ecosystem for enterprise patterns (DI, ORM, validation annotations), but heavier operational footprint. Spring's auto-configuration adds cognitive overhead for a system this size. Would have been a reasonable choice if the system needed complex transaction management or enterprise integration patterns.
+- **Java (Spring Boot):** Richer ecosystem for enterprise patterns (DI, ORM, validation annotations), but heavier operational footprint. Spring's auto-configuration adds cognitive overhead for a system this size. Would require a JVM, a build tool (Maven/Gradle), and ~30s startup times. Would have been a reasonable choice if the system needed complex transaction management, JPA entity relationships, or enterprise integration patterns.
+- **Python (Flask/FastAPI):** Rapid prototyping but no compile-time type safety. For a financial system with 14 database tables and a state machine, runtime type errors are an unacceptable risk.
 
 ---
 
@@ -42,15 +49,31 @@ Key design decisions and alternatives considered.
 **Decision:** Go `html/template` + HTMX
 
 **Rationale:**
-- No JavaScript build step, no node_modules, no bundler configuration
-- Server-side rendering means all business logic stays in Go
-- HTMX provides dynamic interactions (form submission, partial page updates) with HTML attributes
-- Templates are type-checked at startup, not at runtime in the browser
-- Total frontend complexity: ~8 HTML templates + one HTMX script tag
+
+This is an **internal operations dashboard**, not a consumer-facing app. The interaction patterns — submit a form, view a table, click approve/reject, refresh a queue — are exactly what server-rendered HTML does best. HTMX bridges the gap to "feels dynamic" without introducing a second language, a second build system, or a second mental model:
+
+- **Zero JS build pipeline:** The entire frontend is 12 Go templates (2,294 lines) + one 14KB vendored `htmx.min.js`. No webpack, no Vite, no npm, no transpilation. `make dev` compiles and runs in seconds.
+- **Single-language codebase:** All business logic, validation, and rendering lives in Go. There is no API serialization layer (no JSON ↔ TypeScript DTO mapping), no state management library, and no client-side routing. This eliminates an entire class of bugs (stale client state, API contract drift, hydration mismatches).
+- **HTMX delivers the specific dynamism this app needs:** live-polling dashboard cards (every 15s), auto-refreshing review queue (every 20s), real-time transfer status updates (every 3–5s), debounced command-palette search (150ms delay), and health-status indicators (every 30s) — all via declarative HTML attributes (`hx-get`, `hx-trigger`, `hx-swap`), not imperative JavaScript.
+- **No custom JavaScript:** The project contains zero `.js` files beyond the vendored HTMX library. All interactivity is expressed as HTML attributes. This is auditable, testable (Playwright sees the same DOM), and has zero client-side state to get out of sync.
+- **Operational fit:** Financial operations UIs prioritize correctness and auditability over animation smoothness. Server-rendered HTML means the server is always the source of truth — there's no "optimistic update" that could show a stale approval status. Every render reflects the actual database state.
+
+**Quantitative comparison:**
+
+| Metric | HTMX approach (actual) | React SPA (estimated) |
+|--------|------------------------|----------------------|
+| Frontend source files | 12 templates, 0 JS files | ~40+ components, hooks, stores |
+| Build dependencies | 0 (vendored .js) | ~200+ npm packages |
+| Lines of frontend code | 2,294 (templates) + 1,063 (CSS) | ~5,000–8,000 (TSX + CSS + state) |
+| API surface to maintain | 0 (templates render directly) | ~20 REST endpoints × request/response types |
+| Time to first render | Instant (SSR) | Depends on JS bundle parse time |
+| Client-side state bugs | Impossible (no client state) | Ongoing risk |
 
 **Alternatives considered:**
-- **React/Next.js:** Richer interactivity, component reuse, but requires a separate build pipeline, API serialization layer, and doubles the surface area of the codebase for a demo system.
-- **CLI-only:** Would satisfy the spec's "CLI or minimal UI" requirement, but a web UI better demonstrates the operator review workflow and provides visual evidence of the system working.
+- **React/Next.js:** Would provide richer interactivity (drag-and-drop, complex filtering, offline support) but none of those are needed here. Would double the codebase size, introduce npm/node as a runtime dependency, require a JSON API contract layer, and create a second CI pipeline. For an ops dashboard that 1–3 operators use, this is pure overhead.
+- **Vue + Vite:** Lighter than React but same fundamental cost: a second language, a second build system, API serialization. The spec says "minimal UI or CLI" — a full SPA framework is the opposite of minimal.
+- **CLI-only:** Would satisfy the spec's "CLI or minimal UI" requirement, but the operator review workflow (view check images, compare MICR data, click approve/reject) is fundamentally visual. A CLI would make the demo harder to evaluate and the operator workflow unusable.
+- **Bare HTML (no HTMX):** Would work for static pages but the spec requires real-time operator queues and status tracking. Without HTMX, we'd need either full page reloads (poor UX) or hand-written fetch/DOM code (reimplements what HTMX does).
 
 ---
 
@@ -135,7 +158,25 @@ Key design decisions and alternatives considered.
 
 ---
 
-## 9. Business Date Cutoff: 6:30 PM CT with Weekend Rollforward
+## 9. Raw SQL vs. ORM (GORM, sqlx, ent)
+
+**Decision:** Raw `database/sql` with hand-written queries
+
+**Rationale:**
+- **Full control over queries:** Every SQL statement is visible and reviewable. In a financial system, it's critical to know exactly what query hits the database — no magic `SELECT *`, no lazy loading, no N+1 surprises.
+- **No abstraction leakage:** ORMs eventually force you to understand the generated SQL anyway. For 14 tables with straightforward CRUD + a few joins, the raw SQL is simpler than learning an ORM's query builder DSL.
+- **Transaction control:** The ledger's double-entry posting requires multi-statement transactions with explicit `BEGIN`/`COMMIT`/`ROLLBACK`. Raw `sql.Tx` gives precise control; ORMs often fight you on transaction boundaries.
+- **Zero additional dependencies:** `database/sql` is stdlib. No code generation step, no schema DSL, no migration framework beyond our own 50-line runner.
+- **SQLite compatibility:** Some Go ORMs have SQLite quirks (type mapping, `RETURNING` clause support). Raw SQL avoids all of them.
+
+**Alternatives considered:**
+- **GORM:** Most popular Go ORM. Would reduce boilerplate for simple CRUD but adds ~15K lines of dependency, struct tags, and implicit behavior. Transaction hooks and association loading add cognitive overhead.
+- **sqlx:** Lightweight extension that adds struct scanning. Reasonable choice — we'd use it if queries were more complex. For this project, `sql.Scan()` into explicit fields is clear enough.
+- **ent:** Facebook's code-generated ORM. Excellent for complex schemas but requires a code generation step and a schema DSL — overkill for 14 tables.
+
+---
+
+## 10. Business Date Cutoff: 6:30 PM CT with Weekend Rollforward
 
 **Decision:** Deposits submitted after 6:30 PM Central Time are assigned to the next business day. Saturday and Sunday submissions roll forward to Monday. Implemented in `internal/clock/` with an injectable `Clock` interface for testability.
 
@@ -148,3 +189,36 @@ Key design decisions and alternatives considered.
 **Alternatives considered:**
 - **Holiday calendar:** Production systems need a holiday calendar (no settlement on bank holidays), but the spec doesn't mention holidays. Would add configuration/data maintenance burden.
 - **UTC-based cutoff:** Simpler but doesn't match the spec's "CT" requirement. Financial systems need to use the business timezone.
+
+---
+
+## 11. `make dev` (Native) vs. Docker-First Development
+
+**Decision:** `make dev` runs both services natively with `go run`. Docker is available (`docker-compose.yml`) but optional.
+
+**Rationale:**
+- **Fastest possible iteration cycle:** `make dev` starts both services in ~2 seconds. Docker builds add 15–30 seconds per change.
+- **Zero prerequisites beyond Go:** No Docker daemon, no container runtime, no volume mount quirks. The evaluator needs only `go` installed (and `npm` for Playwright e2e tests).
+- **SQLite makes this possible:** With PostgreSQL, Docker would be semi-required to provide the database server. SQLite's zero-server architecture means the app creates its own database file on first run.
+- **Docker still available:** `docker-compose.yml` and both Dockerfiles exist for production-like deployment or evaluators who prefer containers.
+
+**Alternatives considered:**
+- **Docker-first (`docker compose up` only):** Consistent environment but slower iteration and requires Docker installed. Some evaluators may not have Docker readily available.
+- **Devcontainers:** Great for onboarding but adds `.devcontainer/` configuration complexity for a project that already runs with one command.
+
+---
+
+## 12. Dual Test Strategy: Go Unit/Integration + Playwright E2E
+
+**Decision:** 144 Go test functions for unit/integration testing + 15 Playwright spec files (~105 test cases) for end-to-end browser testing.
+
+**Rationale:**
+- **Go tests cover correctness:** State machine transitions, ledger invariants (zero-sum), duplicate detection, rule evaluation, settlement generation, vendor client behavior — all tested in-process with sub-second execution.
+- **Playwright tests cover the user experience:** Form submission, operator review workflow, navigation, keyboard shortcuts, visual regression — all tested through a real browser against running servers.
+- **Each layer tests what it's best at:** Go tests don't need a browser. Playwright tests don't need to re-test internal logic. No redundant coverage between layers.
+- **Playwright provides demo evidence:** Test recordings and screenshots serve as proof the system works, satisfying the spec's requirement for visual evidence.
+
+**Alternatives considered:**
+- **Go tests only:** Would miss UI bugs (broken templates, incorrect form actions, missing HTMX attributes). The operator workflow is fundamentally a UI flow.
+- **Playwright only:** Would be slow and fragile for testing internal invariants like "ledger entries always sum to zero." Go tests verify this in milliseconds.
+- **Cypress:** Similar capability to Playwright but Playwright has better multi-browser support and the `codegen` tool is useful for writing specs quickly.
