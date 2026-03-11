@@ -291,11 +291,11 @@
   box-shadow: 0 0 0 3px rgba(255,255,255,0.1);
 }
 .pipeline-stage.active .pipeline-label { color: var(--text-primary); font-weight: 600; }
-/* Terminal errors (Rejected/Returned) */
+/* Terminal states (Rejected/Returned) — undesired but no action required */
 .pipeline-stage[data-terminal].active .pipeline-dot {
-  border-color: var(--red);
-  background: var(--red);
-  box-shadow: 0 0 0 3px rgba(220,50,50,0.12);
+  border-color: var(--amber);
+  background: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-glow);
 }
 </style>
 
