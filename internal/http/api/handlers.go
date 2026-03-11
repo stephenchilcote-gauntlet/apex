@@ -61,6 +61,9 @@ func (h *Handlers) RegisterRoutes(r chi.Router) {
 	// Metrics
 	r.Get("/api/v1/metrics", h.getMetrics)
 
+	// Audit
+	r.Get("/api/v1/audit", h.getAuditLog)
+
 	// Test / Demo
 	if os.Getenv("ENABLE_TEST_RESET") == "true" {
 		r.Post("/api/v1/test/reset", h.testReset)
@@ -927,4 +930,75 @@ func (h *Handlers) getMetrics(w http.ResponseWriter, r *http.Request) {
 		},
 		"generated_at": time.Now().UTC().Format(time.RFC3339),
 	})
+}
+
+// ---------------------------------------------------------------------------
+// Audit Log
+// ---------------------------------------------------------------------------
+
+// getAuditLog returns recent audit events.
+// Query params:
+//   - transferId: filter by transfer entity ID
+//   - limit:      max events to return (default 100, max 500)
+func (h *Handlers) getAuditLog(w http.ResponseWriter, r *http.Request) {
+	q := r.URL.Query()
+
+	limit := 100
+	if v := q.Get("limit"); v != "" {
+		if n, err := strconv.Atoi(v); err == nil && n > 0 && n <= 500 {
+			limit = n
+		}
+	}
+
+	var rows *sql.Rows
+	var err error
+	if tid := q.Get("transferId"); tid != "" {
+		rows, err = h.DB.QueryContext(r.Context(), `
+			SELECT id, entity_type, entity_id, actor_type, actor_id,
+			       event_type, from_state, to_state, details_json, created_at
+			FROM audit_events
+			WHERE entity_type = 'transfer' AND entity_id = ?
+			ORDER BY created_at ASC
+			LIMIT ?`, tid, limit)
+	} else {
+		rows, err = h.DB.QueryContext(r.Context(), `
+			SELECT id, entity_type, entity_id, actor_type, actor_id,
+			       event_type, from_state, to_state, details_json, created_at
+			FROM audit_events
+			ORDER BY created_at DESC
+			LIMIT ?`, limit)
+	}
+	if err != nil {
+		internalError(w, "getAuditLog", err)
+		return
+	}
+	defer rows.Close()
+
+	type auditEntry struct {
+		ID          string  `json:"id"`
+		EntityType  string  `json:"entityType"`
+		EntityID    string  `json:"entityId"`
+		ActorType   string  `json:"actorType"`
+		ActorID     string  `json:"actorId"`
+		EventType   string  `json:"eventType"`
+		FromState   *string `json:"fromState"`
+		ToState     *string `json:"toState"`
+		DetailsJSON *string `json:"detailsJson"`
+		CreatedAt   string  `json:"createdAt"`
+	}
+
+	var events []auditEntry
+	for rows.Next() {
+		var e auditEntry
+		var createdAt time.Time
+		if scanErr := rows.Scan(&e.ID, &e.EntityType, &e.EntityID, &e.ActorType, &e.ActorID,
+			&e.EventType, &e.FromState, &e.ToState, &e.DetailsJSON, &createdAt); scanErr == nil {
+			e.CreatedAt = createdAt.UTC().Format(time.RFC3339)
+			events = append(events, e)
+		}
+	}
+	if events == nil {
+		events = []auditEntry{}
+	}
+	respondJSON(w, http.StatusOK, events)
 }

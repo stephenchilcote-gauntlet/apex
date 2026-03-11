@@ -113,6 +113,9 @@ make dev
 ### Metrics
 - `GET /api/v1/metrics` — Summary statistics: transfer counts by state, volume, pending review count, exceptions
 
+### Audit Log
+- `GET /api/v1/audit` — Recent audit events (last 100); `?transferId=` to filter by transfer; `?limit=` (max 500)
+
 ## Vendor Stub Scenarios
 
 The vendor stub returns deterministic responses based on account suffix, `X-Vendor-Scenario` header, or `vendorScenario` form field:
@@ -148,19 +151,19 @@ All transitions are validated by a centralized function in `internal/transfers/s
 
 ## Testing
 
-**Go tests (17 test functions across 5 packages):**
+**Go tests (31 test functions across 7 packages):**
 ```bash
 make test
 ```
 
-Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections, duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment, return processing with fee calculation, global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines).
+Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping.
 
-**Playwright E2E tests (14 spec files):**
+**Playwright E2E tests (13 functional spec files):**
 ```bash
 make test-e2e
 ```
 
-Covers: deposit submission UI, happy path flow, vendor scenarios, operator approve/reject, ledger balances, settlement generation/ack, returns/reversals, business rules, navigation, transfer detail.
+Covers: deposit submission UI, happy path flow, vendor scenarios, operator approve/reject, ledger balances, settlement generation/ack, returns/reversals, business rules, navigation, transfer detail, empty states, visual regression.
 
 ## Demo Walkthrough
 
