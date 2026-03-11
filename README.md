@@ -147,8 +147,9 @@ All transitions are validated by a centralized function in `internal/transfers/s
 
 1. **Account Eligibility** — Account must be ACTIVE
 2. **Max Deposit Limit** — $5,000 per deposit
-3. **Contribution Type Default** — Auto-set from account configuration
-4. **Internal Duplicate Detection** — SHA256 fingerprint of MICR + amount + account
+3. **Daily Deposit Limit** — $10,000 total per account per business day
+4. **Contribution Type Default** — Auto-set from account configuration
+5. **Internal Duplicate Detection** — SHA256 fingerprint of MICR + amount + account
 
 ## Testing
 
