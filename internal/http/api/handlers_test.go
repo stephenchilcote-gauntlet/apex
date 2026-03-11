@@ -334,6 +334,42 @@ func TestHandlers_GetJournals_EmptyForUnknownTransfer(t *testing.T) {
 	}
 }
 
+func TestHandlers_GetJournals_WithSeededTransfer(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// T1 has a seeded DEPOSIT_POSTING journal
+	const transferID = "00000000-seed-0000-0000-000000000001"
+	rr := doRequest(r, "GET", "/api/v1/ledger/journals?transferId="+transferID, nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", rr.Code, rr.Body.String())
+	}
+	var body []map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if len(body) == 0 {
+		t.Fatal("expected seeded journals for T1, got empty array")
+	}
+	// Journal has PascalCase fields (no JSON tags)
+	first := body[0]
+	if _, ok := first["ID"]; !ok {
+		t.Error("missing ID field")
+	}
+	if _, ok := first["JournalType"]; !ok {
+		t.Error("missing JournalType field")
+	}
+	// T1 should have DEPOSIT_POSTING
+	found := false
+	for _, j := range body {
+		if j["JournalType"] == "DEPOSIT_POSTING" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("expected DEPOSIT_POSTING journal for T1")
+	}
+}
+
 func TestHandlers_ListBatches_ReturnsArray(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
