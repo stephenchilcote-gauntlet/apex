@@ -159,7 +159,7 @@ make test
 
 Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping.
 
-**Playwright E2E tests (13 functional spec files):**
+**Playwright E2E tests (11 functional spec files, 30 test cases):**
 ```bash
 make test-e2e
 ```
@@ -169,13 +169,14 @@ Covers: deposit submission UI, happy path flow, vendor scenarios, operator appro
 ## Demo Walkthrough
 
 1. **Start the system:** `make dev`
-2. **Submit a deposit:** Go to `http://localhost:8080/ui/simulate`, pick account INV-1001, enter $100.00, upload any two images, select "Clean Pass" scenario, submit
-3. **View the transfer:** Click through to `/ui/transfers` — see the deposit in FundsPosted state
-4. **Check the ledger:** `/ui/ledger` — investor account credited, omnibus account debited
-5. **Generate settlement:** `/ui/settlement` → Generate Batch → see the X9.37 ICL binary file created
+2. **Submit a deposit:** Go to `http://localhost:8080/ui/simulate`, pick account INV-1001, enter $250.00 (bundled sample images are pre-selected), submit
+3. **View the transfer:** Click through to `/ui/transfers` — see the deposit in FundsPosted state, with page amount total
+4. **Check the ledger:** `/ui/ledger` — investor account credited, omnibus debited, "✓ Balanced" zero-sum confirmed
+5. **Generate settlement:** `/ui/settlement` → shows eligible count → Generate Batch → X9.37 ICL file created → click batch ID to see items
 6. **Acknowledge settlement:** Click Acknowledge on the batch → deposits move to Completed
 7. **Test a review flow:** Submit with account INV-1004 (MICR failure) → `/ui/review` → approve or reject
-8. **Test a return:** After a deposit reaches FundsPosted/Completed, go to `/ui/returns`, enter the transfer ID → reversal posted with $30 fee
+8. **Test a return:** After a deposit reaches FundsPosted/Completed, go to `/ui/returns` → click from the "Eligible for Return" table → reversal posted with $30 NSF fee
+9. **View audit trail:** `/ui/audit` → full event log with state transitions and actor info
 
 ## Configuration
 
