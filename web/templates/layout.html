@@ -19,9 +19,9 @@
           <a href="/ui"            class="nav-level-tab" {{if eq .ActivePage "dashboard" }}aria-selected="true"{{end}}>Overview</a>
           <a href="/ui/simulate"   class="nav-level-tab" {{if eq .ActivePage "simulate"  }}aria-selected="true"{{end}}>Simulate</a>
           <a href="/ui/transfers"  class="nav-level-tab" {{if eq .ActivePage "transfers" }}aria-selected="true"{{end}}>Transfers</a>
-          <a href="/ui/review"     class="nav-level-tab" {{if eq .ActivePage "review"    }}aria-selected="true"{{end}}>Review Queue <span id="review-count" hx-get="/ui/review-count" hx-trigger="load, every 5s" hx-swap="innerHTML"></span></a>
+          <a href="/ui/review"     class="nav-level-tab" {{if eq .ActivePage "review"    }}aria-selected="true"{{end}}>Review Queue <span id="review-count" hx-get="/ui/review-count" hx-trigger="every 5s" hx-swap="innerHTML">{{if .NavReviewCount}}<span class="review-badge">{{.NavReviewCount}}</span>{{end}}</span></a>
           <a href="/ui/ledger"     class="nav-level-tab" {{if eq .ActivePage "ledger"    }}aria-selected="true"{{end}}>Ledger</a>
-          <a href="/ui/settlement" class="nav-level-tab" {{if eq .ActivePage "settlement"}}aria-selected="true"{{end}}>Settlement <span id="settlement-count" hx-get="/ui/settlement-count" hx-trigger="load, every 15s" hx-swap="innerHTML"></span></a>
+          <a href="/ui/settlement" class="nav-level-tab" {{if eq .ActivePage "settlement"}}aria-selected="true"{{end}}>Settlement <span id="settlement-count" hx-get="/ui/settlement-count" hx-trigger="every 15s" hx-swap="innerHTML">{{if .NavSettlementCount}}<span class="review-badge">{{.NavSettlementCount}}</span>{{end}}</span></a>
           <a href="/ui/returns"    class="nav-level-tab" {{if eq .ActivePage "returns"   }}aria-selected="true"{{end}}>Returns</a>
           <a href="/ui/audit"      class="nav-level-tab" {{if eq .ActivePage "audit"     }}aria-selected="true"{{end}}>Audit Log</a>
         </div>
@@ -50,12 +50,12 @@
 <!-- Command Palette — Ctrl+K / ⌘K -->
 <dialog id="cmd-modal" class="cmd-modal">
   <div class="cmd-modal-inner">
-    <input type="text" id="cmd-input" class="cmd-input" placeholder="Search transfers by ID or account…"
+    <input type="text" id="cmd-input" name="q" class="cmd-input" placeholder="Search transfers by ID or account…"
       autocomplete="off" spellcheck="false"
       hx-get="/ui/search"
-      hx-trigger="input changed delay:150ms"
+      hx-trigger="input delay:150ms"
       hx-target="#cmd-results"
-      hx-vals='js:{"q": document.getElementById("cmd-input")?.value || ""}'>
+      hx-include="this">
     <div id="cmd-results" class="cmd-results">
       <div class="cmd-empty">Type to search transfers by ID or account…</div>
     </div>
