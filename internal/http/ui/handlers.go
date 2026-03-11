@@ -1146,20 +1146,27 @@ func (h *UIHandlers) settlementPage(w http.ResponseWriter, r *http.Request) {
 	var eligibleCents int64
 	_ = h.DB.QueryRow(`SELECT COUNT(*), COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&eligibleCount, &eligibleCents)
 
-	// Fetch the actual eligible transfers to display in the queue
-	rows, _ := h.DB.Query(`SELECT id, investor_account_id, amount_cents, created_at FROM transfers WHERE state='FundsPosted' ORDER BY created_at ASC`)
+	// Fetch FundsPosted transfers, joining to see if they're already in a batch
+	rows, _ := h.DB.Query(`
+		SELECT t.id, t.investor_account_id, t.amount_cents, t.created_at,
+		       COALESCE(sbi.batch_id, '') as batch_id
+		FROM transfers t
+		LEFT JOIN settlement_batch_items sbi ON sbi.transfer_id = t.id
+		WHERE t.state = 'FundsPosted'
+		ORDER BY t.created_at ASC`)
 	type eligibleRow struct {
 		ID                string
 		InvestorAccountID string
 		AmountCents       int64
 		CreatedAt         time.Time
+		BatchID           string
 	}
 	var eligible []eligibleRow
 	if rows != nil {
 		defer rows.Close()
 		for rows.Next() {
 			var e eligibleRow
-			rows.Scan(&e.ID, &e.InvestorAccountID, &e.AmountCents, &e.CreatedAt)
+			rows.Scan(&e.ID, &e.InvestorAccountID, &e.AmountCents, &e.CreatedAt, &e.BatchID)
 			eligible = append(eligible, e)
 		}
 	}

@@ -21,15 +21,23 @@
           <th>Account</th>
           <th style="text-align:right;">Amount</th>
           <th>Posted</th>
+          <th style="width:110px;">Batch</th>
         </tr>
       </thead>
       <tbody>
         {{range .EligibleTransfers}}
-        <tr>
+        <tr{{if .BatchID}} class="settle-row-batched"{{end}}>
           <td><a href="/ui/transfers/{{.ID}}" style="font-family:var(--font-data);font-size:11px;">{{shortID .ID}}</a></td>
           <td>{{if $.AccountNames}}{{index $.AccountNames .InvestorAccountID}}{{else}}{{.InvestorAccountID}}{{end}}</td>
           <td style="text-align:right;"><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
           <td style="color:var(--text-secondary);font-size:11px;">{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+          <td>
+            {{if .BatchID}}
+            <a href="/ui/settlement/{{.BatchID}}" class="settle-batch-chip" title="{{.BatchID}}">{{shortID .BatchID}} →</a>
+            {{else}}
+            <span style="color:var(--text-tertiary);">—</span>
+            {{end}}
+          </td>
         </tr>
         {{end}}
       </tbody>
@@ -37,6 +45,32 @@
   </div>
 </div>
 {{end}}
+
+<style>
+.settle-row-batched {
+  opacity: 0.62;
+}
+.settle-row-batched td {
+  color: var(--text-secondary);
+}
+.settle-batch-chip {
+  display: inline-block;
+  font-family: var(--font-data);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--blue-bright);
+  background: var(--blue-dim, rgba(59,130,246,0.12));
+  border: 1px solid var(--blue-dim, rgba(59,130,246,0.25));
+  border-radius: 3px;
+  padding: 2px 6px;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.settle-batch-chip:hover {
+  text-decoration: none;
+  opacity: 0.8;
+}
+</style>
 
 <div class="panel" style="margin-bottom:12px;">
   <div class="panel-header"><span class="panel-header-title">Generate Batch</span></div>
