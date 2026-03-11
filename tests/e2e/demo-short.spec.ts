@@ -10,66 +10,104 @@ const test = base.extend({});
  *   2. Operator Review — submit a flagged deposit, approve it from the review queue
  *   3. Settlement      — generate an X9.37 ICL batch and acknowledge it
  *
- * Run:   npx playwright test demo-short.spec.ts
- * Output: reports/test-results/playwright/demo-short/
+ * Run:   cd tests/e2e && npx playwright test demo-short.spec.ts
+ * Output: tests/e2e/test-results/demo-short-.../video.webm
  *
- * Key fixes vs video-tour.spec.ts:
- *   - Cursor NO LONGER snaps to center on page navigation.
- *     The last known position is tracked in `cursor` and injected at that
- *     exact position when re-creating the element after navigation, so
- *     CSS transitions always start from where the cursor actually was.
- *   - Heavy VisualJudge checks to verify UI correctness at key moments.
+ * Design principles:
+ *   - Cursor NEVER snaps to center. Last known position is tracked in the
+ *     `cursor` module variable and injected verbatim after each navigation.
+ *   - Progress indicator persists across pages (tracked in `progress` and
+ *     restored alongside the cursor in afterNav()).
+ *   - Fills use character-by-character typing for a human-looking pace.
+ *   - Visual checks at every key moment via VisualJudge (non-fatal).
  */
 
-// ---------------------------------------------------------------------------
-// Cursor position tracker — prevents snap-to-center on navigation
-// ---------------------------------------------------------------------------
+// ============================================================================
+// Module-level state — survives across page navigations
+// ============================================================================
 
-/** Mutable cursor state shared by all helpers. */
 const cursor = { x: 960, y: 540 };
+const progress = { current: 0, total: 3, label: '' };
 
-async function ensureCursor(page: Page) {
+// ============================================================================
+// Post-navigation restore — call after every page.goto() or nav click
+// ============================================================================
+
+/**
+ * After every full-page navigation, re-inject the cursor at its last known
+ * position AND restore the workflow progress indicator.
+ * All DOM elements are wiped on navigation so we must recreate them.
+ */
+async function afterNav(page: Page) {
   await page.waitForLoadState('domcontentloaded');
-  const { x, y } = cursor;
+
   await page.evaluate(
-    ({ x, y }) => {
-      if (document.getElementById('demo-cursor')) return;
-      const cur = document.createElement('div');
-      cur.id = 'demo-cursor';
-      cur.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path d="M5 3l14 8-6.5 1.5L10 19z" fill="white" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
-      </svg>`;
-      // CRITICAL FIX: inject at last known position, NOT at a fixed center
-      // point. Without this, the cursor always appears at the viewport center
-      // (960, 540) and then visibly snaps/animates to its target — creating
-      // an unrealistic teleport effect on every page navigation.
-      cur.style.cssText = `
-        position: fixed; z-index: 100001; pointer-events: none;
-        left: ${x}px; top: ${y}px;
-        transition: left 0.45s cubic-bezier(0.4,0,0.2,1), top 0.45s cubic-bezier(0.4,0,0.2,1);
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
-      `;
-      document.body.appendChild(cur);
+    ({ cx, cy, pcurrent, ptotal, plabel }) => {
+      // ── cursor ──────────────────────────────────────────────────────
+      if (!document.getElementById('demo-cursor')) {
+        const cur = document.createElement('div');
+        cur.id = 'demo-cursor';
+        cur.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M5 3l14 8-6.5 1.5L10 19z" fill="white" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>`;
+        // Inject at last known position — NOT at a hardcoded center.
+        // This eliminates the "snap to (960,540) then jump to target" glitch.
+        cur.style.cssText = `
+          position: fixed; z-index: 100001; pointer-events: none;
+          left: ${cx}px; top: ${cy}px;
+          transition: left 0.45s cubic-bezier(0.4,0,0.2,1), top 0.45s cubic-bezier(0.4,0,0.2,1);
+          filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        `;
+        document.body.appendChild(cur);
+      }
+
+      // ── progress indicator ──────────────────────────────────────────
+      if (pcurrent > 0 && !document.getElementById('demo-progress')) {
+        const el = document.createElement('div');
+        el.id = 'demo-progress';
+        el.style.cssText = `
+          position: fixed; top: 16px; right: 16px; z-index: 99997;
+          background: rgba(0,0,0,0.78);
+          border: 1px solid rgba(243,78,63,0.35);
+          border-radius: 6px;
+          padding: 5px 12px;
+          font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+          font-size: 11px; color: #aaa; letter-spacing: 0.04em;
+          pointer-events: none;
+        `;
+        const dots = Array.from({ length: ptotal }, (_, i) => {
+          const done = i < pcurrent;
+          const active = i === pcurrent - 1;
+          return `<span style="color:${done ? (active ? '#f34e3f' : '#b03030') : '#333'};font-size:9px;">●</span>`;
+        }).join(' ');
+        el.innerHTML = `${dots} &nbsp;<span style="color:#e8e8e8;font-weight:600;">${plabel}</span>`;
+        document.body.appendChild(el);
+      }
     },
-    { x, y },
+    { cx: cursor.x, cy: cursor.y, pcurrent: progress.current, ptotal: progress.total, plabel: progress.label },
   );
 }
 
+// ============================================================================
+// Cursor movement — smooth arcs with midpoint for long distances
+// ============================================================================
+
 async function moveCursor(page: Page, selector: string) {
-  await ensureCursor(page);
+  await afterNav(page); // ensure cursor exists
   const box = await page.locator(selector).first().boundingBox();
   if (!box) return;
 
   const tx = Math.round(box.x + box.width / 2);
   const ty = Math.round(box.y + box.height / 2);
 
-  // For long-distance moves (> 400px), briefly pass through a midpoint so
-  // the cursor arc looks more like a natural human mouse path instead of
-  // a perfectly straight teleport from one edge to the other.
+  // For long moves (> 400px), arc through a jittered midpoint so the
+  // cursor path looks like a natural human mouse arc, not a teleport.
   const dist = Math.sqrt((tx - cursor.x) ** 2 + (ty - cursor.y) ** 2);
   if (dist > 400) {
-    const midX = Math.round((cursor.x + tx) / 2 + (Math.random() - 0.5) * 80);
-    const midY = Math.round((cursor.y + ty) / 2 + (Math.random() - 0.5) * 50);
+    const jx = (Math.random() - 0.5) * 90;
+    const jy = (Math.random() - 0.5) * 55;
+    const midX = Math.round((cursor.x + tx) / 2 + jx);
+    const midY = Math.round((cursor.y + ty) / 2 + jy);
     await page.evaluate(
       ({ x, y }) => {
         const cur = document.getElementById('demo-cursor');
@@ -77,10 +115,10 @@ async function moveCursor(page: Page, selector: string) {
       },
       { x: midX, y: midY },
     );
-    await page.waitForTimeout(260);
+    await page.waitForTimeout(270);
   }
 
-  // Update tracker BEFORE final move so the next ensureCursor call starts
+  // Update tracker BEFORE final move so the next afterNav() call starts
   // from the correct position even if a navigation happens mid-flight.
   cursor.x = tx;
   cursor.y = ty;
@@ -91,12 +129,12 @@ async function moveCursor(page: Page, selector: string) {
     },
     { x: tx, y: ty },
   );
-  await page.waitForTimeout(520); // wait for CSS transition to complete
+  await page.waitForTimeout(520);
 }
 
-// ---------------------------------------------------------------------------
-// Caption / highlight / title-card helpers
-// ---------------------------------------------------------------------------
+// ============================================================================
+// Caption
+// ============================================================================
 
 async function caption(page: Page, text: string, durationMs = 2800) {
   await page.waitForLoadState('domcontentloaded');
@@ -114,10 +152,9 @@ async function caption(page: Page, text: string, durationMs = 2800) {
           font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
           color: #f0f0f0;
           font-size: 17px; line-height: 1.5;
-          text-align: center;
-          letter-spacing: 0.01em;
+          text-align: center; letter-spacing: 0.01em;
           pointer-events: none;
-          transition: opacity 0.25s ease;
+          transition: opacity 0.22s ease;
         `;
         document.body.appendChild(cap);
       }
@@ -137,6 +174,10 @@ async function clearCaption(page: Page) {
   await page.waitForTimeout(220);
 }
 
+// ============================================================================
+// Title card
+// ============================================================================
+
 async function titleCard(page: Page, heading: string, sub?: string) {
   await page.evaluate(
     ({ heading, sub }) => {
@@ -151,8 +192,7 @@ async function titleCard(page: Page, heading: string, sub?: string) {
         background: #111;
         display: flex; flex-direction: column; align-items: center; justify-content: center;
         font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
-        opacity: 0; transition: opacity 0.35s ease;
-        pointer-events: none;
+        opacity: 0; transition: opacity 0.35s ease; pointer-events: none;
       `;
       card.innerHTML = `
         <div style="font-size:11px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:#f34e3f;margin-bottom:18px;">
@@ -178,6 +218,10 @@ async function removeTitle(page: Page) {
   await page.waitForTimeout(450);
 }
 
+// ============================================================================
+// Highlight ring
+// ============================================================================
+
 async function highlight(page: Page, selector: string) {
   const box = await page.locator(selector).first().boundingBox();
   if (!box) return;
@@ -188,8 +232,8 @@ async function highlight(page: Page, selector: string) {
         const s = document.createElement('style');
         s.id = 'demo-hl-style';
         s.textContent = `@keyframes demo-hl-pulse {
-          0%,100% { box-shadow: 0 0 12px rgba(243,78,63,0.4); }
-          50%      { box-shadow: 0 0 24px rgba(243,78,63,0.75); }
+          0%,100% { box-shadow: 0 0 10px rgba(243,78,63,0.35); }
+          50%      { box-shadow: 0 0 22px rgba(243,78,63,0.7); }
         }`;
         document.head.appendChild(s);
       }
@@ -199,8 +243,7 @@ async function highlight(page: Page, selector: string) {
         position: fixed; z-index: 99998;
         left: ${r.x - 4}px; top: ${r.y - 4}px;
         width: ${r.w + 8}px; height: ${r.h + 8}px;
-        border: 2px solid #f34e3f;
-        border-radius: 6px;
+        border: 2px solid #f34e3f; border-radius: 6px;
         animation: demo-hl-pulse 1.1s ease-in-out infinite;
         pointer-events: none;
       `;
@@ -215,19 +258,27 @@ async function clearHighlights(page: Page) {
   await page.evaluate(() => document.querySelectorAll('.demo-hl').forEach((e) => e.remove()));
 }
 
+// ============================================================================
+// Interaction helpers
+// ============================================================================
+
 async function clickEl(page: Page, selector: string) {
   await moveCursor(page, selector);
   await highlight(page, selector);
-  await page.waitForTimeout(220);
+  await page.waitForTimeout(200);
   await page.locator(selector).first().click();
   await clearHighlights(page);
 }
 
-async function fillEl(page: Page, selector: string, text: string) {
+/** Type text character-by-character for a human-looking pace. */
+async function typeEl(page: Page, selector: string, text: string) {
   await moveCursor(page, selector);
   await highlight(page, selector);
-  await page.locator(selector).first().fill(text);
-  await page.waitForTimeout(380);
+  await page.locator(selector).first().fill(''); // clear first
+  for (const ch of text) {
+    await page.locator(selector).first().pressSequentially(ch, { delay: 55 });
+  }
+  await page.waitForTimeout(300);
   await clearHighlights(page);
 }
 
@@ -239,47 +290,30 @@ async function selectEl(page: Page, selector: string, value: string) {
   await clearHighlights(page);
 }
 
-/** Show a persistent workflow progress indicator in the top-right corner. */
-async function setProgress(page: Page, current: number, total: number, label: string) {
-  await page.evaluate(
-    ({ current, total, label }) => {
-      let el = document.getElementById('demo-progress');
-      if (!el) {
-        el = document.createElement('div');
-        el.id = 'demo-progress';
-        el.style.cssText = `
-          position: fixed; top: 16px; right: 16px; z-index: 99999;
-          background: rgba(0,0,0,0.75);
-          border: 1px solid rgba(243,78,63,0.4);
-          border-radius: 6px;
-          padding: 6px 12px;
-          font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
-          font-size: 11px;
-          color: #aaa;
-          pointer-events: none;
-          letter-spacing: 0.04em;
-        `;
-        document.body.appendChild(el);
-      }
-      const dots = Array.from({ length: total }, (_, i) =>
-        `<span style="color:${i < current ? '#f34e3f' : i === current - 1 ? '#f34e3f' : '#444'}">●</span>`
-      ).join(' ');
-      el.innerHTML = `${dots} &nbsp;<span style="color:#f0f0f0;font-weight:600;">${label}</span>`;
-    },
-    { current, total, label },
-  );
+// ============================================================================
+// Progress indicator — persists via module state + afterNav() restore
+// ============================================================================
+
+async function setProgress(page: Page, current: number, label: string) {
+  progress.current = current;
+  progress.label = label;
+  // Remove stale element and let afterNav() re-inject with fresh state
+  await page.evaluate(() => { document.getElementById('demo-progress')?.remove(); });
+  await afterNav(page);
 }
 
+// ============================================================================
+// State waiter
+// ============================================================================
+
 async function waitForTerminalState(page: Page, maxMs = 30000) {
-  // Use span[data-state] to target the badge specifically.
-  // The pipeline div also has [data-state] as an attribute but its textContent
-  // is all stage names concatenated — not the current state string.
+  // Prefer span[data-state] (the badge), not .pipeline[data-state] (the
+  // container whose textContent is all stage names concatenated).
   await page.waitForFunction(
     () => {
-      // Prefer the badge span; fall back to the pipeline container attribute.
       const badge = document.querySelector('span[data-state]');
       if (badge) {
-        const s = badge.textContent?.trim() ?? '';
+        const s = (badge.textContent ?? '').trim();
         return ['FundsPosted', 'Completed', 'Rejected', 'Returned', 'Analyzing'].includes(s);
       }
       const pipeline = document.querySelector('.pipeline[data-state]');
@@ -293,9 +327,9 @@ async function waitForTerminalState(page: Page, maxMs = 30000) {
   );
 }
 
-// ---------------------------------------------------------------------------
-// Visual assertions — heavy use throughout to verify correctness
-// ---------------------------------------------------------------------------
+// ============================================================================
+// Visual assertions — non-fatal in demo context
+// ============================================================================
 
 let judge: VisualJudge | null = null;
 
@@ -306,12 +340,10 @@ async function assertVisual(
 ) {
   if (!judge) return;
   try {
-    // In the demo context we log but never hard-fail — the video should
-    // always complete even if an individual visual check doesn't pass.
     const results = await judge.assertVisual(page, checks, { testName: `demo-${stepName}`, fullPage: false });
-    for (const [name, result] of Object.entries(results)) {
+    for (const [, result] of Object.entries(results)) {
       if (!result.passed) {
-        console.warn(`[visual-judge] ${stepName}/${name}: FAIL — ${result.reason}`);
+        console.warn(`[visual-judge] ${stepName}: FAIL — ${result.reason}`);
       }
     }
   } catch (e) {
@@ -319,9 +351,9 @@ async function assertVisual(
   }
 }
 
-// ===========================================================================
+// ============================================================================
 // THE DEMO — single continuous test → one video file
-// ===========================================================================
+// ============================================================================
 
 test.use({
   video: { mode: 'on', size: { width: 1920, height: 1080 } },
@@ -335,24 +367,20 @@ test.describe('Professional Demo', () => {
 
   test('Three Core Workflows', async ({ page, request }) => {
 
-    // Init visual judge (non-fatal if API key absent)
-    try {
-      judge = new VisualJudge();
-    } catch {
-      console.warn('[demo] VisualJudge disabled — set ANTHROPIC_API_KEY to enable visual checks');
+    try { judge = new VisualJudge(); } catch {
+      console.warn('[demo] VisualJudge disabled — set ANTHROPIC_API_KEY to enable');
     }
 
     // Reset to deterministic clean state, then seed demo data
     const resetResp = await request.post('/api/v1/test/reset');
     expect(resetResp.ok()).toBeTruthy();
-    await request.post('/api/v1/test/seed'); // non-fatal if no seed endpoint
+    await request.post('/api/v1/test/seed');
 
     // =========================================================================
     // INTRO TITLE CARD  (~0:00–0:07)
     // =========================================================================
     await page.goto('/ui');
-    await page.waitForLoadState('domcontentloaded');
-    await ensureCursor(page);
+    await afterNav(page);
 
     await titleCard(page, 'Mobile Check Deposit', 'Three core workflows — 2 min demo');
     await page.waitForTimeout(2800);
@@ -368,7 +396,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await clearCaption(page);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(400);
 
     // =========================================================================
     // WORKFLOW 1 — Happy Path  (~0:18–1:05)
@@ -376,43 +404,39 @@ test.describe('Professional Demo', () => {
     await titleCard(page, 'Workflow 1: Happy Path', 'Submit a clean check → auto-approve → funds posted');
     await page.waitForTimeout(2300);
     await removeTitle(page);
-    await setProgress(page, 1, 3, 'Happy Path');
+    await setProgress(page, 1, 'Happy Path');
 
     // Navigate to Simulate
     await clickEl(page, 'a.nav-level-tab:has-text("Simulate")');
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
 
     await caption(page, 'Simulate page — models the mobile app capture interface', 2200);
     await clearCaption(page);
 
-    await caption(page, 'Account INV-1001 maps to the "clean pass" vendor scenario — all checks will pass automatically', 2400);
+    await caption(page, 'INV-1001 is the "clean pass" account — all vendor checks pass automatically', 2400);
     await clearCaption(page);
 
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1001');
-    await fillEl(page, 'input[name="amount"]', '1250.00');
+    await typeEl(page, 'input[name="amount"]', '1250.00');
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     await page.waitForTimeout(700);
 
-    await caption(page, 'Front and back images attached — SHA256 fingerprints computed server-side for duplicate detection', 2400);
+    await caption(page, 'Front and back images attached — SHA256 fingerprints computed for duplicate detection', 2400);
     await clearCaption(page);
 
-    await caption(page, 'One submit → vendor call + 4 business rules + ledger post, all in a single API call', 2200);
+    await caption(page, 'One submit → vendor call + 4 business rules + ledger post in a single API call', 2200);
     await clearCaption(page);
     await clickEl(page, 'button[type="submit"]');
 
-    // Capture the new transfer ID from the result page
     await page.locator('[data-transfer-id]').waitFor({ timeout: 20000 });
     const transferId1 = await page.locator('[data-transfer-id]').getAttribute('data-transfer-id');
     expect(transferId1).toBeTruthy();
 
-    // Go to transfer detail and watch live state polling
     await page.goto(`/ui/transfers/${transferId1}`);
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
 
-    await caption(page, 'Transfer detail — state badge updates via HTMX polling every 3 seconds', 2500);
+    await caption(page, 'Transfer detail — state badge live-polls via HTMX every 3 seconds', 2500);
     await clearCaption(page);
 
     await waitForTerminalState(page);
@@ -423,7 +447,8 @@ test.describe('Professional Demo', () => {
       critical('Is there a pipeline or progress tracker showing the transfer stages?'),
     ]);
 
-    await highlight(page, '[data-state]');
+    // Highlight the state badge specifically (span[data-state], not the pipeline)
+    await highlight(page, 'span[data-state]');
     await caption(page, 'FundsPosted ✓ — vendor passed, all 4 rules passed, investor ledger credited', 2800);
     await clearHighlights(page);
     await clearCaption(page);
@@ -441,7 +466,7 @@ test.describe('Professional Demo', () => {
       critical('Is there a table showing business rule evaluations with pass/fail outcomes?'),
     ]);
 
-    await caption(page, 'Rule Evaluations — eligibility ✓, $5K limit ✓, contribution type ✓, duplicate fingerprint ✓', 2800);
+    await caption(page, 'Rule Evaluations — eligibility ✓  $5K limit ✓  contribution type ✓  duplicate check ✓', 2800);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(500);
@@ -452,17 +477,16 @@ test.describe('Professional Demo', () => {
     await titleCard(page, 'Workflow 2: Operator Review', 'Amount mismatch → review queue → human approval');
     await page.waitForTimeout(2300);
     await removeTitle(page);
-    await setProgress(page, 2, 3, 'Operator Review');
+    await setProgress(page, 2, 'Operator Review');
 
     await page.goto('/ui/simulate');
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
 
     await caption(page, 'INV-1006 triggers an OCR amount mismatch — vendor returns REVIEW instead of PASS', 2400);
     await clearCaption(page);
 
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1006');
-    await fillEl(page, 'input[name="amount"]', '500.00');
+    await typeEl(page, 'input[name="amount"]', '500.00');
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     await page.waitForTimeout(500);
@@ -472,42 +496,40 @@ test.describe('Professional Demo', () => {
     const transferId2 = await page.locator('[data-transfer-id]').getAttribute('data-transfer-id');
     expect(transferId2).toBeTruthy();
 
-    // Wait for the transfer to reach a review-eligible or terminal state
     await page.goto(`/ui/transfers/${transferId2}`);
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
     await waitForTerminalState(page);
 
     await assertVisual(page, 'transfer-pending-review', [
-      critical('Does the page show a transfer state? Is the state non-green — e.g. Analyzing, or awaiting review?'),
+      critical('Does the page show a non-green transfer state — e.g. Analyzing, or awaiting review?'),
     ]);
 
-    await caption(page, 'Transfer in Analyzing — flagged for human review due to OCR amount mismatch', 2500);
+    await highlight(page, 'span[data-state]');
+    await caption(page, 'State: Analyzing — flagged for human review due to OCR amount mismatch', 2500);
+    await clearHighlights(page);
     await clearCaption(page);
 
     // Review Queue
     await clickEl(page, 'a.nav-level-tab:has-text("Review")');
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
 
     await assertVisual(page, 'review-queue', [
       critical('Is there a table or list showing deposits awaiting operator review?'),
     ]);
 
-    await highlight(page, 'table, [data-review-item]');
-    await caption(page, 'Review Queue — operators see all flagged deposits with waiting time and a Review action', 2500);
+    await highlight(page, 'table');
+    await caption(page, 'Review Queue — flagged deposits with waiting time, reason, and a Review action', 2500);
     await clearHighlights(page);
     await clearCaption(page);
 
-    // Click review for this transfer
+    // Navigate to the specific review for transferId2
     const reviewSelector = `a[href="/ui/review/${transferId2}"], a[href^="/ui/review/"]`;
     await moveCursor(page, reviewSelector);
     await highlight(page, reviewSelector);
     await page.waitForTimeout(450);
     await clearHighlights(page);
     await page.locator(reviewSelector).first().click();
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
 
     await assertVisual(page, 'review-detail', [
       critical('Does the page show a review form with transfer info and check images?'),
@@ -516,18 +538,17 @@ test.describe('Professional Demo', () => {
     await caption(page, 'Review detail — transfer info, check images, vendor analysis, rule evaluations, audit trail', 2800);
     await clearCaption(page);
 
-    await page.evaluate(() => window.scrollBy(0, 350));
+    await page.evaluate(() => window.scrollBy(0, 360));
     await page.waitForTimeout(600);
-    await caption(page, 'Vendor flagged an OCR mismatch — the declared vs recognized amounts differ', 2400);
+    await caption(page, 'Vendor Analysis shows OCR amount mismatch — declared vs recognized amounts differ', 2400);
     await clearCaption(page);
 
-    await page.evaluate(() => window.scrollBy(0, 350));
+    await page.evaluate(() => window.scrollBy(0, 360));
     await page.waitForTimeout(600);
-
-    await caption(page, 'Audit trail records every state transition — operator decision will be appended', 2200);
+    await caption(page, 'Audit trail shows the full state history — operator decision will be appended', 2200);
     await clearCaption(page);
 
-    // Scroll to action buttons
+    // Scroll to action panel
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(600);
 
@@ -535,25 +556,24 @@ test.describe('Professional Demo', () => {
       critical('Are Approve and Reject buttons visible at the bottom of the review form?'),
     ]);
 
-    await caption(page, 'Operator has reviewed check images and vendor data — approving', 2000);
+    await caption(page, 'Operator has verified the images and vendor data — approving this deposit', 2000);
     await clearCaption(page);
 
-    // Fill notes and approve
+    // Type notes and approve
     const notesSelector = '#approve-notes, textarea[name="notes"]';
     if (await page.locator(notesSelector).first().count() > 0) {
       await moveCursor(page, notesSelector);
-      await page.locator(notesSelector).first().fill('Images clear, amount verified. Approving.');
-      await page.waitForTimeout(400);
+      await page.locator(notesSelector).first().pressSequentially('Images clear, amount verified. Approving.', { delay: 30 });
+      await page.waitForTimeout(300);
     }
 
     await clickEl(page, '#approve-btn, button:has-text("Approve")');
     await page.waitForURL(/\/ui\/transfers\/|\/ui\/review/, { timeout: 20000 }).catch(() => {});
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
     await page.waitForTimeout(700);
 
     await assertVisual(page, 'post-approve', [
-      critical('Does the page indicate success — either a transfer with Approved/FundsPosted state, or a redirect?'),
+      critical('Does the page indicate success — transfer in Approved or FundsPosted state?'),
     ]);
 
     await caption(page, 'Approved ✓ — transfer advances to FundsPosted, investor ledger credited', 2500);
@@ -565,40 +585,34 @@ test.describe('Professional Demo', () => {
     await titleCard(page, 'Workflow 3: Settlement', 'Package FundsPosted transfers → X9.37 ICL binary file');
     await page.waitForTimeout(2300);
     await removeTitle(page);
-    await setProgress(page, 3, 3, 'Settlement');
+    await setProgress(page, 3, 'Settlement');
 
     await clickEl(page, 'a.nav-level-tab:has-text("Settlement")');
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
 
     await assertVisual(page, 'settlement-page', [
       critical('Is there a settlement page with a button to generate a settlement batch?'),
     ]);
 
-    await caption(page, 'Settlement — collects all FundsPosted transfers and writes a binary X9.37 ICL file', 2500);
+    await caption(page, 'Settlement — collects FundsPosted transfers and writes a binary X9.37 ICL file', 2500);
     await clearCaption(page);
 
     await highlight(page, '#gen-btn, button:has-text("Generate")');
-    await caption(page, 'X9.37 ICL is the real wire format used by US clearing networks — proper record types, embedded images', 2200);
+    await caption(page, 'X9.37 ICL is the real US clearing network format — proper record types, embedded images', 2200);
     await clearHighlights(page);
     await clearCaption(page);
 
     await clickEl(page, '#gen-btn, button:has-text("Generate")');
-
-    // Wait for batch to appear
-    await page.waitForSelector(
-      '.badge--GENERATED, .badge--ACKNOWLEDGED, td:has-text("GENERATED")',
-      { timeout: 25000 },
-    ).catch(() => {});
-    await ensureCursor(page);
+    await page.waitForSelector('.badge--GENERATED, td:has-text("GENERATED")', { timeout: 25000 }).catch(() => {});
+    await afterNav(page); // restore overlays even though no full navigation occurred
     await page.waitForTimeout(700);
 
     await assertVisual(page, 'batch-generated', [
       critical('Is there a settlement batch row showing GENERATED status with item count and total amount?'),
     ]);
 
-    await highlight(page, 'table tbody tr:first-child, .badge--GENERATED');
-    await caption(page, 'Batch generated — X9.37 ICL file contains check images in proper binary record format', 2500);
+    await highlight(page, 'table tbody tr:first-child');
+    await caption(page, 'Batch generated — X9.37 ICL file contains embedded check images in binary record format', 2500);
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -607,15 +621,12 @@ test.describe('Professional Demo', () => {
     if (await ackBtn.count() > 0) {
       await moveCursor(page, '[data-action="ack"], button:has-text("Acknowledge")');
       await highlight(page, '[data-action="ack"], button:has-text("Acknowledge")');
-      await caption(page, 'Acknowledging — simulates the clearing bank confirming receipt of the ICL file', 2200);
+      await caption(page, 'Acknowledge — simulates the clearing bank confirming receipt of the ICL file', 2200);
       await clearHighlights(page);
       await clearCaption(page);
       await ackBtn.click();
-      await page.waitForSelector(
-        '.badge--ACKNOWLEDGED, td:has-text("ACKNOWLEDGED")',
-        { timeout: 15000 },
-      ).catch(() => {});
-      await ensureCursor(page);
+      await page.waitForSelector('.badge--ACKNOWLEDGED, td:has-text("ACKNOWLEDGED")', { timeout: 15000 }).catch(() => {});
+      await afterNav(page);
       await page.waitForTimeout(700);
 
       await assertVisual(page, 'batch-acknowledged', [
@@ -630,8 +641,7 @@ test.describe('Professional Demo', () => {
     // OUTRO — Dashboard wrap-up  (~2:40–2:52)
     // =========================================================================
     await page.goto('/ui');
-    await ensureCursor(page);
-    await page.waitForLoadState('domcontentloaded');
+    await afterNav(page);
     await page.waitForTimeout(900);
 
     await assertVisual(page, 'dashboard-final', [
