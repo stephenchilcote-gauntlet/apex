@@ -610,7 +610,11 @@ func (h *UIHandlers) transferDetailPage(w http.ResponseWriter, r *http.Request) 
 	id := chi.URLParam(r, "id")
 	data, err := h.buildTransferDetailData(id)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		if strings.Contains(err.Error(), "transfer not found") {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 	data["ActivePage"] = "transfers"
@@ -790,7 +794,11 @@ func (h *UIHandlers) reviewDetailPage(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 	data, err := h.buildTransferDetailData(id)
 	if err != nil {
-		http.Error(w, err.Error(), 500)
+		if strings.Contains(err.Error(), "transfer not found") {
+			http.Error(w, err.Error(), http.StatusNotFound)
+		} else {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
 		return
 	}
 	data["ActivePage"] = "review"
