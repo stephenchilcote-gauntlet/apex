@@ -924,9 +924,38 @@ func (h *UIHandlers) ledgerPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Recent journal entries (last 30) with account and transfer context
+	type journalEntry struct {
+		AccountExtID  string
+		AccountName   string
+		AmountCents   int64
+		Purpose       string
+		TransferID    string
+		CreatedAt     string
+	}
+	eRows, eErr := h.DB.Query(`
+		SELECT a.external_account_id, a.account_name, e.signed_amount_cents,
+		       j.purpose, j.transfer_id, e.created_at
+		FROM ledger_entries e
+		JOIN ledger_journals j ON j.id = e.journal_id
+		JOIN accounts a ON a.id = e.account_id
+		ORDER BY e.created_at DESC
+		LIMIT 30`)
+	var entries []journalEntry
+	if eErr == nil {
+		defer eRows.Close()
+		for eRows.Next() {
+			var ent journalEntry
+			if err2 := eRows.Scan(&ent.AccountExtID, &ent.AccountName, &ent.AmountCents, &ent.Purpose, &ent.TransferID, &ent.CreatedAt); err2 == nil {
+				entries = append(entries, ent)
+			}
+		}
+	}
+
 	h.render(w, "ledger", map[string]interface{}{
-		"ActivePage": "ledger",
-		"Accounts":   accounts,
+		"ActivePage":     "ledger",
+		"Accounts":       accounts,
+		"RecentEntries":  entries,
 	})
 }
 

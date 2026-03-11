@@ -38,6 +38,46 @@
   </div>
 </div>
 
+{{if .RecentEntries}}
+<div class="panel" style="margin-top:16px;">
+  <div class="panel-header">
+    <span class="panel-header-title">Recent journal entries</span>
+    <span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">last 30 entries · newest first</span>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Account</th>
+          <th style="text-align:right;">Amount</th>
+          <th>Purpose</th>
+          <th>Transfer</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .RecentEntries}}
+        <tr>
+          <td>
+            <span style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">{{.AccountExtID}}</span>
+            <span style="font-family:var(--font-ui);font-size:11px;color:var(--text-primary);margin-left:4px;">{{.AccountName}}</span>
+          </td>
+          <td style="text-align:right;">
+            <span class="data-value data-value--currency"{{if lt .AmountCents 0}} style="color:var(--red)"{{end}}>
+              {{if lt .AmountCents 0}}-${{formatCents (abs .AmountCents)}}{{else}}+${{formatCents .AmountCents}}{{end}}
+            </span>
+          </td>
+          <td><span class="ledger-purpose ledger-purpose--{{lower .Purpose}}">{{.Purpose}}</span></td>
+          <td><a href="/ui/transfers/{{.TransferID}}" style="font-family:var(--font-data);font-size:11px;">{{shortID .TransferID}}</a></td>
+          <td style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">{{.CreatedAt}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
+
 <style>
 .ledger-type {
   display: inline-block;
@@ -55,5 +95,20 @@
 .ledger-type--equity      { color: var(--blue);        border-color: var(--blue-dim);   background: rgba(59,130,246,0.08); }
 .ledger-type--revenue     { color: var(--green-bright);border-color: var(--green-dim);  background: var(--green-surface); }
 .ledger-type--expense     { color: var(--red);         border-color: var(--red-dim);    background: var(--red-surface); }
+
+.ledger-purpose {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+.ledger-purpose--deposit_posting  { color: var(--green-mid);   border-color: var(--green-dim);  background: var(--green-surface); }
+.ledger-purpose--return_reversal  { color: var(--amber);       border-color: var(--amber-dim);  background: var(--amber-glow); }
+.ledger-purpose--return_fee       { color: var(--red);         border-color: var(--red-dim);    background: var(--red-surface); }
 </style>
 {{end}}
