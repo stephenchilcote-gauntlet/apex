@@ -137,6 +137,83 @@ func TestHandlers_ListDeposits_StateFilter(t *testing.T) {
 	}
 }
 
+func TestHandlers_ListDeposits_InvestorAccountFilter(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Seed has transfers for INV-1001 (account 000...001001)
+	// Find the UUID for INV-1001
+	var accountID string
+	db.QueryRow("SELECT id FROM accounts WHERE external_account_id = 'INV-1001'").Scan(&accountID)
+
+	rr := doRequest(r, "GET", "/api/v1/deposits?investorAccountId="+accountID, nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d", rr.Code)
+	}
+	var body []map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	// All returned deposits must belong to INV-1001
+	for _, d := range body {
+		if d["InvestorAccountID"] != accountID {
+			t.Errorf("expected InvestorAccountID=%s, got %v", accountID, d["InvestorAccountID"])
+		}
+	}
+}
+
+func TestHandlers_ListDeposits_ReviewRequiredFilter(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	rr := doRequest(r, "GET", "/api/v1/deposits?reviewRequired=true", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d", rr.Code)
+	}
+	var body []map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	// All returned deposits must have ReviewRequired=true
+	if len(body) == 0 {
+		t.Fatal("expected seeded review-required deposits, got empty")
+	}
+	for _, d := range body {
+		if d["ReviewRequired"] != true {
+			t.Errorf("expected ReviewRequired=true, got %v", d["ReviewRequired"])
+		}
+	}
+}
+
+func TestHandlers_GetBatch_SeededBatch(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	const batchID = "00000000-seed-0007-0000-000000000001"
+	rr := doRequest(r, "GET", "/api/v1/settlement/batches/"+batchID, nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+	var body map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if _, ok := body["batch"]; !ok {
+		t.Error("missing batch field")
+	}
+	if _, ok := body["items"]; !ok {
+		t.Error("missing items field")
+	}
+	batch := body["batch"].(map[string]interface{})
+	if batch["ID"] != batchID {
+		t.Errorf("expected batch ID=%s, got %v", batchID, batch["ID"])
+	}
+}
+
+func TestHandlers_GetBatch_NotFound(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	rr := doRequest(r, "GET", "/api/v1/settlement/batches/nonexistent-batch-id", nil)
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("expected 404, got %d", rr.Code)
+	}
+}
+
 func TestHandlers_GetDeposit_NotFound(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
