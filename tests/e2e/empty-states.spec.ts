@@ -15,6 +15,23 @@ test.describe('Empty States', () => {
     await page.goto('/ui/settlement');
     await expect(page.locator('body')).toContainText('No batches found');
   });
+
+  test('generating batch with no eligible transfers shows error message', async ({ page }) => {
+    // No deposits submitted, so no FundsPosted transfers
+    await page.goto('/ui/settlement');
+    await page.locator('[data-action="generate"]').click();
+
+    // Should show an error — no eligible transfers
+    await expect(page.locator('body')).toContainText(/no eligible|no transfer/i);
+  });
+
+  test('ledger page shows zero balances and balanced indicator on empty DB', async ({ page }) => {
+    await page.goto('/ui/ledger');
+    // Ledger should show the accounts table (accounts are always seeded)
+    await expect(page.locator('table.data-table')).toBeVisible();
+    // Zero-sum invariant should still hold on empty DB
+    await expect(page.locator('body')).toContainText(/Balanced/);
+  });
 });
 
 test.describe('Dashboard', () => {
