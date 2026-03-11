@@ -17,15 +17,33 @@ test.describe('Screenshot Regenerator', () => {
   test('capture all pages', async ({ page, request }) => {
     fs.mkdirSync(DOCS, { recursive: true });
 
-    // Ensure some data exists
+    // Reset to clean state and seed demo data
+    await request.post('/api/v1/test/reset').catch(() => {});
     await request.post('/api/v1/test/seed').catch(() => {});
+
+    // Submit a real clean-pass deposit so the ledger and transfer detail
+    // show actual journal entries (seed data alone doesn't create them)
+    const frontBuf = fs.readFileSync(path.join(__dirname, 'tests', 'check-front.png'));
+    const backBuf  = fs.readFileSync(path.join(__dirname, 'tests', 'check-back.png'));
+    const depositResp = await request.post('/api/v1/deposits', {
+      multipart: {
+        investorAccountId: 'INV-1001',
+        amount: '750.00',
+        vendorScenario: 'clean_pass',
+        frontImage: { name: 'front.png', mimeType: 'image/png', buffer: frontBuf },
+        backImage:  { name: 'back.png',  mimeType: 'image/png', buffer: backBuf },
+      },
+    }).catch(() => null);
+    const depositJson = depositResp ? await depositResp.json().catch(() => null) : null;
+    const liveTransferId = depositJson?.transferId ?? null;
 
     // Get IDs we'll need
     const depositsResp = await request.get('/api/v1/deposits?limit=50');
     const deposits = (await depositsResp.json()) as any[];
     const completed = deposits.find((d: any) => d.State === 'Completed' || d.State === 'FundsPosted');
     const analyzing = deposits.find((d: any) => d.State === 'Analyzing' && d.ReviewRequired);
-    const transferId = completed?.ID ?? deposits[0]?.ID;
+    // Prefer the live FundsPosted transfer for transfer detail screenshots
+    const transferId = liveTransferId ?? completed?.ID ?? deposits[0]?.ID;
     const reviewId = analyzing?.ID;
 
     // 01 Dashboard

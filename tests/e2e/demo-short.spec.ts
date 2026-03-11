@@ -767,9 +767,21 @@ test.describe('Professional Demo', () => {
     await page.waitForTimeout(600);
 
     await highlight(page, 'table');
-    await caption(page, 'Ledger — deposit posting, return reversal, and $30 fee — every entry double-sided, sum = 0', 2800);
+    await caption(page, 'Ledger — account balances updated across investor, omnibus, and fee revenue accounts', 2800);
     await clearHighlights(page);
     await clearCaption(page);
+
+    // Scroll to show the recent journal entries panel
+    await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' }));
+    await page.waitForTimeout(700);
+
+    const journalSection = page.locator('.panel-header-title:has-text("Recent journal")');
+    if (await journalSection.count() > 0) {
+      await highlight(page, '.panel:has(.panel-header-title:has-text("Recent journal")) table');
+      await caption(page, 'Journal entries — deposit posting (green), return reversal (amber), $30 NSF fee (red) — every debit has a matching credit', 2800);
+      await clearHighlights(page);
+      await clearCaption(page);
+    }
 
     await assertVisual(page, 'ledger-entries', [
       critical('Is there a financial ledger table showing entries with amounts and account types?'),
