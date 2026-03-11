@@ -52,37 +52,70 @@ test.describe('Keyboard Shortcuts', () => {
     const modal = page.locator('#cmd-modal');
     await expect(modal).toBeVisible();
     await expect(page.locator('#cmd-input')).toBeFocused();
-    // Close with Escape
     await page.keyboard.press('Escape');
     await expect(modal).not.toBeVisible();
+  });
+
+  test('command palette shows results when typing an account ID', async ({ page }) => {
+    await submitDepositUI(page, { amount: '175.00', scenario: 'clean_pass' });
+
+    await page.goto('/ui');
+    await page.keyboard.press('Control+k');
+    await expect(page.locator('#cmd-modal')).toBeVisible();
+
+    await page.locator('#cmd-input').fill('INV-1001');
+    // Wait for HTMX debounce (150ms) + network response
+    await expect(page.locator('#cmd-results .cmd-result').first()).toBeVisible({ timeout: 3000 });
+    await expect(page.locator('#cmd-results')).toContainText('175.00');
+  });
+
+  test('command palette shows results for partial account name', async ({ page }) => {
+    await submitDepositUI(page, { amount: '299.00', scenario: 'clean_pass' });
+
+    await page.goto('/ui');
+    await page.keyboard.press('Control+k');
+    await page.locator('#cmd-input').fill('INV');
+    await expect(page.locator('#cmd-results .cmd-result')).not.toHaveCount(0, { timeout: 3000 });
+  });
+
+  test('command palette shows no-match message for unknown query', async ({ page }) => {
+    await page.goto('/ui');
+    await page.keyboard.press('Control+k');
+    await page.locator('#cmd-input').fill('XYZZY_NO_MATCH_99999');
+    await expect(page.locator('#cmd-results')).toContainText('No transfers matching', { timeout: 3000 });
+  });
+
+  test('command palette result click navigates to transfer detail', async ({ page }) => {
+    await submitDepositUI(page, { amount: '350.00', scenario: 'clean_pass' });
+
+    await page.goto('/ui');
+    await page.keyboard.press('Control+k');
+    await page.locator('#cmd-input').fill('INV-1001');
+    await page.locator('#cmd-results .cmd-result').first().waitFor({ timeout: 3000 });
+    await page.locator('#cmd-results .cmd-result').first().click();
+    await expect(page).toHaveURL(/\/ui\/transfers\/.+/);
   });
 
   test('search endpoint returns matching transfers', async ({ page }) => {
     await submitDepositUI(page, { amount: '175.00', scenario: 'clean_pass' });
 
-    // Test /ui/search endpoint directly — it powers the command palette
     const resp = await page.request.get('/ui/search?q=INV');
     expect(resp.status()).toBe(200);
     const body = await resp.text();
-    // Should return HTML with transfer result links
     expect(body).toContain('cmd-result');
     expect(body).toContain('175.00');
   });
 
   test('search endpoint empty query returns placeholder', async ({ page }) => {
-    await page.goto('/ui');
     const resp = await page.request.get('/ui/search?q=');
     expect(resp.status()).toBe(200);
-    const body = await resp.text();
-    expect(body).toContain('Type to search');
+    expect(await resp.text()).toContain('Type to search');
   });
 
   test('search endpoint no-match returns empty message', async ({ page }) => {
-    await page.goto('/ui');
     const resp = await page.request.get('/ui/search?q=XYZZY_NO_MATCH_12345');
     expect(resp.status()).toBe(200);
-    const body = await resp.text();
-    expect(body).toContain('No transfers matching');
+    expect(await resp.text()).toContain('No transfers matching');
   });
 
   test('j/k keys navigate transfer rows', async ({ page }) => {
