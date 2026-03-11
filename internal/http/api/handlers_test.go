@@ -350,6 +350,17 @@ func TestHandlers_ListBatches_ReturnsArray(t *testing.T) {
 	}
 }
 
+func TestHandlers_AckBatch_NotFound(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	body := `{"ackReference": "ACK-TEST"}`
+	rr := doRequest(r, "POST", "/api/v1/settlement/batches/nonexistent-batch-id/ack", []byte(body))
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for unknown batch, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
 func TestHandlers_AckBatch_MissingAckReference(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)

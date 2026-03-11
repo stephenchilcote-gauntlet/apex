@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-chi/chi/v5"
@@ -563,6 +564,11 @@ func (h *Handlers) ackBatch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.SettlementSvc.AcknowledgeBatch(r.Context(), batchID, body.AckReference); err != nil {
+		// AcknowledgeBatch returns "not found" when batch doesn't exist or isn't GENERATED
+		if strings.Contains(err.Error(), "not found") {
+			respondError(w, http.StatusNotFound, err.Error())
+			return
+		}
 		internalError(w, "ack batch", err)
 		return
 	}
