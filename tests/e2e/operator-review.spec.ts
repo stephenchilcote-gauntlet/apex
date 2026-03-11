@@ -33,6 +33,23 @@ test.describe('Operator Review Workflow', () => {
     await expect(page.locator('body')).toContainText(/approved|fundsposted/i);
   });
 
+  test('review detail shows check images and supports lightbox', async ({ page }) => {
+    await submitDepositUI(page, { scenario: 'micr_failure' });
+
+    await page.locator('a.nav-level-tab', { hasText: 'Review Queue' }).click();
+    await page.locator('[data-review-item] a.btn', { hasText: 'Review' }).first().click();
+
+    // Images should be visible
+    await expect(page.locator('img[data-side="front"]')).toBeVisible();
+    await expect(page.locator('img[data-side="back"]')).toBeVisible();
+
+    // Click front image to open lightbox
+    await page.locator('img[data-side="front"]').click();
+    await expect(page.locator('#check-lightbox')).toHaveClass(/open/);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#check-lightbox')).not.toHaveClass(/open/);
+  });
+
   test('operator can reject a flagged deposit', async ({ page }) => {
     await submitDepositUI(page, { scenario: 'micr_failure' });
 
