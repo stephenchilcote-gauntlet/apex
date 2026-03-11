@@ -44,6 +44,37 @@ test.describe('Audit Log', () => {
     await expect(table).toBeVisible();
   });
 
+  test('audit log filter by event type shows only matching events', async ({ page }) => {
+    await submitDepositUI(page, { amount: '225.00', scenario: 'clean_pass' });
+
+    // Filter by STATE_TRANSITION — every deposit produces several
+    await page.goto('/ui/audit?eventType=STATE_TRANSITION');
+    const table = page.locator('table.data-table');
+    await expect(table).toBeVisible();
+
+    // All visible event-type cells should say STATE_TRANSITION
+    const eventTypeCells = table.locator('tbody tr td:nth-child(5)');
+    const count = await eventTypeCells.count();
+    expect(count).toBeGreaterThan(0);
+    for (let i = 0; i < count; i++) {
+      await expect(eventTypeCells.nth(i)).toContainText('STATE_TRANSITION');
+    }
+  });
+
+  test('audit log API returns events filtered by transferId', async ({ page }) => {
+    const transferId = await submitDepositUI(page, { amount: '175.00', scenario: 'clean_pass' });
+
+    const resp = await page.request.get(`/api/v1/audit?transferId=${transferId}`);
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    // Every event should reference this transfer
+    for (const event of body) {
+      expect(event.entityId).toBe(transferId);
+    }
+  });
+
   test('audit log clear filter works', async ({ page }) => {
     await page.goto('/ui/audit?transferId=some-id');
     await expect(page.locator('a:has-text("Clear")')).toBeVisible();
