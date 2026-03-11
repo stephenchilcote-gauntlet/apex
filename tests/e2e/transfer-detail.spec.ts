@@ -1,6 +1,16 @@
 import { test, expect, submitDepositUI } from './fixtures';
 
 test.describe('Transfers List', () => {
+  test('transfers list shows page total in tfoot', async ({ page }) => {
+    await submitDepositUI(page, { amount: '350.00', scenario: 'clean_pass' });
+
+    await page.goto('/ui/transfers');
+    // tfoot should show page total
+    const tfoot = page.locator('table tfoot');
+    await expect(tfoot).toBeVisible();
+    await expect(tfoot).toContainText('$350.00');
+  });
+
   test('CSV export download returns csv content', async ({ page }) => {
     await submitDepositUI(page, { amount: '125.00', scenario: 'clean_pass' });
 
