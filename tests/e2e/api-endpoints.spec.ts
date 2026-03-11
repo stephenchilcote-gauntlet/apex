@@ -154,4 +154,38 @@ test.describe('API Endpoints', () => {
     expect(body).toHaveProperty('entries');
     expect(body.account.externalAccountId).toBe('INV-1001');
   });
+
+  test('GET /api/v1/ledger/journals returns journals for a transfer', async ({ page }) => {
+    const transferId = await submitDepositUI(page, { amount: '225.00', scenario: 'clean_pass' });
+
+    const resp = await page.request.get(`/api/v1/ledger/journals?transferId=${transferId}`);
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    // Each journal should reference this transfer
+    // Journal struct has no json tags — fields are PascalCase
+    for (const journal of body) {
+      expect(journal).toHaveProperty('ID');
+      expect(journal).toHaveProperty('JournalType');
+    }
+    // A clean_pass deposit should produce a DEPOSIT_POSTING journal
+    const depositJournal = body.find((j: any) => j.JournalType === 'DEPOSIT_POSTING');
+    expect(depositJournal).toBeTruthy();
+  });
+
+  test('GET /api/v1/deposits/{id}/decision-trace returns full audit trail', async ({ page }) => {
+    const transferId = await submitDepositUI(page, { amount: '350.00', scenario: 'clean_pass' });
+
+    const resp = await page.request.get(`/api/v1/deposits/${transferId}/decision-trace`);
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(Array.isArray(body)).toBe(true);
+    expect(body.length).toBeGreaterThan(0);
+    // Each trace event should have required fields (audit.Event uses PascalCase — no json tags)
+    const event = body[0];
+    expect(event).toHaveProperty('EventType');
+    expect(event).toHaveProperty('EntityID');
+    expect(event.EntityID).toBe(transferId);
+  });
 });
