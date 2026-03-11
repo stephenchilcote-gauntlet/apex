@@ -608,6 +608,15 @@ func (h *Handlers) processReturn(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.ReturnsSvc.ProcessReturn(r.Context(), body.TransferID, body.ReasonCode, body.ReasonText); err != nil {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "get transfer") {
+			respondError(w, http.StatusNotFound, "transfer not found")
+			return
+		}
+		if strings.Contains(errMsg, "not eligible for return") {
+			respondError(w, http.StatusUnprocessableEntity, errMsg)
+			return
+		}
 		internalError(w, "process return", err)
 		return
 	}

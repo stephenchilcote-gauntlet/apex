@@ -416,6 +416,30 @@ func TestHandlers_GetMetrics_Shape(t *testing.T) {
 	}
 }
 
+func TestHandlers_ProcessReturn_UnknownTransfer(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	body := `{"transferId": "nonexistent-id", "reasonCode": "NSF"}`
+	rr := doRequest(r, "POST", "/api/v1/returns", []byte(body))
+	if rr.Code != http.StatusNotFound {
+		t.Fatalf("expected 404 for unknown transfer, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
+func TestHandlers_ProcessReturn_IneligibleState(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// T5 is Analyzing (not FundsPosted/Completed) — not eligible for return
+	const transferID = "00000000-seed-0000-0000-000000000005"
+	body := `{"transferId": "` + transferID + `", "reasonCode": "NSF"}`
+	rr := doRequest(r, "POST", "/api/v1/returns", []byte(body))
+	if rr.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("expected 422 for ineligible transfer state, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
 func TestHandlers_ProcessReturn_MissingTransferID(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)

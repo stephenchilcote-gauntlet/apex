@@ -152,7 +152,7 @@ All transitions are validated by a centralized function in `internal/transfers/s
 
 ## Testing
 
-**Go tests (127 test functions across 14 packages):**
+**Go tests (129 test functions across 14 packages):**
 ```bash
 make test
 ```
