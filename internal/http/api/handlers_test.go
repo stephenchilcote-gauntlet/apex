@@ -628,6 +628,35 @@ func TestHandlers_GenerateBatch_WithFundsPosted(t *testing.T) {
 	}
 }
 
+func TestHandlers_ProcessReturn_SeededFundsPostedTransfer(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// T4 is FundsPosted; returns service needs FEE_REVENUE account (seeded as 00000000-0000-0000-0000-000000000002)
+	const transferID = "00000000-seed-0000-0000-000000000004"
+	body := `{"transferId": "` + transferID + `", "reasonCode": "NSF", "reasonText": "Insufficient funds"}`
+	rr := doRequest(r, "POST", "/api/v1/returns", []byte(body))
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var resp map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &resp)
+	if resp["transferId"] != transferID {
+		t.Errorf("expected transferId=%s, got %v", transferID, resp["transferId"])
+	}
+	if resp["status"] != "RETURNED" {
+		t.Errorf("expected status=RETURNED, got %v", resp["status"])
+	}
+
+	// Verify transfer state is now Returned
+	var state string
+	db.QueryRow("SELECT state FROM transfers WHERE id = ?", transferID).Scan(&state)
+	if state != "Returned" {
+		t.Errorf("expected state=Returned in DB, got %s", state)
+	}
+}
+
 func TestHandlers_SubmitDeposit_MissingFields(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
