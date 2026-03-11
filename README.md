@@ -159,12 +159,12 @@ make test
 
 Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, state machine transitions (valid + invalid), transfer CRUD (Create auto-ID, List state/review/pagination filters, Count), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, double-entry ledger (PostDeposit/PostReversal, zero-sum invariant, balance deltas), audit event logging (LogEvent, LogEventTx rollback/commit, ordering), config loading (required fields, defaults, error accumulation), database migration runner (idempotency, tracking, error handling), vendor client HTTP (mock server, error propagation), vendor result persistence (SaveVendorResult/GetVendorResult, MICR round-trip, nil MICR), API key + UI session auth middleware (X-API-Key, Bearer, session signing/validation, HMAC tamper detection), security headers (CSP, X-Frame-Options), global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping.
 
-**Playwright E2E tests (15 functional spec files, 78 test cases):**
+**Playwright E2E tests (15 functional spec files, 80 test cases):**
 ```bash
 make test-e2e
 ```
 
-Covers: deposit submission UI, happy path flow, vendor scenarios, operator approve/reject, ledger balances (account detail with entries), settlement generation/ack/ICL download, returns/reversals, business rules, navigation, transfer detail, transfer state/date filters, empty states, keyboard shortcuts, command palette search, audit log event type filtering, API endpoint correctness (deposits, audit, ledger, settlement, review queue), visual regression.
+Covers: deposit submission UI, happy path flow, vendor scenarios, operator approve/reject (UI + API), ledger balances (account detail with entries), settlement generation/ack/ICL download, returns/reversals, business rules, navigation, transfer detail, transfer state/date filters, empty states, keyboard shortcuts, command palette search, audit log event type filtering, API endpoint correctness (deposits, audit, ledger, journals, decision-trace, settlement, review queue, approve/reject), visual regression.
 
 ## Demo Walkthrough
 

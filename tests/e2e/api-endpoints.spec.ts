@@ -188,4 +188,28 @@ test.describe('API Endpoints', () => {
     expect(event).toHaveProperty('EntityID');
     expect(event.EntityID).toBe(transferId);
   });
+
+  test('POST /api/v1/operator/transfers/{id}/approve approves flagged deposit', async ({ page }) => {
+    const transferId = await submitDepositUI(page, { scenario: 'micr_failure' });
+
+    const resp = await page.request.post(`/api/v1/operator/transfers/${transferId}/approve`, {
+      data: { notes: 'Approved via API test', operatorId: 'test-operator' },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(body).toHaveProperty('state');
+    expect(body.state).toMatch(/fundsposted|approved/i);
+  });
+
+  test('POST /api/v1/operator/transfers/{id}/reject rejects flagged deposit', async ({ page }) => {
+    const transferId = await submitDepositUI(page, { scenario: 'amount_mismatch' });
+
+    const resp = await page.request.post(`/api/v1/operator/transfers/${transferId}/reject`, {
+      data: { notes: 'Rejected via API test', rejectionCode: 'MANUAL_REVIEW_FAILED', operatorId: 'test-operator' },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(body).toHaveProperty('state');
+    expect(body.state).toBe('Rejected');
+  });
 });
