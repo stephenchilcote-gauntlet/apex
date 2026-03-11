@@ -52,10 +52,10 @@
     {{range .Recent}}
     <a href="/ui/transfers/{{.ID}}" class="thread-card">
       <div class="thread-card-header">
-        <span class="thread-card-id">{{slice .ID 0 8}}…</span>
+        <span class="thread-card-id">{{shortID .ID}}</span>
         <span class="badge badge--{{.State}}">{{.State}}</span>
       </div>
-      <div class="thread-card-account">{{.InvestorAccountID}}</div>
+      <div class="thread-card-account">{{if $.AccountNames}}{{index $.AccountNames .InvestorAccountID}}{{else}}{{.InvestorAccountID}}{{end}}</div>
       <div class="thread-card-amount">${{formatCents .AmountCents}}</div>
       <div class="thread-card-date">{{.CreatedAt.Format "Jan 2, 15:04"}}</div>
     </a>

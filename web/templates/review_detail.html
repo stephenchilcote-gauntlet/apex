@@ -2,7 +2,7 @@
 <nav class="breadcrumb">
   <a href="/ui/review">Review Queue</a>
   <span class="breadcrumb-sep">/</span>
-  <span class="breadcrumb-current">{{slice .Transfer.ID 0 8}}…</span>
+  <span class="breadcrumb-current">{{shortID .Transfer.ID}}</span>
 </nav>
 <div class="page-header">
   <h1 class="section-title">Review Transfer</h1>
@@ -16,7 +16,7 @@
       <div class="detail-grid">
         <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}<button data-copy="{{.Transfer.ID}}" title="Copy ID">⎘</button></span>
         <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span></span>
-        <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
+        <span class="detail-label">Account</span><span class="detail-value">{{if .AccountDisplay}}{{.AccountDisplay}}{{else}}{{.Transfer.InvestorAccountID}}{{end}}</span>
         <span class="detail-label">Entered Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
         {{if .VendorResult}}{{if .VendorResult.OCRAmountCents}}
         <span class="detail-label">OCR Amount</span><span class="detail-value data-value--currency"{{if not .VendorResult.AmountMatches}} style="color:var(--red)"{{end}}>${{formatCentsInt (derefInt .VendorResult.OCRAmountCents)}}</span>

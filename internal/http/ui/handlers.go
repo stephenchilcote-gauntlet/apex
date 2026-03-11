@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"html"
 	"html/template"
 	"log/slog"
 	"math"
@@ -134,6 +135,18 @@ func (h *UIHandlers) Init() error {
 		},
 		"lower":    strings.ToLower,
 		"basename": filepath.Base,
+		// shortID truncates UUID-style IDs to 8 chars, but shows full IDs for short human-readable IDs
+		"shortID": func(id string) string {
+			// UUID format: 36 chars with dashes (e.g., "abc12345-...")
+			if len(id) == 36 && id[8] == '-' {
+				return id[:8] + "…"
+			}
+			// Short human-readable ID: show as-is (up to 16 chars)
+			if len(id) <= 16 {
+				return id
+			}
+			return id[:16] + "…"
+		},
 		"pct": func(count, max int) string {
 			if max == 0 {
 				return "0%"
@@ -186,6 +199,7 @@ func (h *UIHandlers) RegisterRoutes(r chi.Router) {
 	r.Post("/ui/returns", h.returnsSubmit)
 	r.Get("/ui/images/{transferId}/{side}", h.serveImage)
 	r.Get("/ui/health-status", h.healthStatus)
+	r.Get("/ui/search", h.searchHandler)
 }
 
 // ---------------------------------------------------------------------------
@@ -219,13 +233,14 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// Total, pending review count, exceptions, and max per-state count for bar chart
-	var totalTransfers, pendingReview, maxStateCount, exceptionsCount int
+	// Pending review: Analyzing + review_required + review_status='PENDING'
+	var pendingReview int
+	h.DB.QueryRow(`SELECT COUNT(*) FROM transfers WHERE state='Analyzing' AND review_required=1 AND review_status='PENDING'`).Scan(&pendingReview)
+
+	// Total, exceptions, and max per-state count for bar chart
+	var totalTransfers, maxStateCount, exceptionsCount int
 	for _, sc := range counts {
 		totalTransfers += sc.Count
-		if sc.State == "PendingReview" {
-			pendingReview = sc.Count
-		}
 		if sc.State == "Rejected" || sc.State == "Returned" {
 			exceptionsCount += sc.Count
 		}
@@ -266,6 +281,7 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		"LatestBatch":      latestBatch,
 		"FundsPostedCents": fundsPostedCents,
 		"Recent":           recentList,
+		"AccountNames":     h.loadAccountNames(),
 	})
 }
 
@@ -275,8 +291,9 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 
 func (h *UIHandlers) simulatePage(w http.ResponseWriter, r *http.Request) {
 	data := map[string]interface{}{
-		"ActivePage": "simulate",
-		"Recent":     h.recentTransfers(10),
+		"ActivePage":   "simulate",
+		"Recent":       h.recentTransfers(10),
+		"AccountNames": h.loadAccountNames(),
 	}
 	if msg := r.URL.Query().Get("result"); msg != "" {
 		data["Flash"] = map[string]string{"Type": "success", "Text": msg}
@@ -350,7 +367,9 @@ func (h *UIHandlers) simulateSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.render(w, "simulate", map[string]interface{}{
-		"ActivePage": "simulate",
+		"ActivePage":   "simulate",
+		"AccountNames": h.loadAccountNames(),
+		"Recent":       h.recentTransfers(10),
 		"Result": map[string]interface{}{
 			"TransferID":       result.TransferID,
 			"State":            string(result.State),
@@ -424,6 +443,7 @@ func (h *UIHandlers) transfersPage(w http.ResponseWriter, r *http.Request) {
 		"HasNext":        page < totalPages,
 		"PrevPage":       page - 1,
 		"NextPage":       page + 1,
+		"AccountNames":   h.loadAccountNames(),
 	})
 }
 
@@ -444,8 +464,18 @@ func (h *UIHandlers) buildTransferDetailData(id string) (map[string]interface{},
 		return nil, fmt.Errorf("transfer not found: %w", err)
 	}
 
+	// Resolve account display name
+	var accountDisplay string
+	var extID, name string
+	if h.DB.QueryRow(`SELECT external_account_id, account_name FROM accounts WHERE id = ?`, t.InvestorAccountID).Scan(&extID, &name) == nil {
+		accountDisplay = name + " (" + extID + ")"
+	} else {
+		accountDisplay = t.InvestorAccountID
+	}
+
 	data := map[string]interface{}{
-		"Transfer": t,
+		"Transfer":        t,
+		"AccountDisplay":  accountDisplay,
 	}
 
 	vendorResult, err := vendorclient.GetVendorResult(h.DB, id)
@@ -585,8 +615,9 @@ func (h *UIHandlers) reviewPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	h.render(w, "review", map[string]interface{}{
-		"ActivePage": "review",
-		"Transfers":  items,
+		"ActivePage":   "review",
+		"Transfers":    items,
+		"AccountNames": h.loadAccountNames(),
 	})
 }
 
@@ -860,6 +891,10 @@ func (h *UIHandlers) returnsSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	if t != nil {
 		data["Transfer"] = t
+		var extID, name string
+		if h.DB.QueryRow(`SELECT external_account_id, account_name FROM accounts WHERE id = ?`, t.InvestorAccountID).Scan(&extID, &name) == nil {
+			data["AccountDisplay"] = name + " (" + extID + ")"
+		}
 	}
 	h.render(w, "returns", data)
 }
@@ -918,8 +953,107 @@ func (h *UIHandlers) healthStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 // ---------------------------------------------------------------------------
+// Search (command palette HTMX fragment)
+// ---------------------------------------------------------------------------
+
+func (h *UIHandlers) searchHandler(w http.ResponseWriter, r *http.Request) {
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+
+	if q == "" {
+		fmt.Fprint(w, `<div class="cmd-empty">Type to search transfers by ID or account…</div>`)
+		return
+	}
+
+	// Search transfers: ID prefix, account name, or external account ID (case-insensitive)
+	rows, err := h.DB.QueryContext(r.Context(), `
+		SELECT t.id, COALESCE(a.account_name || ' (' || a.external_account_id || ')', t.investor_account_id), t.amount_cents, t.state
+		FROM transfers t
+		LEFT JOIN accounts a ON a.id = t.investor_account_id
+		WHERE (t.id LIKE ?
+		   OR LOWER(t.investor_account_id) LIKE ?
+		   OR LOWER(a.account_name) LIKE ?
+		   OR LOWER(a.external_account_id) LIKE ?)
+		ORDER BY t.created_at DESC
+		LIMIT 8
+	`, q+"%", "%"+strings.ToLower(q)+"%", "%"+strings.ToLower(q)+"%", "%"+strings.ToLower(q)+"%")
+	if err != nil {
+		fmt.Fprint(w, `<div class="cmd-empty">Search error</div>`)
+		return
+	}
+	defer rows.Close()
+
+	type result struct {
+		ID                string
+		InvestorAccountID string
+		AmountCents       int64
+		State             string
+	}
+	var results []result
+	for rows.Next() {
+		var res result
+		if err := rows.Scan(&res.ID, &res.InvestorAccountID, &res.AmountCents, &res.State); err == nil {
+			results = append(results, res)
+		}
+	}
+
+	if len(results) == 0 {
+		fmt.Fprintf(w, `<div class="cmd-empty">No transfers matching <em>%s</em></div>`, html.EscapeString(q))
+		return
+	}
+
+	var sb strings.Builder
+	for i, res := range results {
+		short := res.ID
+		if len(short) > 8 {
+			short = short[:8] + "…"
+		}
+		dollars := fmt.Sprintf("$%d.%02d", res.AmountCents/100, res.AmountCents%100)
+		sb.WriteString(fmt.Sprintf(
+			`<a class="cmd-result%s" href="/ui/transfers/%s" data-cmd-idx="%d">
+			  <span class="cmd-result-id">%s</span>
+			  <span class="cmd-result-account">%s</span>
+			  <span class="cmd-result-amount">%s</span>
+			  <span class="badge badge--%s">%s</span>
+			</a>`,
+			func() string {
+				if i == 0 {
+					return " cmd-result--active"
+				}
+				return ""
+			}(),
+			html.EscapeString(res.ID),
+			i,
+			html.EscapeString(short),
+			html.EscapeString(res.InvestorAccountID),
+			dollars,
+			html.EscapeString(res.State),
+			html.EscapeString(res.State),
+		))
+	}
+	fmt.Fprint(w, sb.String())
+}
+
+// ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+// loadAccountNames returns a map of account UUID → "Name (EXT-ID)" for display.
+func (h *UIHandlers) loadAccountNames() map[string]string {
+	rows, err := h.DB.Query(`SELECT id, external_account_id, account_name FROM accounts`)
+	if err != nil {
+		return nil
+	}
+	defer rows.Close()
+	m := make(map[string]string)
+	for rows.Next() {
+		var id, extID, name string
+		if rows.Scan(&id, &extID, &name) == nil {
+			m[id] = name + " (" + extID + ")"
+		}
+	}
+	return m
+}
 
 func parseCents(s string) (int64, error) {
 	f, err := strconv.ParseFloat(s, 64)

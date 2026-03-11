@@ -44,7 +44,7 @@
       <tbody>
         {{range .Batches}}
         <tr>
-          <td><span title="{{.ID}}">{{slice .ID 0 8}}…</span></td>
+          <td><span title="{{.ID}}">{{shortID .ID}}</span></td>
           <td>{{slice .BusinessDateCT 0 10}}</td>
           <td><span class="badge badge--{{.Status}}" data-state>{{.Status}}</span></td>
           <td>{{.TotalItems}}</td>

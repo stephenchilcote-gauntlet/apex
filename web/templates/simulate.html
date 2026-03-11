@@ -150,8 +150,8 @@
       <tbody>
         {{range .Recent}}
         <tr>
-          <td><a href="/ui/transfers/{{.ID}}">{{slice .ID 0 8}}…</a></td>
-          <td>{{.InvestorAccountID}}</td>
+          <td><a href="/ui/transfers/{{.ID}}">{{shortID .ID}}</a></td>
+          <td>{{if $.AccountNames}}{{index $.AccountNames .InvestorAccountID}}{{else}}{{.InvestorAccountID}}{{end}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
           <td><span class="badge badge--{{.State}}">{{.State}}</span></td>
           <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>

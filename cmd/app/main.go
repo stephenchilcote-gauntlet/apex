@@ -43,6 +43,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Auto-seed demo data on first startup (when transfers table is empty).
+	var transferCount int
+	if db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&transferCount) == nil && transferCount == 0 {
+		if n, err := api.SeedDemoData(db); err != nil {
+			slog.Warn("demo seed failed", "err", err)
+		} else if n > 0 {
+			slog.Info("demo data seeded", "count", n)
+		}
+	}
+
 	transferSvc := &transfers.TransferService{}
 	ledgerSvc := &ledger.LedgerService{}
 	fundingSvc := &funding.FundingService{DB: db}

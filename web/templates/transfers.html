@@ -44,8 +44,8 @@
       <tbody>
         {{range .Transfers}}
         <tr data-transfer class="row-link" onclick="window.location='/ui/transfers/{{.ID}}'">
-          <td><a href="/ui/transfers/{{.ID}}">{{slice .ID 0 8}}…</a></td>
-          <td>{{.InvestorAccountID}}</td>
+          <td><a href="/ui/transfers/{{.ID}}">{{shortID .ID}}</a></td>
+          <td>{{if $.AccountNames}}{{index $.AccountNames .InvestorAccountID}}{{else}}{{.InvestorAccountID}}{{end}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .AmountCents}}</span></td>
           <td><span class="badge badge--{{.State}}" data-state>{{.State}}</span></td>
           <td>{{if .BusinessDateCT}}{{deref .BusinessDateCT}}{{else}}—{{end}}</td>
@@ -79,6 +79,7 @@ th[data-sortable] { cursor: pointer; user-select: none; }
 th[data-sortable]:hover { color: var(--text-primary); }
 th[data-sortable][data-dir]::after { content: ' ↑'; opacity: 0.6; }
 th[data-sortable][data-dir="desc"]::after { content: ' ↓'; opacity: 0.6; }
+tr[data-transfer].row-focused td { background: var(--accent-dim) !important; outline: none; }
 </style>
 
 <script>
@@ -112,6 +113,38 @@ th[data-sortable][data-dir="desc"]::after { content: ' ↓'; opacity: 0.6; }
       });
       rows.forEach(function (r) { tbody.appendChild(r); });
     });
+  });
+})();
+
+// j/k keyboard navigation through transfer rows
+(function () {
+  var focused = -1;
+  function rows() { return Array.from(document.querySelectorAll('tr[data-transfer]')); }
+  function setFocus(idx) {
+    rows().forEach(function (r, i) {
+      if (i === idx) r.classList.add('row-focused');
+      else r.classList.remove('row-focused');
+    });
+    focused = idx;
+    var r = rows()[idx];
+    if (r) r.scrollIntoView({ block: 'nearest' });
+  }
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    var rs = rows();
+    if (!rs.length) return;
+    if (e.key === 'j') {
+      e.preventDefault();
+      setFocus(Math.min(focused + 1, rs.length - 1) < 0 ? 0 : Math.min(focused + 1, rs.length - 1));
+    } else if (e.key === 'k') {
+      e.preventDefault();
+      setFocus(Math.max(focused - 1, 0));
+    } else if (e.key === 'Enter' && focused >= 0) {
+      var link = rs[focused] && rs[focused].querySelector('a');
+      if (link) window.location.href = link.href;
+    }
   });
 })();
 </script>
