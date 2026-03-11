@@ -60,7 +60,7 @@ SQLite means no DB server to start. `make dev` runs both services in ~2 seconds.
 
 **`duplicate_fingerprint` on transfers:** Denormalized SHA256 hash stored directly on the transfer. Enables a single indexed lookup (`idx_transfers_fingerprint`) instead of joining through vendor_results to reconstruct MICR fields on every submission.
 
-**`return_fee_cents DEFAULT 3000` on transfers:** Snapshot of the fee at time of return. If fee schedules ever changed, historical transfers would still show what was actually charged.
+**`return_fee_cents` on transfers:** Snapshot of the fee actually charged, written by application code. The single source of truth for the $30 amount is `internal/returns/service.go`; the DB columns have no default.
 
 **`raw_response_json` on vendor_results:** Full vendor response stored alongside parsed fields. Parsed fields (`micr_routing_number`, `risk_score`, etc.) are used for queries and display; the raw JSON preserves the original for audit/debugging without needing to reconstruct it.
 

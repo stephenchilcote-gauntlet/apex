@@ -41,7 +41,7 @@ CREATE TABLE transfers (
     rejection_code TEXT,
     rejection_message TEXT,
     return_reason_code TEXT,
-    return_fee_cents INTEGER DEFAULT 3000,
+    return_fee_cents INTEGER,
     duplicate_fingerprint TEXT,
     submitted_at DATETIME,
     approved_at DATETIME,
@@ -176,7 +176,7 @@ CREATE TABLE return_notifications (
     transfer_id TEXT NOT NULL REFERENCES transfers(id),
     reason_code TEXT NOT NULL,
     reason_text TEXT,
-    fee_cents INTEGER NOT NULL DEFAULT 3000,
+    fee_cents INTEGER NOT NULL,
     raw_payload_json TEXT,
     received_at DATETIME NOT NULL DEFAULT (datetime('now')),
     processed_at DATETIME
