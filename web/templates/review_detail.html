@@ -3,9 +3,14 @@
   <a href="/ui/review">Review Queue</a>
   <span class="breadcrumb-sep">/</span>
   <span class="breadcrumb-current">{{shortID .Transfer.ID}}</span>
+  {{if .QueueLen}}<span style="margin-left:auto;font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">{{.QueuePos}} / {{.QueueLen}}</span>{{end}}
 </nav>
-<div class="page-header">
+<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
   <h1 class="section-title">Review Transfer</h1>
+  <div style="display:flex;gap:6px;">
+    {{if .PrevReviewID}}<a href="/ui/review/{{.PrevReviewID}}" class="btn" style="font-size:11px;padding:4px 10px;" id="prev-btn">← Prev</a>{{else}}<button class="btn" disabled style="font-size:11px;padding:4px 10px;opacity:0.35;">← Prev</button>{{end}}
+    {{if .NextReviewID}}<a href="/ui/review/{{.NextReviewID}}" class="btn" style="font-size:11px;padding:4px 10px;" id="next-btn">Next →</a>{{else}}<button class="btn" disabled style="font-size:11px;padding:4px 10px;opacity:0.35;">Next →</button>{{end}}
+  </div>
 </div>
 
 <div data-transfer-id="{{.Transfer.ID}}">
@@ -169,6 +174,22 @@
   }
   wireSpinner('approve-btn', 'approve-spinner', 'approve-label', 'Approving…');
   wireSpinner('reject-btn', 'reject-spinner', 'reject-label', 'Rejecting…');
+})();
+
+// ← → keyboard navigation between review queue items
+(function () {
+  document.addEventListener('keydown', function (e) {
+    var tag = (e.target.tagName || '').toLowerCase();
+    if (tag === 'input' || tag === 'textarea' || tag === 'select' || e.target.isContentEditable) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.key === 'ArrowLeft' || e.key === '[') {
+      var btn = document.getElementById('prev-btn');
+      if (btn) window.location.href = btn.href;
+    } else if (e.key === 'ArrowRight' || e.key === ']') {
+      var btn = document.getElementById('next-btn');
+      if (btn) window.location.href = btn.href;
+    }
+  });
 })();
 </script>
 {{end}}

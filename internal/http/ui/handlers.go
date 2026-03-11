@@ -629,6 +629,30 @@ func (h *UIHandlers) reviewDetailPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data["ActivePage"] = "review"
+
+	// Build prev/next navigation within the review queue
+	state := transfers.StateAnalyzing
+	reviewRequired := true
+	reviewStatus := "PENDING"
+	queue, _ := h.TransferSvc.List(h.DB, transfers.TransferFilters{
+		State:          &state,
+		ReviewRequired: &reviewRequired,
+		ReviewStatus:   &reviewStatus,
+	})
+	for i, t := range queue {
+		if t.ID == id {
+			if i > 0 {
+				data["PrevReviewID"] = queue[i-1].ID
+			}
+			if i < len(queue)-1 {
+				data["NextReviewID"] = queue[i+1].ID
+			}
+			data["QueuePos"] = i + 1
+			data["QueueLen"] = len(queue)
+			break
+		}
+	}
+
 	h.render(w, "review_detail", data)
 }
 
