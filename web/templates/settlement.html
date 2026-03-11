@@ -17,6 +17,11 @@
       </button>
     </form>
     <span style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">
+      {{if gt .EligibleCount 0}}
+      <span style="color:var(--green-mid);font-weight:600;">{{.EligibleCount}} transfer{{if gt .EligibleCount 1}}s{{end}}</span>
+      <span style="color:var(--text-primary);">(${{formatCents .EligibleAmountCents}})</span>
+      ready to settle ·
+      {{end}}
       Packages all <span style="color:var(--green-mid);font-weight:600;">FundsPosted</span> transfers into an X9.37 ICL file.
     </span>
   </div>

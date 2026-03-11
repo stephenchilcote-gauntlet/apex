@@ -67,6 +67,9 @@
         <span class="detail-label">Completed</span><span class="detail-value">{{if .Transfer.CompletedAt}}{{.Transfer.CompletedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
         <span class="detail-label">Created</span><span class="detail-value">{{.Transfer.CreatedAt.Format "2006-01-02 15:04:05"}}</span>
         <span class="detail-label">Updated</span><span class="detail-value">{{.Transfer.UpdatedAt.Format "2006-01-02 15:04:05"}}</span>
+        {{if .SettlementBatchID}}
+        <span class="detail-label">Settlement Batch</span><span class="detail-value"><a href="/ui/settlement" style="font-family:var(--font-data);font-size:12px;">{{shortID .SettlementBatchID}}</a></span>
+        {{end}}
       </div>
     </div>
   </div>

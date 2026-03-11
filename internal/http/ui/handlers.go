@@ -592,6 +592,12 @@ func (h *UIHandlers) buildTransferDetailData(id string) (map[string]interface{},
 		data["AuditEvents"] = events
 	}
 
+	// Lookup settlement batch for this transfer
+	var batchID string
+	if h.DB.QueryRow(`SELECT batch_id FROM settlement_batch_items WHERE transfer_id = ? LIMIT 1`, id).Scan(&batchID) == nil {
+		data["SettlementBatchID"] = batchID
+	}
+
 	return data, nil
 }
 
@@ -970,9 +976,15 @@ func (h *UIHandlers) settlementPage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var eligibleCount int
+	var eligibleCents int64
+	_ = h.DB.QueryRow(`SELECT COUNT(*), COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&eligibleCount, &eligibleCents)
+
 	data := map[string]interface{}{
-		"ActivePage": "settlement",
-		"Batches":    batches,
+		"ActivePage":          "settlement",
+		"Batches":             batches,
+		"EligibleCount":       eligibleCount,
+		"EligibleAmountCents": eligibleCents,
 	}
 
 	if msg := r.URL.Query().Get("msg"); msg != "" {
@@ -1038,6 +1050,42 @@ func (h *UIHandlers) returnsPage(w http.ResponseWriter, r *http.Request) {
 	if id := r.URL.Query().Get("id"); id != "" {
 		data["PrefillID"] = id
 	}
+
+	// Eligible transfers: FundsPosted or Completed, last 10
+	type eligibleTransfer struct {
+		ID             string
+		Amount         string
+		State          string
+		AccountDisplay string
+		BusinessDate   string
+	}
+	rows, err := h.DB.Query(`
+		SELECT t.id, t.amount_cents, t.state,
+		       COALESCE(a.account_name, '') || ' (' || COALESCE(a.external_account_id, '') || ')' as acct,
+		       COALESCE(t.business_date_ct, '')
+		FROM transfers t
+		LEFT JOIN accounts a ON a.id = t.investor_account_id
+		WHERE t.state IN ('FundsPosted', 'Completed')
+		ORDER BY t.created_at DESC LIMIT 10`)
+	if err == nil {
+		defer rows.Close()
+		var eligible []eligibleTransfer
+		for rows.Next() {
+			var e eligibleTransfer
+			var amtCents int64
+			if rows.Scan(&e.ID, &amtCents, &e.State, &e.AccountDisplay, &e.BusinessDate) == nil {
+				e.Amount = fmt.Sprintf("$%d.%02d", amtCents/100, amtCents%100)
+				if len(e.BusinessDate) > 10 {
+					e.BusinessDate = e.BusinessDate[:10]
+				}
+				eligible = append(eligible, e)
+			}
+		}
+		if len(eligible) > 0 {
+			data["EligibleTransfers"] = eligible
+		}
+	}
+
 	h.render(w, "returns", data)
 }
 

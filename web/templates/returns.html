@@ -35,6 +35,39 @@
   </div>
 </div>
 
+{{if .EligibleTransfers}}
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header">
+    <span class="panel-header-title">Eligible for Return</span>
+    <span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">Click to prefill</span>
+  </div>
+  <div class="panel-body" style="padding:0;">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Account</th>
+          <th style="text-align:right;">Amount</th>
+          <th>State</th>
+          <th>Business Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{range .EligibleTransfers}}
+        <tr style="cursor:pointer;" onclick="document.getElementById('transferId').value='{{.ID}}';document.getElementById('transferId').focus();">
+          <td><span style="font-family:var(--font-data);font-size:11px;">{{shortID .ID}}</span></td>
+          <td style="font-size:11px;">{{.AccountDisplay}}</td>
+          <td style="text-align:right;"><span class="data-value data-value--currency">{{.Amount}}</span></td>
+          <td><span class="badge badge--{{.State}}">{{.State}}</span></td>
+          <td style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">{{.BusinessDate}}</td>
+        </tr>
+        {{end}}
+      </tbody>
+    </table>
+  </div>
+</div>
+{{end}}
+
 {{if .Transfer}}
 <div class="panel">
   <div class="panel-header">
