@@ -36,6 +36,29 @@
   {{end}}
 </div>
 
+<!-- Recent transfers — Amp-style thread cards -->
+{{if .Recent}}
+<div style="margin-bottom:16px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+    <span style="font-family:var(--font-ui);font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:0.1em;color:var(--text-secondary);">Recent transfers</span>
+    <a href="/ui/transfers" style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);text-decoration:none;">View all →</a>
+  </div>
+  <div class="thread-cards">
+    {{range .Recent}}
+    <a href="/ui/transfers/{{.ID}}" class="thread-card">
+      <div class="thread-card-header">
+        <span class="thread-card-id">{{slice .ID 0 8}}…</span>
+        <span class="badge badge--{{.State}}">{{.State}}</span>
+      </div>
+      <div class="thread-card-account">{{.InvestorAccountID}}</div>
+      <div class="thread-card-amount">${{formatCents .AmountCents}}</div>
+      <div class="thread-card-date">{{.CreatedAt.Format "Jan 2, 15:04"}}</div>
+    </a>
+    {{end}}
+  </div>
+</div>
+{{end}}
+
 <!-- Transfer breakdown by state -->
 {{if .StateCounts}}
 <div class="panel" style="margin-bottom:16px;">
@@ -181,6 +204,66 @@
   font-size: 12px;
   color: var(--text-secondary);
   line-height: 1.5;
+}
+
+/* Thread cards — Amp-style recent-transfers grid */
+.thread-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 8px;
+}
+
+.thread-card {
+  display: block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  padding: 12px 14px;
+  text-decoration: none;
+  transition: border-color 0.12s, background 0.12s;
+  cursor: pointer;
+}
+
+.thread-card:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
+  text-decoration: none;
+}
+
+.thread-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.thread-card-id {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--text-tertiary);
+}
+
+.thread-card-account {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 3px;
+}
+
+.thread-card-amount {
+  font-family: var(--font-data);
+  font-size: 13px;
+  color: var(--green-mid);
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 6px;
+}
+
+.thread-card-date {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  color: var(--text-tertiary);
 }
 </style>
 {{end}}

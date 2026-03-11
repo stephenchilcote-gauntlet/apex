@@ -249,6 +249,9 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 	var fundsPostedCents int64
 	h.DB.QueryRow(`SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&fundsPostedCents)
 
+	// Recent transfers (last 8, newest first)
+	recentList := h.recentTransfers(8)
+
 	h.render(w, "dashboard", map[string]interface{}{
 		"ActivePage":       "dashboard",
 		"StateCounts":      counts,
@@ -257,6 +260,7 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		"MaxStateCount":    maxStateCount,
 		"LatestBatch":      latestBatch,
 		"FundsPostedCents": fundsPostedCents,
+		"Recent":           recentList,
 	})
 }
 
