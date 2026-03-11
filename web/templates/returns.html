@@ -14,12 +14,14 @@
       <div class="form-row">
         <div class="form-group" style="flex:2">
           <label class="form-label" for="transferId">Transfer ID</label>
-          <input type="text" name="transferId" id="transferId" class="input" style="width:100%"
-            placeholder="Enter transfer UUID" value="{{if .PrefillID}}{{.PrefillID}}{{end}}"
-            list="transfer-ids-list" autocomplete="off"
-            hx-get="/ui/transfer-autocomplete" hx-trigger="input delay:120ms" hx-include="this"
-            hx-target="#transfer-ids-list" hx-swap="innerHTML">
-          <datalist id="transfer-ids-list"></datalist>
+          <div class="uuid-ac-wrap">
+            <input type="text" name="transferId" id="transferId" class="input" style="width:100%"
+              placeholder="Enter transfer UUID" value="{{if .PrefillID}}{{.PrefillID}}{{end}}"
+              autocomplete="off"
+              hx-get="/ui/transfer-autocomplete" hx-trigger="input delay:120ms" hx-include="this"
+              hx-target="#transferId-ac" hx-swap="innerHTML">
+            <div id="transferId-ac" class="uuid-ac-dropdown"></div>
+          </div>
         </div>
         <div class="form-group" style="flex:1">
           <label class="form-label" for="reasonCode">Reason Code</label>

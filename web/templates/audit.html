@@ -9,12 +9,14 @@
     <form method="GET" action="/ui/audit" style="display:flex;gap:12px;align-items:flex-end;flex-wrap:wrap;">
       <div class="form-group" style="flex:2;min-width:200px;">
         <label class="form-label" for="transferId">Transfer ID</label>
-        <input type="text" name="transferId" id="transferId" class="input" style="width:100%"
-               placeholder="Filter by transfer UUID" value="{{.TransferID}}"
-               list="transfer-ids-list" autocomplete="off"
-               hx-get="/ui/transfer-autocomplete" hx-trigger="input delay:120ms" hx-include="this"
-               hx-target="#transfer-ids-list" hx-swap="innerHTML">
-        <datalist id="transfer-ids-list"></datalist>
+        <div class="uuid-ac-wrap">
+          <input type="text" name="transferId" id="transferId" class="input" style="width:100%"
+                 placeholder="Filter by transfer UUID" value="{{.TransferID}}"
+                 autocomplete="off"
+                 hx-get="/ui/transfer-autocomplete" hx-trigger="input delay:120ms" hx-include="this"
+                 hx-target="#transferId-ac" hx-swap="innerHTML">
+          <div id="transferId-ac" class="uuid-ac-dropdown"></div>
+        </div>
       </div>
       <div class="form-group" style="flex:1;min-width:160px;">
         <label class="form-label" for="eventType">Event Type</label>

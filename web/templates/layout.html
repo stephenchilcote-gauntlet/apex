@@ -141,6 +141,46 @@ kbd {
   padding: 2px 5px;
   margin-right: 2px;
 }
+
+/* UUID autocomplete dropdown */
+.uuid-ac-wrap { position: relative; }
+.uuid-ac-dropdown {
+  position: absolute;
+  top: calc(100% + 3px);
+  left: 0; right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  z-index: 200;
+  overflow: hidden;
+  font-family: var(--font-data);
+  font-size: 11px;
+}
+.uuid-ac-dropdown:empty { display: none; }
+.uuid-ac-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.08s;
+}
+.uuid-ac-item:hover, .uuid-ac-item.uuid-ac-active {
+  background: var(--accent-dim);
+}
+.uuid-ac-short {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  width: 68px;
+}
+.uuid-ac-full {
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 </style>
 
 <script>
@@ -329,6 +369,92 @@ document.addEventListener('click', function (e) {
   // Close on backdrop click
   modal.addEventListener('click', function (e) {
     if (e.target === modal) modal.close();
+  });
+})();
+
+// UUID autocomplete — keyboard nav + click-to-fill for .uuid-ac-dropdown
+(function () {
+  function getDropdown(input) {
+    var wrap = input.closest('.uuid-ac-wrap');
+    return wrap ? wrap.querySelector('.uuid-ac-dropdown') : null;
+  }
+  function getItems(dropdown) {
+    return dropdown ? Array.from(dropdown.querySelectorAll('.uuid-ac-item')) : [];
+  }
+  function setActive(items, idx) {
+    items.forEach(function (item, i) {
+      item.classList.toggle('uuid-ac-active', i === idx);
+    });
+    if (items[idx]) items[idx].scrollIntoView({ block: 'nearest' });
+  }
+  function fill(input, value) {
+    input.value = value;
+    var dd = getDropdown(input);
+    if (dd) dd.innerHTML = '';
+    input.focus();
+    // Fire native input event so any other listeners (e.g. form validation) notice
+    input.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+
+  // Track active index per dropdown
+  var activeMap = new WeakMap();
+
+  // Keyboard nav on UUID inputs
+  document.addEventListener('keydown', function (e) {
+    var input = e.target;
+    if (!input.closest || !input.closest('.uuid-ac-wrap')) return;
+    var dd = getDropdown(input);
+    if (!dd) return;
+    var items = getItems(dd);
+    var idx = activeMap.get(dd) !== undefined ? activeMap.get(dd) : -1;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      idx = Math.min(idx + 1, items.length - 1);
+      activeMap.set(dd, idx);
+      setActive(items, idx);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      idx = Math.max(idx - 1, 0);
+      activeMap.set(dd, idx);
+      setActive(items, idx);
+    } else if (e.key === 'Tab' || e.key === 'Enter') {
+      var target = items[idx] || items[0];
+      if (target && dd.children.length > 0) {
+        e.preventDefault();
+        fill(input, target.getAttribute('data-value'));
+        activeMap.set(dd, -1);
+      }
+    } else if (e.key === 'Escape') {
+      dd.innerHTML = '';
+      activeMap.set(dd, -1);
+    }
+  });
+
+  // Click on a result item
+  document.addEventListener('click', function (e) {
+    var item = e.target.closest('.uuid-ac-item');
+    if (item) {
+      var wrap = item.closest('.uuid-ac-wrap');
+      if (!wrap) return;
+      var input = wrap.querySelector('input');
+      if (input) fill(input, item.getAttribute('data-value'));
+      return;
+    }
+    // Click outside any wrap → close all dropdowns
+    if (!e.target.closest('.uuid-ac-wrap')) {
+      document.querySelectorAll('.uuid-ac-dropdown').forEach(function (dd) {
+        dd.innerHTML = '';
+      });
+    }
+  });
+
+  // Reset active index when HTMX swaps new results in
+  document.addEventListener('htmx:afterSwap', function (e) {
+    var dd = e.detail && e.detail.target;
+    if (dd && dd.classList && dd.classList.contains('uuid-ac-dropdown')) {
+      activeMap.set(dd, -1);
+    }
   });
 })();
 </script>

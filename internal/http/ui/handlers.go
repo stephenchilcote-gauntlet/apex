@@ -1486,8 +1486,8 @@ func (h *UIHandlers) searchHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, sb.String())
 }
 
-// transferAutocomplete returns <option> elements for a <datalist> matching a
-// partial transfer UUID typed into a form input.
+// transferAutocomplete returns custom dropdown items (DOM-rendered, visible in
+// Playwright video) matching a partial transfer UUID.
 func (h *UIHandlers) transferAutocomplete(w http.ResponseWriter, r *http.Request) {
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	if q == "" {
@@ -1498,7 +1498,7 @@ func (h *UIHandlers) transferAutocomplete(w http.ResponseWriter, r *http.Request
 		return
 	}
 	rows, err := h.DB.QueryContext(r.Context(),
-		`SELECT id FROM transfers WHERE id LIKE ? ORDER BY created_at DESC LIMIT 10`,
+		`SELECT id FROM transfers WHERE id LIKE ? ORDER BY created_at DESC LIMIT 8`,
 		q+"%")
 	if err != nil {
 		return
@@ -1508,7 +1508,14 @@ func (h *UIHandlers) transferAutocomplete(w http.ResponseWriter, r *http.Request
 	for rows.Next() {
 		var id string
 		if rows.Scan(&id) == nil {
-			sb.WriteString(`<option value="` + html.EscapeString(id) + `">`)
+			short := id
+			if len(short) > 8 {
+				short = short[:8] + "…"
+			}
+			sb.WriteString(fmt.Sprintf(
+				`<div class="uuid-ac-item" data-value="%s"><span class="uuid-ac-short">%s</span><span class="uuid-ac-full">%s</span></div>`,
+				html.EscapeString(id), html.EscapeString(short), html.EscapeString(id),
+			))
 		}
 	}
 	fmt.Fprint(w, sb.String())
