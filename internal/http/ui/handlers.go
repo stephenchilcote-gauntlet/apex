@@ -529,21 +529,27 @@ func (h *UIHandlers) transfersPage(w http.ResponseWriter, r *http.Request) {
 		totalPages = 1
 	}
 
+	var pageAmountCents int64
+	for _, t := range list {
+		pageAmountCents += t.AmountCents
+	}
+
 	h.render(w, "transfers", map[string]interface{}{
-		"ActivePage":     "transfers",
-		"Transfers":      list,
-		"StateFilter":    q.Get("state"),
-		"AccountFilter":  q.Get("investorAccountId"),
-		"DateFromFilter": q.Get("dateFrom"),
-		"DateToFilter":   q.Get("dateTo"),
-		"Page":           page,
-		"TotalPages":     totalPages,
-		"Total":          total,
-		"HasPrev":        page > 1,
-		"HasNext":        page < totalPages,
-		"PrevPage":       page - 1,
-		"NextPage":       page + 1,
-		"AccountNames":   h.loadAccountNames(),
+		"ActivePage":       "transfers",
+		"Transfers":        list,
+		"StateFilter":      q.Get("state"),
+		"AccountFilter":    q.Get("investorAccountId"),
+		"DateFromFilter":   q.Get("dateFrom"),
+		"DateToFilter":     q.Get("dateTo"),
+		"Page":             page,
+		"TotalPages":       totalPages,
+		"Total":            total,
+		"PageAmountCents":  pageAmountCents,
+		"HasPrev":          page > 1,
+		"HasNext":          page < totalPages,
+		"PrevPage":         page - 1,
+		"NextPage":         page + 1,
+		"AccountNames":     h.loadAccountNames(),
 	})
 }
 

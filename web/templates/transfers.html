@@ -57,6 +57,19 @@
         <tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:24px;">No transfers found</td></tr>
         {{end}}
       </tbody>
+      {{if and .Transfers .PageAmountCents}}
+      <tfoot>
+        <tr style="border-top:2px solid var(--border-default);background:var(--bg-surface);">
+          <td colspan="2" style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);padding:8px 12px;">
+            {{len .Transfers}} shown{{if gt .Total (len .Transfers)}} of {{.Total}}{{end}}
+          </td>
+          <td style="text-align:right;font-family:var(--font-data);font-size:12px;font-weight:600;color:var(--text-primary);">
+            ${{formatCents .PageAmountCents}}
+          </td>
+          <td colspan="3" style="font-family:var(--font-ui);font-size:10px;color:var(--text-tertiary);padding:8px 12px;">page total</td>
+        </tr>
+      </tfoot>
+      {{end}}
     </table>
   </div>
   {{if gt .TotalPages 1}}
