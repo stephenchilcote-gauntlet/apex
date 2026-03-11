@@ -20,7 +20,17 @@
     <div class="panel-body">
       <div class="detail-grid">
         <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}<button data-copy="{{.Transfer.ID}}" title="Copy ID">⎘</button></span>
-        <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span></span>
+        <span class="detail-label">State</span>
+        <span class="detail-value" id="transfer-state-cell"
+          {{if or (eq .Transfer.State "Validating") (eq .Transfer.State "Analyzing") (eq .Transfer.State "Requested")}}
+          hx-get="/ui/transfers/{{.Transfer.ID}}"
+          hx-trigger="every 3s"
+          hx-target="#transfer-state-cell"
+          hx-select="#transfer-state-cell"
+          hx-swap="outerHTML"
+          {{end}}>
+          <span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span>
+        </span>
         <span class="detail-label">Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
         <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
         <span class="detail-label">Correspondent</span><span class="detail-value">{{.Transfer.CorrespondentID}}</span>

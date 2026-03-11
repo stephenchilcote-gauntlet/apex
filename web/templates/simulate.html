@@ -83,6 +83,23 @@
     if (label) label.textContent = 'Processing…';
   });
 })();
+
+// Auto-navigate to transfer detail if deposit is in a transient state
+(function () {
+  var resultPanel = document.querySelector('[data-transfer-id]');
+  if (!resultPanel) return;
+  var stateEl = resultPanel.querySelector('[data-state]');
+  if (!stateEl) return;
+  var transient = ['Requested', 'Validating', 'Analyzing'];
+  var state = stateEl.textContent.trim();
+  if (transient.indexOf(state) === -1) return;
+  var transferId = resultPanel.getAttribute('data-transfer-id');
+  if (!transferId) return;
+  // Redirect to transfer detail after 1.5s so the result panel is visible briefly
+  setTimeout(function () {
+    window.location.href = '/ui/transfers/' + transferId;
+  }, 1500);
+})();
 </script>
 
 {{if .Recent}}
