@@ -388,6 +388,45 @@ func TestHandlers_GetAuditLog_Empty(t *testing.T) {
 	}
 }
 
+func TestHandlers_GetAuditLog_WithLimit(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	rr := doRequest(r, "GET", "/api/v1/audit?limit=5", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d", rr.Code)
+	}
+	var body []interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	// Limit=5 means at most 5 events returned
+	if len(body) > 5 {
+		t.Errorf("expected at most 5 events with limit=5, got %d", len(body))
+	}
+}
+
+func TestHandlers_GetAuditLog_WithTransferID(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Seed has audit events for T1 (00000000-seed-0000-0000-000000000001)
+	const transferID = "00000000-seed-0000-0000-000000000001"
+	rr := doRequest(r, "GET", "/api/v1/audit?transferId="+transferID, nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d", rr.Code)
+	}
+	var body []map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if len(body) == 0 {
+		t.Fatal("expected audit events for seeded transfer T1")
+	}
+	// All events should be for the requested transfer
+	for _, e := range body {
+		if e["entityId"] != transferID {
+			t.Errorf("expected entityId=%s, got %v", transferID, e["entityId"])
+		}
+	}
+}
+
 func TestHandlers_GetMetrics_Shape(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
