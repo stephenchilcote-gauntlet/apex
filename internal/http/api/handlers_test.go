@@ -172,6 +172,30 @@ func TestHandlers_ListDeposits_InvestorAccountFilter(t *testing.T) {
 	}
 }
 
+func TestHandlers_ListDeposits_InvestorAccountFilter_ExternalID(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Seed has transfers for INV-1001 — filter by external ID (not UUID)
+	var accountID string
+	db.QueryRow("SELECT id FROM accounts WHERE external_account_id = 'INV-1001'").Scan(&accountID)
+
+	rr := doRequest(r, "GET", "/api/v1/deposits?investorAccountId=INV-1001", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d: %s", rr.Code, rr.Body)
+	}
+	var body []map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if len(body) == 0 {
+		t.Fatal("expected seeded deposits for INV-1001, got empty")
+	}
+	for _, d := range body {
+		if d["InvestorAccountID"] != accountID {
+			t.Errorf("expected InvestorAccountID=%s, got %v", accountID, d["InvestorAccountID"])
+		}
+	}
+}
+
 func TestHandlers_ListDeposits_ReviewRequiredFilter(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)

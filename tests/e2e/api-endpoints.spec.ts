@@ -148,12 +148,23 @@ test.describe('API Endpoints', () => {
     const acct1002 = accounts.find((a: any) => a.externalAccountId === 'INV-1002');
     expect(acct1002).toBeTruthy();
 
-    const resp = await page.request.get(`/api/v1/deposits?investorAccountId=${acct1002.id}`);
-    expect(resp.status()).toBe(200);
-    const body = await resp.json();
-    expect(Array.isArray(body)).toBe(true);
-    expect(body.length).toBeGreaterThan(0);
-    for (const deposit of body) {
+    // Filter by internal UUID — should work
+    const respUUID = await page.request.get(`/api/v1/deposits?investorAccountId=${acct1002.id}`);
+    expect(respUUID.status()).toBe(200);
+    const bodyUUID = await respUUID.json();
+    expect(Array.isArray(bodyUUID)).toBe(true);
+    expect(bodyUUID.length).toBeGreaterThan(0);
+    for (const deposit of bodyUUID) {
+      expect(deposit.InvestorAccountID).toBe(acct1002.id);
+    }
+
+    // Filter by external account ID (INV-1002) — should also work
+    const respExt = await page.request.get('/api/v1/deposits?investorAccountId=INV-1002');
+    expect(respExt.status()).toBe(200);
+    const bodyExt = await respExt.json();
+    expect(Array.isArray(bodyExt)).toBe(true);
+    expect(bodyExt.length).toBeGreaterThan(0);
+    for (const deposit of bodyExt) {
       expect(deposit.InvestorAccountID).toBe(acct1002.id);
     }
   });

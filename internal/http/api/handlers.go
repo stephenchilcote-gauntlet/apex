@@ -165,7 +165,15 @@ func (h *Handlers) listDeposits(w http.ResponseWriter, r *http.Request) {
 		filters.State = &s
 	}
 	if v := r.URL.Query().Get("investorAccountId"); v != "" {
-		filters.InvestorAccountID = &v
+		// Accept both external IDs (INV-1001) and internal UUIDs.
+		// Try to resolve external ID → internal UUID first.
+		var resolved string
+		err := h.DB.QueryRow("SELECT id FROM accounts WHERE external_account_id = ?", v).Scan(&resolved)
+		if err == nil {
+			filters.InvestorAccountID = &resolved
+		} else {
+			filters.InvestorAccountID = &v
+		}
 	}
 	if v := r.URL.Query().Get("reviewRequired"); v != "" {
 		b, err := strconv.ParseBool(v)
