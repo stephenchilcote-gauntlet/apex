@@ -9,14 +9,21 @@
 
 {{if .Result}}
 <div class="panel" style="margin-bottom:12px;" data-transfer-id="{{.Result.TransferID}}">
-  <div class="panel-header"><span class="panel-header-title">Deposit Result</span></div>
+  <div class="panel-header">
+    <span class="panel-header-title">Deposit Result</span>
+    <a href="/ui/transfers/{{.Result.TransferID}}" class="btn" style="margin-left:auto;font-size:11px;padding:4px 10px;">View Transfer →</a>
+  </div>
   <div class="panel-body">
     <div class="detail-grid">
-      <span class="detail-label">Transfer ID</span><span class="detail-value">{{.Result.TransferID}}</span>
-      <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Result.State}}" data-state>{{.Result.State}}</span></span>
-      <span class="detail-label">Message</span><span class="detail-value">{{.Result.Message}}</span>
+      <span class="detail-label">Transfer ID</span>
+      <span class="detail-value">{{.Result.TransferID}}<button data-copy="{{.Result.TransferID}}" title="Copy ID">⎘</button></span>
+      <span class="detail-label">State</span>
+      <span class="detail-value"><span class="badge badge--{{.Result.State}}" data-state>{{.Result.State}}</span></span>
+      <span class="detail-label">Message</span>
+      <span class="detail-value">{{.Result.Message}}</span>
       {{if .Result.RejectionCode}}
-      <span class="detail-label">Rejection</span><span class="detail-value">{{.Result.RejectionCode}}: {{.Result.RejectionMessage}}</span>
+      <span class="detail-label">Rejection</span>
+      <span class="detail-value" style="color:var(--amber);">{{.Result.RejectionCode}}: {{.Result.RejectionMessage}}</span>
       {{end}}
     </div>
   </div>

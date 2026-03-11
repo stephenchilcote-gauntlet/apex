@@ -21,8 +21,11 @@
 </div>
 
 <div class="panel">
-  <div class="panel-header"><span class="panel-header-title">{{if .StateFilter}}{{.StateFilter}}{{if .AccountFilter}} · {{.AccountFilter}}{{end}}{{else if .AccountFilter}}{{.AccountFilter}}{{else}}All{{end}} transfers</span></div>
-  <div class="panel-body">
+  <div class="panel-header">
+    <span class="panel-header-title">{{if .StateFilter}}{{.StateFilter}}{{if .AccountFilter}} · {{.AccountFilter}}{{end}}{{else if .AccountFilter}}{{.AccountFilter}}{{else}}All{{end}} transfers</span>
+    {{if .Transfers}}<span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">{{len .Transfers}} result{{if gt (len .Transfers) 1}}s{{end}}</span>{{end}}
+  </div>
+  <div class="panel-body" style="padding:0;">
     <table class="data-table">
       <thead>
         <tr>

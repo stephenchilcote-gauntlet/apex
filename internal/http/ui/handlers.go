@@ -788,6 +788,9 @@ func (h *UIHandlers) returnsPage(w http.ResponseWriter, r *http.Request) {
 	if msg := r.URL.Query().Get("msg"); msg != "" {
 		data["Message"] = map[string]string{"Type": "success", "Text": msg}
 	}
+	if id := r.URL.Query().Get("id"); id != "" {
+		data["PrefillID"] = id
+	}
 	h.render(w, "returns", data)
 }
 

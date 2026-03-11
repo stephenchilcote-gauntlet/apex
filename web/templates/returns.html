@@ -10,33 +10,43 @@
 <div class="panel" style="margin-bottom:12px;">
   <div class="panel-header"><span class="panel-header-title">Process Return</span></div>
   <div class="panel-body">
-    <form method="POST" action="/ui/returns">
-      <div class="form-group">
-        <label class="form-label" for="transferId">Transfer ID</label>
-        <input type="text" name="transferId" id="transferId" class="input" style="width:100%">
+    <form method="POST" action="/ui/returns" id="returns-form">
+      <div class="form-row">
+        <div class="form-group" style="flex:2">
+          <label class="form-label" for="transferId">Transfer ID</label>
+          <input type="text" name="transferId" id="transferId" class="input" style="width:100%"
+            placeholder="Enter transfer UUID" value="{{if .PrefillID}}{{.PrefillID}}{{end}}">
+        </div>
+        <div class="form-group" style="flex:1">
+          <label class="form-label" for="reasonCode">Reason Code</label>
+          <select name="reasonCode" id="reasonCode" class="input" style="width:100%">
+            <option value="NSF">NSF — Non-Sufficient Funds</option>
+            <option value="ACCOUNT_CLOSED">ACCOUNT_CLOSED — Account Closed</option>
+            <option value="STOP_PAYMENT">STOP_PAYMENT — Stop Payment Order</option>
+            <option value="FRAUD">FRAUD — Suspected Fraud</option>
+          </select>
+        </div>
       </div>
-      <div class="form-group">
-        <label class="form-label" for="reasonCode">Reason Code</label>
-        <select name="reasonCode" id="reasonCode" class="input" style="width:100%">
-          <option value="NSF">NSF</option>
-          <option value="ACCOUNT_CLOSED">ACCOUNT_CLOSED</option>
-          <option value="STOP_PAYMENT">STOP_PAYMENT</option>
-          <option value="FRAUD">FRAUD</option>
-        </select>
-      </div>
-      <button type="submit" class="btn btn-destructive">Process Return</button>
+      <button type="submit" class="btn btn-destructive" id="returns-submit-btn">
+        <span class="submit-spinner" id="returns-spinner" style="display:none;"></span>
+        <span id="returns-label">Process Return</span>
+      </button>
     </form>
   </div>
 </div>
 
 {{if .Transfer}}
 <div class="panel">
-  <div class="panel-header"><span class="panel-header-title">Returned Transfer</span></div>
+  <div class="panel-header">
+    <span class="panel-header-title">Returned Transfer</span>
+    <a href="/ui/transfers/{{.Transfer.ID}}" class="btn" style="margin-left:auto;font-size:11px;padding:4px 10px;">View Transfer →</a>
+  </div>
   <div class="panel-body">
     <div class="detail-grid">
-      <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}</span>
+      <span class="detail-label">ID</span><span class="detail-value">{{.Transfer.ID}}<button data-copy="{{.Transfer.ID}}" title="Copy ID">⎘</button></span>
       <span class="detail-label">State</span><span class="detail-value"><span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span></span>
       <span class="detail-label">Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
+      <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
       <span class="detail-label">Return Reason</span><span class="detail-value">{{if .Transfer.ReturnReasonCode}}{{deref .Transfer.ReturnReasonCode}}{{else}}—{{end}}</span>
       <span class="detail-label">Return Fee</span><span class="detail-value data-value--currency">${{formatCents .Transfer.ReturnFeeCents}}</span>
       <span class="detail-label">Returned At</span><span class="detail-value">{{if .Transfer.ReturnedAt}}{{.Transfer.ReturnedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
@@ -44,4 +54,19 @@
   </div>
 </div>
 {{end}}
+
+<script>
+(function () {
+  var form = document.getElementById('returns-form');
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    var btn = document.getElementById('returns-submit-btn');
+    var spinner = document.getElementById('returns-spinner');
+    var label = document.getElementById('returns-label');
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.style.display = 'inline-block';
+    if (label) label.textContent = 'Processing…';
+  });
+})();
+</script>
 {{end}}

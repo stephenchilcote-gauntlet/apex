@@ -4,15 +4,18 @@
 </div>
 
 <div class="panel">
-  <div class="panel-header"><span class="panel-header-title">Account Balances</span></div>
-  <div class="panel-body">
+  <div class="panel-header">
+    <span class="panel-header-title">Account Balances</span>
+    {{if .Accounts}}<span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">{{len .Accounts}} accounts</span>{{end}}
+  </div>
+  <div class="panel-body" style="padding:0;">
     <table class="data-table">
       <thead>
         <tr>
           <th>External ID</th>
           <th>Name</th>
           <th>Type</th>
-          <th>Balance</th>
+          <th style="text-align:right;">Balance</th>
         </tr>
       </thead>
       <tbody>
@@ -20,18 +23,37 @@
         <tr>
           <td>{{.ExternalAccountID}}</td>
           <td>{{.AccountName}}</td>
-          <td>{{.AccountType}}</td>
-          <td>
+          <td><span class="ledger-type ledger-type--{{lower .AccountType}}">{{.AccountType}}</span></td>
+          <td style="text-align:right;">
             <span class="data-value data-value--currency"{{if lt .BalanceCents 0}} style="color:var(--red)"{{end}}>
               {{if lt .BalanceCents 0}}-${{formatCents (abs .BalanceCents)}}{{else}}${{formatCents .BalanceCents}}{{end}}
             </span>
           </td>
         </tr>
         {{else}}
-        <tr><td colspan="4" style="text-align:center;">No accounts found</td></tr>
+        <tr><td colspan="4" style="text-align:center;color:var(--text-secondary);padding:24px;">No accounts found</td></tr>
         {{end}}
       </tbody>
     </table>
   </div>
 </div>
+
+<style>
+.ledger-type {
+  display: inline-block;
+  font-family: var(--font-ui);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+}
+.ledger-type--asset       { color: var(--green-mid);   border-color: var(--green-dim);  background: var(--green-surface); }
+.ledger-type--liability   { color: var(--amber);       border-color: var(--amber-dim);  background: var(--amber-glow); }
+.ledger-type--equity      { color: var(--blue);        border-color: var(--blue-dim);   background: rgba(59,130,246,0.08); }
+.ledger-type--revenue     { color: var(--green-bright);border-color: var(--green-dim);  background: var(--green-surface); }
+.ledger-type--expense     { color: var(--red);         border-color: var(--red-dim);    background: var(--red-surface); }
+</style>
 {{end}}

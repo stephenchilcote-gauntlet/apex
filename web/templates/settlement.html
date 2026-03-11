@@ -3,30 +3,39 @@
   <div class="compressed-title-wrap"><h1 class="section-title">Settlement</h1></div>
 </div>
 
-<div class="panel" style="margin-bottom:12px;">
-  <div class="panel-header"><span class="panel-header-title">Actions</span></div>
-  <div class="panel-body">
-    <form method="POST" action="/ui/settlement/generate" style="display:inline;">
-      <button type="submit" class="btn" data-action="generate">Generate Settlement Batch</button>
-    </form>
-  </div>
-</div>
-
 {{if .Message}}
 <div class="flash flash--{{.Message.Type}}">{{.Message.Text}}</div>
 {{end}}
 
+<div class="panel" style="margin-bottom:12px;">
+  <div class="panel-header"><span class="panel-header-title">Generate Batch</span></div>
+  <div class="panel-body" style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <form method="POST" action="/ui/settlement/generate" style="display:inline;" id="gen-form">
+      <button type="submit" class="btn" data-action="generate" id="gen-btn">
+        <span class="submit-spinner" id="gen-spinner" style="display:none;"></span>
+        <span id="gen-label">Generate Settlement Batch</span>
+      </button>
+    </form>
+    <span style="font-family:var(--font-ui);font-size:11px;color:var(--text-secondary);">
+      Packages all <span style="color:var(--green-mid);font-weight:600;">FundsPosted</span> transfers into an X9.37 ICL file.
+    </span>
+  </div>
+</div>
+
 <div class="panel">
-  <div class="panel-header"><span class="panel-header-title">Batches</span></div>
-  <div class="panel-body">
+  <div class="panel-header">
+    <span class="panel-header-title">Batches</span>
+    {{if .Batches}}<span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">{{len .Batches}} batch{{if gt (len .Batches) 1}}es{{end}}</span>{{end}}
+  </div>
+  <div class="panel-body" style="padding:0;">
     <table class="data-table" style="table-layout:fixed;">
       <thead>
         <tr>
-          <th style="width:80px;">ID</th>
-          <th style="width:100px;">Business Date</th>
+          <th style="width:90px;">ID</th>
+          <th style="width:110px;">Business Date</th>
           <th style="width:130px;">Status</th>
           <th style="width:48px;">Items</th>
-          <th style="width:100px;">Total Amount</th>
+          <th style="width:110px;">Total Amount</th>
           <th>File</th>
           <th style="width:150px;">Created</th>
           <th style="width:140px;">Action</th>
@@ -35,12 +44,12 @@
       <tbody>
         {{range .Batches}}
         <tr>
-          <td>{{slice .ID 0 8}}…</td>
+          <td><span title="{{.ID}}">{{slice .ID 0 8}}…</span></td>
           <td>{{slice .BusinessDateCT 0 10}}</td>
           <td><span class="badge badge--{{.Status}}" data-state>{{.Status}}</span></td>
           <td>{{.TotalItems}}</td>
           <td><span class="data-value data-value--currency">${{formatCents .TotalAmountCents}}</span></td>
-          <td>{{if .FilePath}}<a href="/ui/settlement/{{.ID}}/download" class="icl-filename" title="{{deref .FilePath}}">{{basename (deref .FilePath)}}</a>{{else}}—{{end}}</td>
+          <td>{{if .FilePath}}<a href="/ui/settlement/{{.ID}}/download" class="icl-filename" title="{{deref .FilePath}}">{{basename (deref .FilePath)}}</a>{{else}}<span style="color:var(--text-tertiary);">—</span>{{end}}</td>
           <td>{{.CreatedAt.Format "2006-01-02 15:04:05"}}</td>
           <td>
             {{if eq .Status "GENERATED"}}
@@ -48,15 +57,30 @@
               <button type="submit" class="btn" data-action="ack">Acknowledge</button>
             </form>
             {{else}}
-            —
+            <span style="color:var(--text-tertiary);">—</span>
             {{end}}
           </td>
         </tr>
         {{else}}
-        <tr><td colspan="8" style="text-align:center;">No batches found</td></tr>
+        <tr><td colspan="8" style="text-align:center;color:var(--text-secondary);padding:24px;">No batches yet — generate your first settlement batch above.</td></tr>
         {{end}}
       </tbody>
     </table>
   </div>
 </div>
+
+<script>
+(function () {
+  var form = document.getElementById('gen-form');
+  if (!form) return;
+  form.addEventListener('submit', function () {
+    var btn = document.getElementById('gen-btn');
+    var spinner = document.getElementById('gen-spinner');
+    var label = document.getElementById('gen-label');
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.style.display = 'inline-block';
+    if (label) label.textContent = 'Generating…';
+  });
+})();
+</script>
 {{end}}

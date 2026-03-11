@@ -3,7 +3,12 @@
   <h1 class="section-title">Review Queue</h1>
 </div>
 
-<div class="panel">
+<div class="panel"
+     hx-get="/ui/review"
+     hx-trigger="every 20s"
+     hx-target=".panel"
+     hx-select=".panel"
+     hx-swap="outerHTML">
   <div class="panel-header">
     <span class="panel-header-title">Pending Reviews</span>
     {{if .Transfers}}<span style="margin-left:auto;font-family:var(--font-ui);font-size:10px;color:var(--text-secondary);">{{len .Transfers}} item{{if gt (len .Transfers) 1}}s{{end}} awaiting review</span>{{end}}
