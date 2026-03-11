@@ -60,6 +60,29 @@ test.describe('Settlement', () => {
     await expect(rows.first()).not.toContainText('No');
   });
 
+  test('settlement batch ICL file downloads with correct content-type', async ({ page }) => {
+    await submitDepositUI(page, { amount: '450.00', scenario: 'clean_pass' });
+
+    await page.goto('/ui/settlement');
+    await page.locator('[data-action="generate"]').click();
+    await expect(page.locator('body')).toContainText(/generated/i);
+
+    // Extract batch ID from the link
+    const batchLink = page.locator('table tbody tr a[href*="/ui/settlement/"]').first();
+    const batchHref = await batchLink.getAttribute('href');
+    expect(batchHref).toBeTruthy();
+    const batchId = batchHref!.split('/').pop();
+
+    // Download the ICL file via page.request (preserves session)
+    const resp = await page.request.get(`/ui/settlement/${batchId}/download`);
+    expect(resp.status()).toBe(200);
+    const contentType = resp.headers()['content-type'];
+    expect(contentType).toMatch(/octet-stream|x9\.37|imagecashletter/i);
+    // ICL files start with FFFC (binary header) — just verify we got bytes
+    const body = await resp.body();
+    expect(body.length).toBeGreaterThan(0);
+  });
+
   test('acknowledging batch moves transfers to Completed', async ({ page }) => {
     await submitDepositUI(page, { amount: '300.00', scenario: 'clean_pass' });
 

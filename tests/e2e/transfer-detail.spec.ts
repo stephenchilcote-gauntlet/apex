@@ -92,4 +92,22 @@ test.describe('Transfer Detail & Decision Trace', () => {
     await page.locator('#check-lightbox').click({ position: { x: 5, y: 5 } });
     await expect(page.locator('#check-lightbox')).not.toHaveClass(/open/);
   });
+
+  test("'r' keyboard shortcut on FundsPosted transfer navigates to returns with ID prefilled", async ({ page }) => {
+    const transferId = await submitDepositUI(page, { amount: '275.00', scenario: 'clean_pass' });
+
+    // Navigate to transfer detail
+    await page.locator('a.nav-level-tab', { hasText: 'Transfers' }).click();
+    await page.locator('[data-transfer] a').first().click();
+    await expect(page.locator('[data-state]')).toContainText(/fundsposted/i);
+
+    // Press 'r' to navigate to returns with this transfer prefilled
+    await page.locator('body').click();
+    await page.keyboard.press('r');
+    await expect(page).toHaveURL(new RegExp(`/ui/returns\\?id=${transferId}`));
+
+    // Returns page should have the ID prefilled
+    const idInput = page.locator('input[name="transferId"]');
+    await expect(idInput).toHaveValue(transferId);
+  });
 });
