@@ -684,6 +684,19 @@ func TestHandlers_ApproveTransfer_SeededAnalyzingTransfer(t *testing.T) {
 	}
 }
 
+func TestHandlers_ApproveTransfer_InvalidState(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// T1 is Completed — can't approve a completed transfer
+	const transferID = "00000000-seed-0000-0000-000000000001"
+	body := `{"operatorId": "test-op-1", "notes": "Try to approve completed"}`
+	rr := doRequest(r, "POST", "/api/v1/operator/transfers/"+transferID+"/approve", []byte(body))
+	if rr.Code != http.StatusUnprocessableEntity {
+		t.Fatalf("expected 422 for invalid state transition, got %d: %s", rr.Code, rr.Body.String())
+	}
+}
+
 func TestHandlers_RejectTransfer_SeededAnalyzingTransfer(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)

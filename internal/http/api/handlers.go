@@ -278,6 +278,10 @@ func (h *Handlers) approveTransfer(w http.ResponseWriter, r *http.Request) {
 
 	// 3. Transition to Approved
 	if err := h.TransferSvc.Transition(h.DB, transferID, transfers.StateApproved, "OPERATOR", body.OperatorID); err != nil {
+		if strings.Contains(err.Error(), "invalid transition") {
+			respondError(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
 		internalError(w, "transition to Approved", err)
 		return
 	}
@@ -356,6 +360,10 @@ func (h *Handlers) rejectTransfer(w http.ResponseWriter, r *http.Request) {
 
 	// 3. Transition to Rejected
 	if err := h.TransferSvc.Transition(h.DB, transferID, transfers.StateRejected, "OPERATOR", body.OperatorID); err != nil {
+		if strings.Contains(err.Error(), "invalid transition") {
+			respondError(w, http.StatusUnprocessableEntity, err.Error())
+			return
+		}
 		internalError(w, "transition to Rejected", err)
 		return
 	}
