@@ -272,9 +272,10 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		latestBatch = &b
 	}
 
-	// FundsPosted amount (available for settlement)
+	// FundsPosted amount + count (available for settlement)
 	var fundsPostedCents int64
-	h.DB.QueryRow(`SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&fundsPostedCents)
+	var fundsPostedCount int
+	h.DB.QueryRow(`SELECT COUNT(*), COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&fundsPostedCount, &fundsPostedCents)
 
 	// Total volume across all non-rejected, non-returned deposits
 	var totalVolumeCents int64
@@ -328,6 +329,7 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		"MaxStateCount":    maxStateCount,
 		"LatestBatch":      latestBatch,
 		"FundsPostedCents": fundsPostedCents,
+		"FundsPostedCount": fundsPostedCount,
 		"DailyVolume":      daily,
 		"MaxDailyCount":    maxDailyCount,
 		"TotalVolumeCents": totalVolumeCents,

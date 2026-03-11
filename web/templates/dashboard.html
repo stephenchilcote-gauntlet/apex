@@ -19,9 +19,10 @@
     <div class="dash-card-value">{{.PendingReview}}</div>
     {{if gt .PendingReview 0}}<a href="/ui/review" class="dash-card-action">Review now →</a>{{end}}
   </div>
-  <div class="dash-card">
+  <div class="dash-card{{if gt .FundsPostedCount 0}} dash-card--settle{{end}}">
     <div class="dash-card-label">Funds posted (unsettled)</div>
     <div class="dash-card-value data-value">${{formatCents .FundsPostedCents}}</div>
+    {{if gt .FundsPostedCount 0}}<a href="/ui/settlement" class="dash-card-action">{{.FundsPostedCount}} ready to settle →</a>{{end}}
   </div>
   <div class="dash-card{{if gt .ExceptionsCount 0}} dash-card--exception{{end}}">
     <div class="dash-card-label">Exceptions</div>
@@ -163,6 +164,10 @@
 
 .dash-card--exception {
   border-color: var(--amber-dim);
+}
+
+.dash-card--settle {
+  border-color: var(--green-dim);
 }
 
 .dash-card-label {
