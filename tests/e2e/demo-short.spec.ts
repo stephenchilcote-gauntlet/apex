@@ -473,6 +473,9 @@ test.describe('Professional Demo', () => {
 
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1001');
     await typeEl(page, 'input[name="amount"]', '1250.00');
+    // Uncheck sample images to enable file upload (shows previews)
+    const sampleChk = page.locator('input[name="useSampleImages"]');
+    if (await sampleChk.isChecked()) await sampleChk.uncheck();
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     // Give FileReader time to render previews
@@ -557,6 +560,9 @@ test.describe('Professional Demo', () => {
 
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1006');
     await typeEl(page, 'input[name="amount"]', '500.00');
+    // Uncheck sample images to enable file upload
+    const sampleChk2 = page.locator('input[name="useSampleImages"]');
+    if (await sampleChk2.isChecked()) await sampleChk2.uncheck();
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});

@@ -6,6 +6,9 @@ test.describe('Business Rules', () => {
     await page.goto('/ui/simulate');
     await page.locator('select[name="investorAccountId"]').selectOption({ value: 'INV-1001' });
     await page.locator('input[name="amount"]').fill('5500.00');
+    // Uncheck sample images to enable file upload
+    const sampleChk = page.locator('input[name="useSampleImages"]');
+    if (await sampleChk.isChecked()) await sampleChk.uncheck();
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     await page.locator('button[type="submit"]').click();

@@ -491,6 +491,9 @@ async function submitDeposit(
   await pause(page, 500);
   await page.locator('select[name="investorAccountId"]').selectOption({ value: accountId });
   await page.locator('input[name="amount"]').fill(amount);
+  // Uncheck sample images to enable file upload
+  const sampleChk = page.locator('input[name="useSampleImages"]');
+  if (await sampleChk.isChecked()) await sampleChk.uncheck();
   await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
   await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
   await page.locator('button[type="submit"]').click();
@@ -617,6 +620,9 @@ test.describe('Video Tour', () => {
     await caption(page, 'Entering deposit amount: $500.00 (under the $5,000 per-deposit limit).', 3000);
     await cursorFill(page, 'input[name="amount"]', '500.00');
 
+    // Uncheck sample images to enable file upload
+    const sampleChk = page.locator('input[name="useSampleImages"]');
+    if (await sampleChk.isChecked()) await sampleChk.uncheck();
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     await caption(page, 'Front and back check images uploaded. The system computes SHA256 hashes for duplicate detection.', 2500);
@@ -829,6 +835,9 @@ test.describe('Video Tour', () => {
     // submitDeposit navigates away, so we do the form fill inline
     await page.locator('select[name="investorAccountId"]').selectOption({ value: 'INV-1005' });
     await page.locator('input[name="amount"]').fill('5500.00');
+    // Uncheck sample images to enable file upload
+    const sampleChk3 = page.locator('input[name="useSampleImages"]');
+    if (await sampleChk3.isChecked()) await sampleChk3.uncheck();
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     await pause(page, 500);

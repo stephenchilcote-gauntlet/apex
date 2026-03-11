@@ -11,6 +11,9 @@ test.describe('Deposit Submission', () => {
     await page.goto('/ui/simulate');
     await expect(page.locator('input[name="investorAccountId"], select[name="investorAccountId"]')).toBeVisible();
     await expect(page.locator('input[name="amount"]')).toBeVisible();
+    // Uncheck sample images to reveal file inputs
+    const sampleChk = page.locator('input[name="useSampleImages"]');
+    if (await sampleChk.isChecked()) await sampleChk.uncheck();
     await expect(page.locator('input[name="frontImage"]')).toBeVisible();
     await expect(page.locator('input[name="backImage"]')).toBeVisible();
     await expect(page.locator('button[type="submit"]')).toBeVisible();
@@ -23,9 +26,7 @@ test.describe('Deposit Submission', () => {
     await page.locator('select[name="investorAccountId"]').selectOption({ value: 'INV-1001' });
     await page.locator('input[name="amount"]').fill('1250.00');
 
-    // Upload check images
-    await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
-    await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
+    // Use sample images (default) — no file upload needed
 
     await page.locator('button[type="submit"]').click();
 
