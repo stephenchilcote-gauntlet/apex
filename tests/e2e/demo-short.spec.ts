@@ -426,7 +426,18 @@ test.describe('Professional Demo', () => {
     ]);
 
     await clearCaption(page);
-    await page.waitForTimeout(400);
+
+    // Show keyboard shortcuts modal — demonstrates UX polish
+    await moveCursor(page, '.kbd-help-btn');
+    await highlight(page, '.kbd-help-btn');
+    await caption(page, 'Press ? for keyboard shortcuts — navigate with g+key, ? for help, / for command palette', 2200);
+    await clearHighlights(page);
+    await clearCaption(page);
+    await page.locator('.kbd-help-btn').first().click();
+    await page.waitForSelector('#kbd-modal[open]', { timeout: 3000 }).catch(() => {});
+    await page.waitForTimeout(1800);
+    await page.keyboard.press('Escape');
+    await page.waitForTimeout(500);
 
     // =========================================================================
     // WORKFLOW 1 — Happy Path  (~0:18–1:05)
