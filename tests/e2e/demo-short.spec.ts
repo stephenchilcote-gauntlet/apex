@@ -592,7 +592,13 @@ test.describe('Professional Demo', () => {
       critical('Does the page show a review form with transfer info and check images?'),
     ]);
 
-    await caption(page, 'Review detail — transfer info, check images, vendor analysis, rule evaluations, audit trail', 2800);
+    await caption(page, 'Review detail — transfer info and check images at a glance', 2000);
+    await clearCaption(page);
+
+    // Highlight check images panel
+    await highlight(page, '.check-images');
+    await caption(page, 'Front and back check images — operator verifies against vendor OCR results', 2400);
+    await clearHighlights(page);
     await clearCaption(page);
 
     await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
