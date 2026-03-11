@@ -2,13 +2,38 @@
 <nav class="breadcrumb">
   <a href="/ui/transfers">Transfers</a>
   <span class="breadcrumb-sep">/</span>
-  <span class="breadcrumb-current">{{slice .Transfer.ID 0 8}}…</span>
+  <span class="breadcrumb-current">{{shortID .Transfer.ID}}</span>
 </nav>
 <div class="page-header">
   <h1 class="section-title">Transfer Detail</h1>
 </div>
 
 <div data-transfer-id="{{.Transfer.ID}}">
+
+  <!-- State pipeline tracker -->
+  <div class="pipeline" data-state="{{.Transfer.State}}" style="margin-bottom:12px;">
+    <div class="pipeline-stage" data-step="Requested"><div class="pipeline-dot"></div><div class="pipeline-label">Requested</div></div>
+    <div class="pipeline-conn"></div>
+    <div class="pipeline-stage" data-step="Validating"><div class="pipeline-dot"></div><div class="pipeline-label">Validating</div></div>
+    <div class="pipeline-conn"></div>
+    <div class="pipeline-stage" data-step="Analyzing"><div class="pipeline-dot"></div><div class="pipeline-label">Analyzing</div></div>
+    <div class="pipeline-conn"></div>
+    {{if eq .Transfer.State "Rejected"}}
+    <div class="pipeline-stage" data-step="Rejected" data-terminal><div class="pipeline-dot"></div><div class="pipeline-label">Rejected</div></div>
+    {{else if eq .Transfer.State "PendingReview"}}
+    <div class="pipeline-stage" data-step="PendingReview" data-terminal><div class="pipeline-dot"></div><div class="pipeline-label">Pending Review</div></div>
+    {{else}}
+    <div class="pipeline-stage" data-step="Approved"><div class="pipeline-dot"></div><div class="pipeline-label">Approved</div></div>
+    <div class="pipeline-conn"></div>
+    <div class="pipeline-stage" data-step="FundsPosted"><div class="pipeline-dot"></div><div class="pipeline-label">Funds Posted</div></div>
+    <div class="pipeline-conn"></div>
+    {{if eq .Transfer.State "Returned"}}
+    <div class="pipeline-stage" data-step="Returned" data-terminal><div class="pipeline-dot"></div><div class="pipeline-label">Returned</div></div>
+    {{else}}
+    <div class="pipeline-stage" data-step="Completed" data-terminal><div class="pipeline-dot"></div><div class="pipeline-label">Completed</div></div>
+    {{end}}
+    {{end}}
+  </div>
 
   <div class="panel" style="margin-bottom:12px;">
     <div class="panel-header">
@@ -32,7 +57,7 @@
           <span class="badge badge--{{.Transfer.State}}" data-state>{{.Transfer.State}}</span>
         </span>
         <span class="detail-label">Amount</span><span class="detail-value data-value--currency">${{formatCents .Transfer.AmountCents}}</span>
-        <span class="detail-label">Account</span><span class="detail-value">{{.Transfer.InvestorAccountID}}</span>
+        <span class="detail-label">Account</span><span class="detail-value">{{if .AccountDisplay}}{{.AccountDisplay}}{{else}}{{.Transfer.InvestorAccountID}}{{end}}</span>
         <span class="detail-label">Correspondent</span><span class="detail-value">{{.Transfer.CorrespondentID}}</span>
         <span class="detail-label">Business Date</span><span class="detail-value">{{if .Transfer.BusinessDateCT}}{{deref .Transfer.BusinessDateCT}}{{else}}—{{end}}</span>
         <span class="detail-label">Submitted</span><span class="detail-value">{{if .Transfer.SubmittedAt}}{{.Transfer.SubmittedAt.Format "2006-01-02 15:04:05"}}{{else}}—{{end}}</span>
@@ -163,6 +188,99 @@
   {{end}}
 
 </div>
+
+<style>
+.pipeline {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+  padding: 12px 0 6px;
+}
+.pipeline-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  flex: 0 0 auto;
+  min-width: 70px;
+}
+.pipeline-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--border-default);
+  background: var(--bg-base);
+  transition: border-color 0.2s, background 0.2s;
+  flex-shrink: 0;
+}
+.pipeline-label {
+  font-family: var(--font-ui);
+  font-size: 9px;
+  font-weight: 500;
+  color: var(--text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  text-align: center;
+  white-space: nowrap;
+}
+.pipeline-conn {
+  flex: 1 1 0;
+  min-width: 12px;
+  height: 2px;
+  background: var(--border-subtle);
+  margin-bottom: 14px;
+  transition: background 0.2s;
+}
+/* Done stages */
+.pipeline-stage.done .pipeline-dot {
+  border-color: var(--green-mid);
+  background: var(--green-mid);
+}
+.pipeline-stage.done .pipeline-label { color: var(--text-secondary); }
+.pipeline-conn.done { background: var(--green-mid); }
+/* Active stage */
+.pipeline-stage.active .pipeline-dot {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+.pipeline-stage.active .pipeline-label { color: var(--text-primary); font-weight: 600; }
+/* Terminal errors (Rejected/Returned) */
+.pipeline-stage[data-terminal].active .pipeline-dot {
+  border-color: var(--red);
+  background: var(--red);
+  box-shadow: 0 0 0 3px rgba(220,50,50,0.12);
+}
+</style>
+
+<script>
+// Pipeline state highlighting
+(function () {
+  var pipeline = document.querySelector('.pipeline');
+  if (!pipeline) return;
+  var state = pipeline.getAttribute('data-state');
+  var order = ['Requested', 'Validating', 'Analyzing', 'PendingReview', 'Approved', 'Rejected', 'FundsPosted', 'Returned', 'Completed'];
+  var idx = order.indexOf(state);
+  var stages = pipeline.querySelectorAll('.pipeline-stage');
+  var conns = pipeline.querySelectorAll('.pipeline-conn');
+  var reachedActive = false;
+  stages.forEach(function (stage, i) {
+    var step = stage.getAttribute('data-step');
+    var stepIdx = order.indexOf(step);
+    if (step === state) {
+      stage.classList.add('active');
+      reachedActive = true;
+    } else if (!reachedActive) {
+      stage.classList.add('done');
+    }
+  });
+  // Mark connectors before active stage as done
+  var activeIdx = -1;
+  stages.forEach(function (stage, i) { if (stage.classList.contains('active')) activeIdx = i; });
+  for (var i = 0; i < conns.length; i++) { if (i < activeIdx) conns[i].classList.add('done'); }
+})();
+</script>
 
 {{if or (eq .Transfer.State "FundsPosted") (eq .Transfer.State "Completed")}}
 <script>
