@@ -5,10 +5,11 @@ import { VisualJudge, critical, advisory } from './visual-judge';
 const test = base.extend({});
 
 /**
- * Professional Demo Video — 1.5–3 minute walkthrough of three core workflows:
+ * Professional Demo Video — 3 minute walkthrough of four core workflows:
  *   1. Happy Path      — submit a clean deposit, watch it auto-approve to FundsPosted
  *   2. Operator Review — submit a flagged deposit, approve it from the review queue
  *   3. Settlement      — generate an X9.37 ICL batch and acknowledge it
+ *   4. Returns         — process a bounced check with reversal and $30 NSF fee
  *
  * Run:   cd tests/e2e && npx playwright test demo-short.spec.ts
  * Output: tests/e2e/test-results/demo-short-.../video.webm
@@ -27,7 +28,7 @@ const test = base.extend({});
 // ============================================================================
 
 const cursor = { x: 960, y: 540 };
-const progress = { current: 0, total: 3, label: '' };
+const progress = { current: 0, total: 4, label: '' };
 
 // ============================================================================
 // Post-navigation restore — call after every page.goto() or nav click
@@ -391,11 +392,11 @@ test.use({
 });
 
 test.describe('Professional Demo', () => {
-  // Visual judge adds ~15s per LLM call. With ~12 key checks that's ~3 min overhead.
-  // Total budget: ~2 min video + ~3 min checks = allow 10 min.
+  // Visual judge adds ~15s per LLM call. With ~14 key checks that's ~3.5 min overhead.
+  // Total budget: ~3 min video + ~3.5 min checks = allow 10 min.
   test.setTimeout(600_000);
 
-  test('Three Core Workflows', async ({ page, request }) => {
+  test('Four Core Workflows', async ({ page, request }) => {
 
     try { judge = new VisualJudge(); } catch {
       console.warn('[demo] VisualJudge disabled — set ANTHROPIC_API_KEY to enable');
@@ -412,7 +413,7 @@ test.describe('Professional Demo', () => {
     await page.goto('/ui');
     await afterNav(page);
 
-    await titleCard(page, 'Mobile Check Deposit', 'Three core workflows — 2 min demo');
+    await titleCard(page, 'Mobile Check Deposit', 'Four core workflows — 3 min demo');
     await page.waitForTimeout(2800);
     await removeTitle(page);
 
@@ -714,16 +715,59 @@ test.describe('Professional Demo', () => {
     }
 
     // =========================================================================
+    // WORKFLOW 4 — Returns  (~2:45–3:15)
+    // =========================================================================
+    await titleCard(page, 'Workflow 4: Return Processing', 'Completed check bounces → reversal + $30 NSF fee');
+    await page.waitForTimeout(2300);
+    await removeTitle(page);
+    await setProgress(page, 4, 'Returns');
+
+    await clickEl(page, 'a.nav-level-tab:has-text("Returns")');
+    await afterNav(page);
+
+    await caption(page, 'Returns — simulate a bounced check with standard bank return reason codes', 2200);
+    await clearCaption(page);
+
+    // Pre-fill transfer ID from Workflow 1 (now Completed after settlement ack)
+    await typeEl(page, '#transferId', transferId1!);
+    await page.waitForTimeout(400);
+
+    await highlight(page, 'select[name="reasonCode"]');
+    await caption(page, 'Return Code NSF — Non-Sufficient Funds, the most common reason for returned checks', 2000);
+    await clearHighlights(page);
+    await clearCaption(page);
+
+    await caption(page, 'Processing posts a reversal journal entry plus a $30 NSF fee — double-entry accounting', 2000);
+    await clearCaption(page);
+
+    await clickEl(page, '#returns-submit-btn, button:has-text("Process Return")');
+
+    // Wait for the returned transfer panel (POST renders inline, but browser reloads the page)
+    await page.waitForSelector('.badge--Returned, span[data-state]:has-text("Returned")', { timeout: 20000 }).catch(() => {});
+    await afterNav(page); // restore cursor + progress overlay after form POST navigation
+    await page.waitForTimeout(800);
+
+    await assertVisual(page, 'return-processed', [
+      critical('Does the page show a successfully processed return with a Returned state badge?'),
+      advisory('Is there a section showing the returned transfer details including amount and reason code?'),
+    ]);
+
+    await highlight(page, '.flash--success, .badge--Returned');
+    await caption(page, 'Return processed ✓ — transfer state: Returned, $30 NSF fee posted to investor account', 2800);
+    await clearHighlights(page);
+    await clearCaption(page);
+
+    // =========================================================================
     // OUTRO — Ledger then Dashboard wrap-up
     // =========================================================================
 
-    // Brief ledger view — shows the double-entry accounting entries
+    // Brief ledger view — now shows deposit + reversal + fee entries
     await clickEl(page, 'a.nav-level-tab:has-text("Ledger")');
     await afterNav(page);
     await page.waitForTimeout(600);
 
     await highlight(page, 'table');
-    await caption(page, 'Ledger — every deposit generates matching debit/credit entries across asset and liability accounts', 2800);
+    await caption(page, 'Ledger — deposit posting, return reversal, and $30 fee — every entry double-sided, sum = 0', 2800);
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -741,7 +785,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, '.dash-cards');
-    await caption(page, 'Three workflows complete — all key metrics updated', 2000);
+    await caption(page, 'Four workflows complete — all key metrics updated live via HTMX', 2000);
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -749,13 +793,13 @@ test.describe('Professional Demo', () => {
     await page.evaluate(() => window.scrollBy({ top: 500, behavior: 'smooth' }));
     await page.waitForTimeout(700);
     await highlight(page, 'table');
-    await caption(page, 'Transfers by State — 6 completed, 2 pending review, 3 exceptions — clickable for filtered views', 2800);
+    await caption(page, 'Transfers by State — click any row to filter the Transfers view by that state', 2800);
     await clearHighlights(page);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(400);
 
-    await titleCard(page, 'Apex Mobile Check Deposit', 'Go · SQLite · HTMX · X9.37 ICL · Operator Review UI');
+    await titleCard(page, 'Apex Mobile Check Deposit', 'Go · SQLite · HTMX · X9.37 ICL · Operator Review · Returns');
     await page.waitForTimeout(3200);
 
     // =========================================================================

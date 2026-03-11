@@ -212,11 +212,18 @@ type stateCounts struct {
 }
 
 type dashboardBatch struct {
-	ID             string
-	Status         string
-	BusinessDateCT string
-	TotalItems     int
+	ID               string
+	Status           string
+	BusinessDateCT   string
+	TotalItems       int
 	TotalAmountCents int64
+}
+
+type dailyVolume struct {
+	Date        string // "2006-01-02"
+	Label       string // "Mar 11"
+	Count       int
+	AmountCents int64
 }
 
 func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
@@ -268,6 +275,42 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 	var fundsPostedCents int64
 	h.DB.QueryRow(`SELECT COALESCE(SUM(amount_cents),0) FROM transfers WHERE state='FundsPosted'`).Scan(&fundsPostedCents)
 
+	// Daily deposit volume — last 7 calendar days with at least one transfer
+	var daily []dailyVolume
+	var maxDailyCount int
+	dvRows, dvErr := h.DB.Query(`
+		SELECT date(business_date_ct) as d, COUNT(*), COALESCE(SUM(amount_cents),0)
+		FROM transfers
+		WHERE business_date_ct IS NOT NULL AND business_date_ct != ''
+		GROUP BY d
+		ORDER BY d DESC
+		LIMIT 7`)
+	if dvErr == nil {
+		defer dvRows.Close()
+		for dvRows.Next() {
+			var dv dailyVolume
+			if err3 := dvRows.Scan(&dv.Date, &dv.Count, &dv.AmountCents); err3 == nil {
+				// Format label: "2026-03-11" → "Mar 11"
+				if t, err4 := time.Parse("2006-01-02", dv.Date); err4 == nil {
+					dv.Label = t.Format("Jan 2")
+				} else {
+					dv.Label = dv.Date
+				}
+				if dv.Count > maxDailyCount {
+					maxDailyCount = dv.Count
+				}
+				daily = append(daily, dv)
+			}
+		}
+	}
+	if maxDailyCount == 0 {
+		maxDailyCount = 1
+	}
+	// Reverse so oldest is first (left to right on the chart)
+	for i, j := 0, len(daily)-1; i < j; i, j = i+1, j-1 {
+		daily[i], daily[j] = daily[j], daily[i]
+	}
+
 	// Recent transfers (last 8, newest first)
 	recentList := h.recentTransfers(8)
 
@@ -280,6 +323,8 @@ func (h *UIHandlers) dashboardPage(w http.ResponseWriter, r *http.Request) {
 		"MaxStateCount":    maxStateCount,
 		"LatestBatch":      latestBatch,
 		"FundsPostedCents": fundsPostedCents,
+		"DailyVolume":      daily,
+		"MaxDailyCount":    maxDailyCount,
 		"Recent":           recentList,
 		"AccountNames":     h.loadAccountNames(),
 	})

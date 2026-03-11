@@ -52,14 +52,14 @@ demo:
 	@cat .vendorstub.pid | xargs kill 2>/dev/null || true
 	@rm -f .vendorstub.pid
 
-## demo-video: 2-minute professional demo (3 workflows) — recommended
+## demo-video: 3-minute professional demo (4 workflows) — recommended
 demo-video:
 	@echo "Generating short professional demo video..."
 	@cd tests/e2e && npx playwright test demo-short.spec.ts
 	@echo ""
-	@echo "Video: tests/e2e/test-results/demo-short-Professional-Demo-Three-Core-Workflows-chromium/video.webm"
-	@mpv --no-resume-playback "tests/e2e/test-results/demo-short-Professional-Demo-Three-Core-Workflows-chromium/video.webm" 2>/dev/null || \
-	  xdg-open "tests/e2e/test-results/demo-short-Professional-Demo-Three-Core-Workflows-chromium/video.webm" 2>/dev/null || \
+	@echo "Video: tests/e2e/test-results/demo-short-Professional-Demo-Four-Core-Workflows-chromium/video.webm"
+	@mpv --no-resume-playback "tests/e2e/test-results/demo-short-Professional-Demo-Four-Core-Workflows-chromium/video.webm" 2>/dev/null || \
+	  xdg-open "tests/e2e/test-results/demo-short-Professional-Demo-Four-Core-Workflows-chromium/video.webm" 2>/dev/null || \
 	  echo "(open the file above manually)"
 
 ## video: full 10-minute walkthrough with architecture diagrams

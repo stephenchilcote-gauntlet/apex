@@ -20,7 +20,7 @@ make dev
 | `make test`     | Run all Go unit/integration tests                                        |
 | `make test-e2e` | Run Playwright end-to-end tests                                          |
 | `make demo`     | Run all-scenarios demo (starts servers, exercises all paths, tears down) |
-| `make demo-video` | Generate 2.7-minute professional demo video (3 workflows, visual QA checks) |
+| `make demo-video` | Generate 3-minute professional demo video (4 workflows, visual QA checks) |
 | `make reset`    | Delete database, images, and settlement files                            |
 | `make build`    | Build both binaries to `bin/`                                            |
 | `make clean`    | Remove all generated artifacts                                           |
