@@ -394,6 +394,87 @@ func TestHandlers_RejectTransfer_NotFound(t *testing.T) {
 	}
 }
 
+func TestHandlers_GetAccountDetail_ValidAccount(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Look up the UUID for INV-1001 from seeded data
+	var accountID string
+	err := db.QueryRow("SELECT id FROM accounts WHERE external_account_id = 'INV-1001'").Scan(&accountID)
+	if err != nil {
+		t.Fatalf("get INV-1001 account ID: %v", err)
+	}
+
+	rr := doRequest(r, "GET", "/api/v1/ledger/accounts/"+accountID, nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var body map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if _, ok := body["account"]; !ok {
+		t.Error("missing account field")
+	}
+	if _, ok := body["entries"]; !ok {
+		t.Error("missing entries field")
+	}
+	acct := body["account"].(map[string]interface{})
+	if acct["externalAccountId"] != "INV-1001" {
+		t.Errorf("expected externalAccountId=INV-1001, got %v", acct["externalAccountId"])
+	}
+}
+
+func TestHandlers_GetDeposit_SeededTransfer(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Get a seeded transfer ID from the DB
+	var transferID string
+	err := db.QueryRow("SELECT id FROM transfers LIMIT 1").Scan(&transferID)
+	if err != nil {
+		t.Fatalf("get seeded transfer: %v", err)
+	}
+
+	rr := doRequest(r, "GET", "/api/v1/deposits/"+transferID, nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rr.Code, rr.Body.String())
+	}
+
+	var body map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	if _, ok := body["transfer"]; !ok {
+		t.Error("missing transfer field")
+	}
+	if _, ok := body["vendorResult"]; !ok {
+		t.Error("missing vendorResult field")
+	}
+	if _, ok := body["ruleEvaluations"]; !ok {
+		t.Error("missing ruleEvaluations field")
+	}
+}
+
+func TestHandlers_GetMetrics_SeededDataCounts(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	rr := doRequest(r, "GET", "/api/v1/metrics", nil)
+	if rr.Code != http.StatusOK {
+		t.Fatalf("status %d", rr.Code)
+	}
+
+	var body map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &body)
+	txData := body["transfers"].(map[string]interface{})
+	total := int(txData["total"].(float64))
+	if total == 0 {
+		t.Error("expected seeded transfers in metrics total, got 0")
+	}
+	pendingReview := int(txData["pending_review"].(float64))
+	if pendingReview == 0 {
+		t.Error("expected pending_review > 0 from seeded data")
+	}
+}
+
 func TestHandlers_ResponseContentType_IsJSON(t *testing.T) {
 	db := newTestDB(t)
 	r := newRouter(t, db)
