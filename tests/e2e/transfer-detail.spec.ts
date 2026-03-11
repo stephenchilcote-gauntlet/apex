@@ -11,6 +11,34 @@ test.describe('Transfers List', () => {
     await expect(tfoot).toContainText('$350.00');
   });
 
+  test('state filter shows only transfers in that state', async ({ page }) => {
+    await submitDepositUI(page, { amount: '175.00', scenario: 'clean_pass' });
+
+    // Filter to FundsPosted — should show our deposit
+    await page.goto('/ui/transfers?state=FundsPosted');
+    await expect(page.locator('table tbody')).toBeVisible();
+    await expect(page.locator('body')).toContainText('$175.00');
+
+    // All visible state badges should be FundsPosted
+    const badges = page.locator('[data-state]');
+    const count = await badges.count();
+    for (let i = 0; i < count; i++) {
+      const text = await badges.nth(i).textContent();
+      expect(text?.toLowerCase()).toContain('fundsposted');
+    }
+  });
+
+  test('state filter Rejected shows no FundsPosted transfers', async ({ page }) => {
+    await submitDepositUI(page, { amount: '200.00', scenario: 'clean_pass' });
+
+    // Filter to Rejected — our clean_pass deposit should NOT appear
+    await page.goto('/ui/transfers?state=Rejected');
+    // Either empty message or no row with $200.00
+    const body = page.locator('body');
+    const text = await body.textContent();
+    expect(text).not.toContain('$200.00');
+  });
+
   test('CSV export download returns csv content', async ({ page }) => {
     await submitDepositUI(page, { amount: '125.00', scenario: 'clean_pass' });
 
