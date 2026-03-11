@@ -55,6 +55,9 @@ func main() {
 	slog.Info("loaded scenario config", "default", cfg.Default, "suffixes", len(cfg.AccountSuffixMap))
 
 	r := chi.NewRouter()
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+	})
 	r.Post("/stub/v1/checks/analyze", handleAnalyze(cfg, visionMode, apiKey))
 	r.Get("/stub/v1/scenarios", handleScenarios())
 

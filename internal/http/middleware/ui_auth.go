@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -23,8 +24,8 @@ func UIAuth(username, password, secret string) func(http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			cookie, err := r.Cookie(sessionCookieName)
 			if err != nil || !validSession(cookie.Value, username, secret) {
-				next := r.URL.RequestURI()
-				http.Redirect(w, r, "/ui/login?next="+next, http.StatusSeeOther)
+				redirectTo := r.URL.RequestURI()
+				http.Redirect(w, r, "/ui/login?next="+url.QueryEscape(redirectTo), http.StatusSeeOther)
 				return
 			}
 			next.ServeHTTP(w, r)

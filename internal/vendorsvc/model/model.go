@@ -28,7 +28,6 @@ type AnalyzeResponse struct {
 	OCRAmountCents      *int        `json:"ocrAmountCents"`
 	AmountMatches       bool        `json:"amountMatches"`
 	DuplicateDetected   bool        `json:"duplicateDetected"`
-	RiskScore           int         `json:"riskScore"`
-	ManualReviewRequired bool       `json:"manualReviewRequired"`
+	RiskScore            int         `json:"riskScore"`
+	ManualReviewRequired bool        `json:"manualReviewRequired"`
 }
-

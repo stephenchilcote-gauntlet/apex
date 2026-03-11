@@ -15,21 +15,21 @@ make dev
 
 ### Other Commands
 
-| Command | Description |
-|---------|-------------|
-| `make test` | Run all Go unit/integration tests |
-| `make test-e2e` | Run Playwright end-to-end tests |
-| `make demo` | Run all-scenarios demo (starts servers, exercises all paths, tears down) |
-| `make reset` | Delete database, images, and settlement files |
-| `make build` | Build both binaries to `bin/` |
-| `make clean` | Remove all generated artifacts |
+| Command         | Description                                                              |
+|-----------------|--------------------------------------------------------------------------|
+| `make test`     | Run all Go unit/integration tests                                        |
+| `make test-e2e` | Run Playwright end-to-end tests                                          |
+| `make demo`     | Run all-scenarios demo (starts servers, exercises all paths, tears down) |
+| `make reset`    | Delete database, images, and settlement files                            |
+| `make build`    | Build both binaries to `bin/`                                            |
+| `make clean`    | Remove all generated artifacts                                           |
 
 ## Architecture
 
 ```
 ┌─────────────────┐       ┌──────────────────┐
 │  Web UI (HTMX)  │       │  REST API (chi)  │
-│  localhost:8080  │       │  /api/v1/...     │
+│  localhost:8080 │       │  /api/v1/...     │
 └────────┬────────┘       └────────┬─────────┘
          │                         │
          └───────────┬─────────────┘
@@ -38,12 +38,12 @@ make dev
          │   App Server (Go)     │
          │                       │
          │  ┌─────────────────┐  │
-         │  │ Deposit Service  │  │
-         │  │ Funding Service  │  │
-         │  │ Transfer Service │  │
-         │  │ Ledger Service   │  │
-         │  │ Settlement Svc   │  │
-         │  │ Returns Service  │  │
+         │  │ Deposit Service │  │
+         │  │ Funding Service │  │
+         │  │ Transfer Service│  │
+         │  │ Ledger Service  │  │
+         │  │ Settlement Svc  │  │
+         │  │ Returns Service │  │
          │  └─────────────────┘  │
          └───────────┬───────────┘
                      │
@@ -52,7 +52,7 @@ make dev
           ▼          ▼          ▼
    ┌──────────┐ ┌────────┐ ┌──────────────────┐
    │  SQLite  │ │ Images │ │  Vendor Stub     │
-   │  (DB)    │ │ (disk) │ │  localhost:8081   │
+   │  (DB)    │ │ (disk) │ │  localhost:8081  │
    └──────────┘ └────────┘ └──────────────────┘
 ```
 
@@ -69,15 +69,15 @@ make dev
 
 ## Web UI Pages
 
-| Page | URL | Description |
-|------|-----|-------------|
-| Deposit Simulator | `/ui/simulate` | Submit check deposits with image upload, amount, account, and scenario picker |
-| Transfers | `/ui/transfers` | List all deposits with state filters; click through to detail |
-| Transfer Detail | `/ui/transfers/{id}` | Full deposit detail with decision trace, images, vendor results, rule evaluations |
-| Operator Review | `/ui/review` | Queue of flagged deposits; approve/reject with audit logging |
-| Ledger | `/ui/ledger` | Account balances and journal entry drill-down |
-| Settlement | `/ui/settlement` | Generate batch files, view batches, acknowledge settlement |
-| Returns | `/ui/returns` | Simulate bounced check returns with reversal posting |
+| Page              | URL                  | Description                                                                       |
+|-------------------|----------------------|-----------------------------------------------------------------------------------|
+| Deposit Simulator | `/ui/simulate`       | Submit check deposits with image upload, amount, account, and scenario picker     |
+| Transfers         | `/ui/transfers`      | List all deposits with state filters; click through to detail                     |
+| Transfer Detail   | `/ui/transfers/{id}` | Full deposit detail with decision trace, images, vendor results, rule evaluations |
+| Operator Review   | `/ui/review`         | Queue of flagged deposits; approve/reject with audit logging                      |
+| Ledger            | `/ui/ledger`         | Account balances and journal entry drill-down                                     |
+| Settlement        | `/ui/settlement`     | Generate batch files, view batches, acknowledge settlement                        |
+| Returns           | `/ui/returns`        | Simulate bounced check returns with reversal posting                              |
 
 ## API Endpoints
 
@@ -113,15 +113,15 @@ make dev
 
 The vendor stub returns deterministic responses based on account suffix, `X-Vendor-Scenario` header, or `vendorScenario` form field:
 
-| Scenario | Account Suffix | Decision | Effect |
-|----------|---------------|----------|--------|
-| `clean_pass` | 1001 | PASS | Auto-approve, post funds |
-| `iqa_blur` | 1002 | FAIL | Reject — image too blurry |
-| `iqa_glare` | 1003 | FAIL | Reject — glare detected |
-| `micr_failure` | 1004 | REVIEW | Flag for manual review |
-| `duplicate_detected` | 1005 | FAIL | Reject — duplicate check |
-| `amount_mismatch` | 1006 | REVIEW | Flag for review — OCR/entered mismatch |
-| `iqa_pass_review` | 1007 | REVIEW | Flag for review — low MICR confidence |
+| Scenario             | Account Suffix | Decision | Effect                                 |
+|----------------------|----------------|----------|----------------------------------------|
+| `clean_pass`         | 1001           | PASS     | Auto-approve, post funds               |
+| `iqa_blur`           | 1002           | FAIL     | Reject — image too blurry              |
+| `iqa_glare`          | 1003           | FAIL     | Reject — glare detected                |
+| `micr_failure`       | 1004           | REVIEW   | Flag for manual review                 |
+| `duplicate_detected` | 1005           | FAIL     | Reject — duplicate check               |
+| `amount_mismatch`    | 1006           | REVIEW   | Flag for review — OCR/entered mismatch |
+| `iqa_pass_review`    | 1007           | REVIEW   | Flag for review — low MICR confidence  |
 
 Configuration: `config/vendor_scenarios.yaml`
 
@@ -173,18 +173,18 @@ Covers: deposit submission UI, happy path flow, vendor scenarios, operator appro
 
 All configuration via environment variables (see `.env.example`):
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `APP_PORT` | 8080 | Application server port |
-| `VENDOR_STUB_PORT` | 8081 | Vendor stub server port |
-| `VENDOR_STUB_URL` | `http://localhost:8081` | URL for vendor stub |
-| `DB_PATH` | `./data/sqlite/mcd.db` | SQLite database path |
-| `IMAGE_STORAGE_PATH` | `./data/images` | Check image storage directory |
-| `SETTLEMENT_OUTPUT_PATH` | `./reports/settlement` | Settlement file output directory |
-| `TIMEZONE` | `America/Chicago` | Business timezone |
-| `EOD_CUTOFF_HOUR` | 18 | EOD cutoff hour (CT) |
-| `EOD_CUTOFF_MINUTE` | 30 | EOD cutoff minute |
-| `ENABLE_TEST_RESET` | true | Enable `POST /api/v1/test/reset` endpoint |
+| Variable                 | Default                 | Description                               |
+|--------------------------|-------------------------|-------------------------------------------|
+| `APP_PORT`               | 8080                    | Application server port                   |
+| `VENDOR_STUB_PORT`       | 8081                    | Vendor stub server port                   |
+| `VENDOR_STUB_URL`        | `http://localhost:8081` | URL for vendor stub                       |
+| `DB_PATH`                | `./data/sqlite/mcd.db`  | SQLite database path                      |
+| `IMAGE_STORAGE_PATH`     | `./data/images`         | Check image storage directory             |
+| `SETTLEMENT_OUTPUT_PATH` | `./reports/settlement`  | Settlement file output directory          |
+| `TIMEZONE`               | `America/Chicago`       | Business timezone                         |
+| `EOD_CUTOFF_HOUR`        | 18                      | EOD cutoff hour (CT)                      |
+| `EOD_CUTOFF_MINUTE`      | 30                      | EOD cutoff minute                         |
+| `ENABLE_TEST_RESET`      | true                    | Enable `POST /api/v1/test/reset` endpoint |
 
 ## Project Structure
 
@@ -229,16 +229,16 @@ apex/
 
 ## Screenshots
 
-| Page | Screenshot |
-|------|------------|
+| Page              | Screenshot                                                      |
+|-------------------|-----------------------------------------------------------------|
 | Deposit Simulator | ![Deposit Simulator](docs/screenshots/01-deposit-simulator.png) |
-| Deposit Result | ![Deposit Result](docs/screenshots/02-deposit-result.png) |
-| Transfers List | ![Transfers List](docs/screenshots/03-transfers-list.png) |
-| Transfer Detail | ![Transfer Detail](docs/screenshots/04-transfer-detail.png) |
-| Operator Review | ![Operator Review](docs/screenshots/05-operator-review.png) |
-| Ledger | ![Ledger](docs/screenshots/06-ledger.png) |
-| Settlement | ![Settlement](docs/screenshots/07-settlement.png) |
-| Returns | ![Returns](docs/screenshots/08-returns.png) |
+| Deposit Result    | ![Deposit Result](docs/screenshots/02-deposit-result.png)       |
+| Transfers List    | ![Transfers List](docs/screenshots/03-transfers-list.png)       |
+| Transfer Detail   | ![Transfer Detail](docs/screenshots/04-transfer-detail.png)     |
+| Operator Review   | ![Operator Review](docs/screenshots/05-operator-review.png)     |
+| Ledger            | ![Ledger](docs/screenshots/06-ledger.png)                       |
+| Settlement        | ![Settlement](docs/screenshots/07-settlement.png)               |
+| Returns           | ![Returns](docs/screenshots/08-returns.png)                     |
 
 ## Disclaimers
 
@@ -246,4 +246,4 @@ apex/
 - **No real PII, account numbers, or check images.** All data is synthetic.
 - **No regulatory or compliance claims.** The business rules are simplified for demonstration.
 - **No real bank integration.** The vendor service is a stub; settlement files are real X9.37 ICL binary format (via moov-io/imagecashletter) but are not submitted to any bank.
-- **Single-user, no authentication.** The operator workflow has no login system.
+- **Single-user, no authentication.** The operator workflow has a stub auth system with one account that anyone can log in to.

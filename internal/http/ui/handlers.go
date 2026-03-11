@@ -8,6 +8,7 @@ import (
 	"log/slog"
 	"math"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -380,10 +381,10 @@ func (h *UIHandlers) reviewCountBadge(w http.ResponseWriter, r *http.Request) {
 
 type reviewQueueItem struct {
 	*transfers.Transfer
-	Scenario string
+	Reason string
 }
 
-func deriveScenario(micrConf *float64, amountMatches bool, riskScore int) string {
+func deriveReason(micrConf *float64, amountMatches bool, riskScore int) string {
 	if micrConf == nil || *micrConf < 0.5 {
 		return "micr_failure"
 	}
@@ -423,7 +424,7 @@ func (h *UIHandlers) reviewPage(w http.ResponseWriter, r *http.Request) {
 			Scan(&micrConf, &amountMatches, &riskScore)
 		items[i] = reviewQueueItem{
 			Transfer: &tc,
-			Scenario: deriveScenario(micrConf, amountMatches, riskScore),
+			Reason: deriveReason(micrConf, amountMatches, riskScore),
 		}
 	}
 
@@ -630,11 +631,11 @@ func (h *UIHandlers) settlementGenerate(w http.ResponseWriter, r *http.Request) 
 
 	batch, err := h.SettlementSvc.GenerateBatch(r.Context(), businessDate)
 	if err != nil {
-		http.Redirect(w, r, "/ui/settlement?msg="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/ui/settlement?msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, "/ui/settlement?msg=Batch+generated:+"+batch.ID[:8], http.StatusSeeOther)
+	http.Redirect(w, r, "/ui/settlement?msg="+url.QueryEscape("Batch generated: "+batch.ID[:8]), http.StatusSeeOther)
 }
 
 func (h *UIHandlers) settlementAck(w http.ResponseWriter, r *http.Request) {
@@ -643,11 +644,11 @@ func (h *UIHandlers) settlementAck(w http.ResponseWriter, r *http.Request) {
 	ackRef := fmt.Sprintf("ACK-%s-%s", now, id[:8])
 
 	if err := h.SettlementSvc.AcknowledgeBatch(r.Context(), id, ackRef); err != nil {
-		http.Redirect(w, r, "/ui/settlement?msg="+err.Error(), http.StatusSeeOther)
+		http.Redirect(w, r, "/ui/settlement?msg="+url.QueryEscape(err.Error()), http.StatusSeeOther)
 		return
 	}
 
-	http.Redirect(w, r, "/ui/settlement?msg=Batch+acknowledged", http.StatusSeeOther)
+	http.Redirect(w, r, "/ui/settlement?msg="+url.QueryEscape("Batch acknowledged"), http.StatusSeeOther)
 }
 
 func (h *UIHandlers) settlementDownload(w http.ResponseWriter, r *http.Request) {

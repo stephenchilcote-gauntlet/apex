@@ -79,7 +79,7 @@ test.describe('Visual Regression', () => {
     await expect(page.locator('[data-review-item]').first()).toBeVisible();
 
     await judge.assertVisual(page, [
-      critical('Is there a "Pending Reviews" table with columns for ID, Account, Amount, Scenario, Created, and Action?'),
+      critical('Is there a "Pending Reviews" table with columns for ID, Account, Amount, Reason, Created, and Action?'),
       critical('Does the table have at least one row with a "Review" button or link?'),
       advisory('Is the "Review Queue" tab highlighted as active in the navigation?'),
     ], { testName: 'review-queue-populated', fullPage: true });

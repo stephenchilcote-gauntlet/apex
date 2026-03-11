@@ -25,7 +25,7 @@ func newTestDB(t *testing.T) *sql.DB {
 	t.Cleanup(func() { db.Close() })
 
 	mDir := migrationsDir()
-	for _, name := range []string{"001_initial.sql", "002_seed.sql"} {
+	for _, name := range []string{"001_init.sql"} {
 		content, err := os.ReadFile(filepath.Join(mDir, name))
 		if err != nil {
 			t.Fatal(err)

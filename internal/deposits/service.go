@@ -34,9 +34,9 @@ type DepositService struct {
 	DB          *sql.DB
 	TransferSvc *transfers.TransferService
 	FundingSvc  *funding.FundingService
-	LedgerSvc   *ledger.LedgerService
+	LedgerSvc    *ledger.LedgerService
 	VendorClient *vendorclient.VendorClient
-	ImageDir    string
+	ImageDir     string
 }
 
 func (s *DepositService) SubmitDeposit(ctx context.Context, investorAccountID string, amountCents int64, frontImage, backImage io.Reader) (*SubmitResult, error) {

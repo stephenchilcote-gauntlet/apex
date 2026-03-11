@@ -39,7 +39,7 @@ func newTestDB(t *testing.T) *sql.DB {
 	t.Cleanup(func() { db.Close() })
 
 	mDir := migrationsDir()
-	for _, name := range []string{"001_initial.sql", "002_seed.sql"} {
+	for _, name := range []string{"001_init.sql"} {
 		content, err := os.ReadFile(filepath.Join(mDir, name))
 		if err != nil {
 			t.Fatal(err)
@@ -440,9 +440,15 @@ func TestDepositService_ConcurrentDeposits_LedgerInvariant(t *testing.T) {
 		t.Errorf("global ledger sum = %d, want 0 (double-entry invariant violated)", globalSum)
 	}
 
-	// Exactly 20 DEPOSIT_POSTING journals
+	// Exactly numDeposits DEPOSIT_POSTING journals created by this test
+	// (filter by vendor transaction IDs to exclude demo seed data)
 	var journalCount int
-	if err := db.QueryRow("SELECT COUNT(*) FROM ledger_journals WHERE journal_type = 'DEPOSIT_POSTING'").Scan(&journalCount); err != nil {
+	if err := db.QueryRow(`
+		SELECT COUNT(*) FROM ledger_journals
+		WHERE journal_type = 'DEPOSIT_POSTING'
+		  AND transfer_id IN (
+		      SELECT transfer_id FROM vendor_results WHERE vendor_transaction_id LIKE 'vtx-concurrent-%'
+		  )`).Scan(&journalCount); err != nil {
 		t.Fatalf("query journal count: %v", err)
 	}
 	if journalCount != numDeposits {
@@ -500,12 +506,15 @@ func TestLedgerGlobalZeroSumInvariant(t *testing.T) {
 		t.Errorf("global ledger sum = %d, want 0 (double-entry invariant violated)", globalSum)
 	}
 
-	// Assert expected journal counts: 3 DEPOSIT_POSTING + 1 RETURN_REVERSAL + 1 RETURN_FEE = 5
-	var totalJournals int
-	if err := db.QueryRow("SELECT COUNT(*) FROM ledger_journals").Scan(&totalJournals); err != nil {
-		t.Fatalf("query total journals: %v", err)
+	// Assert expected journal counts for this test's transfers: 3 DEPOSIT_POSTING + 1 RETURN_REVERSAL + 1 RETURN_FEE = 5
+	var testJournals int
+	if err := db.QueryRow(
+		"SELECT COUNT(*) FROM ledger_journals WHERE transfer_id IN (?,?,?)",
+		transferIDs[0], transferIDs[1], transferIDs[2],
+	).Scan(&testJournals); err != nil {
+		t.Fatalf("query journal count: %v", err)
 	}
-	if totalJournals != 5 {
-		t.Errorf("total journals = %d, want 5 (3 DEPOSIT_POSTING + 1 RETURN_REVERSAL + 1 RETURN_FEE)", totalJournals)
+	if testJournals != 5 {
+		t.Errorf("test journals = %d, want 5 (3 DEPOSIT_POSTING + 1 RETURN_REVERSAL + 1 RETURN_FEE)", testJournals)
 	}
 }

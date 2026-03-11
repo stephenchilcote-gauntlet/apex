@@ -186,57 +186,6 @@ func (h *Handlers) getDecisionTrace(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, events)
 }
 
-func (h *Handlers) resubmitDeposit(w http.ResponseWriter, r *http.Request) {
-	originalID := chi.URLParam(r, "transferId")
-
-	original, err := h.TransferSvc.GetByID(h.DB, originalID)
-	if err != nil {
-		respondError(w, http.StatusNotFound, "original transfer not found: "+err.Error())
-		return
-	}
-
-	if original.State != transfers.StateRejected || original.RejectionCode == nil || *original.RejectionCode != "VENDOR_REJECT" {
-		respondError(w, http.StatusBadRequest, "only IQA-rejected deposits (VENDOR_REJECT) can be resubmitted")
-		return
-	}
-
-	if err := r.ParseMultipartForm(10 << 20); err != nil {
-		respondError(w, http.StatusBadRequest, "invalid multipart form: "+err.Error())
-		return
-	}
-
-	frontFile, _, err := r.FormFile("frontImage")
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "frontImage is required: "+err.Error())
-		return
-	}
-	defer frontFile.Close()
-
-	backFile, _, err := r.FormFile("backImage")
-	if err != nil {
-		respondError(w, http.StatusBadRequest, "backImage is required: "+err.Error())
-		return
-	}
-	defer backFile.Close()
-
-	result, err := h.DepositSvc.SubmitDeposit(r.Context(), original.InvestorAccountID, original.AmountCents, frontFile, backFile)
-	if err != nil {
-		internalError(w, "resubmit deposit", err)
-		return
-	}
-
-	respondJSON(w, http.StatusOK, map[string]interface{}{
-		"transferId":        result.TransferID,
-		"originalTransferId": originalID,
-		"state":             string(result.State),
-		"reviewRequired":    result.ReviewRequired,
-		"businessDateCT":    result.BusinessDateCT,
-		"message":           result.Message,
-		"rejectionCode":     result.RejectionCode,
-		"rejectionMessage":  result.RejectionMessage,
-	})
-}
-
 // ---------------------------------------------------------------------------
 // Operator
 // ---------------------------------------------------------------------------

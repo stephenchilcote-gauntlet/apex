@@ -722,7 +722,7 @@ test.describe('Video Tour', () => {
     await cursorClick(page, '[data-action="generate"]');
     await ensureCursor(page);
 
-    await page.locator('[data-state]').first().waitFor();
+    await page.locator('[data-action="ack"]').first().waitFor();
     await highlight(page, 'table');
     await caption(page,
       'Batch created: shows item count, total amount, file path, and status. The ICL file has proper X9 record types (01/10/20/25/26/50/52/70/90/99).',

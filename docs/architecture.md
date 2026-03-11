@@ -4,42 +4,42 @@
 
 ```
                          ┌──────────────────────────────────┐
-                         │         Web Browser               │
-                         │                                    │
-                         │  /ui/simulate  /ui/review          │
-                         │  /ui/transfers /ui/ledger          │
-                         │  /ui/settlement /ui/returns        │
+                         │         Web Browser              │
+                         │                                  │
+                         │  /ui/simulate  /ui/review        │
+                         │  /ui/transfers /ui/ledger        │
+                         │  /ui/settlement /ui/returns      │
                          └──────────────┬───────────────────┘
                                         │ HTTP
                                         ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                    App Server (port 8080)                     │
+│                    App Server (port 8080)                    │
 │                                                              │
-│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐│
-│  │  API Layer   │  │   UI Layer   │  │   Static Files       ││
-│  │  /api/v1/*   │  │   /ui/*      │  │   /static/*          ││
-│  └──────┬──────┘  └──────┬───────┘  └──────────────────────┘│
+│  ┌─────────────┐  ┌──────────────┐  ┌──────────────────────┐ │
+│  │  API Layer  │  │   UI Layer   │  │   Static Files       │ │
+│  │  /api/v1/*  │  │   /ui/*      │  │   /static/*          │ │
+│  └──────┬──────┘  └──────┬───────┘  └──────────────────────┘ │
 │         │                │                                   │
 │         └────────┬───────┘                                   │
 │                  ▼                                           │
 │  ┌────────────────────────────────────────────────────────┐  │
 │  │                   Service Layer                        │  │
 │  │                                                        │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │  │
-│  │  │ Deposit  │ │ Funding  │ │ Transfer │ │  Ledger  │  │  │
-│  │  │ Service  │ │ Service  │ │ Service  │ │ Service  │  │  │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘  │  │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐  │  │
-│  │  │Settlement│ │ Returns  │ │  Audit   │ │  Clock   │  │  │
-│  │  │ Service  │ │ Service  │ │          │ │          │  │  │
-│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘  │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │  │
+│  │  │ Deposit  │ │ Funding  │ │ Transfer │ │  Ledger  │   │  │
+│  │  │ Service  │ │ Service  │ │ Service  │ │ Service  │   │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │  │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │  │
+│  │  │Settlement│ │ Returns  │ │  Audit   │ │  Clock   │   │  │
+│  │  │ Service  │ │ Service  │ │          │ │          │   │  │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘   │  │
 │  └────────────────────────────────────────────────────────┘  │
-│                  │                    │                       │
-│                  ▼                    ▼                       │
+│                  │                    │                      │
+│                  ▼                    ▼                      │
 │         ┌──────────────┐     ┌──────────────┐                │
-│         │   SQLite DB  │     │  File System  │               │
-│         │  (mcd.db)    │     │  (images,     │               │
-│         │              │     │   settlement) │               │
+│         │   SQLite DB  │     │  File System │                │
+│         │  (mcd.db)    │     │  (images,    │                │
+│         │              │     │   settlement)│                │
 │         └──────────────┘     └──────────────┘                │
 └──────────────────────────────┬───────────────────────────────┘
                                │ HTTP (vendor client)
@@ -198,22 +198,22 @@ Standalone HTTP service that simulates an external check validation vendor. Retu
 
 ## Database Tables (14)
 
-| # | Table | Description |
-|---|-------|-------------|
-| 1 | `correspondents` | Broker-dealer/correspondent firms; maps to omnibus account |
-| 2 | `accounts` | Investor, omnibus, and fee revenue accounts with type, status, currency |
-| 3 | `transfers` | Main deposit record: state machine, amounts, dates, review flags, rejection info |
-| 4 | `transfer_images` | File references for front/back check images with SHA256 hashes |
-| 5 | `vendor_results` | Persisted vendor stub responses: decision, IQA status, MICR data, risk score |
-| 6 | `rule_evaluations` | Per-rule pass/fail results with JSON details |
-| 7 | `operator_actions` | Approve/reject/override actions with operator ID and notes |
-| 8 | `audit_events` | Central decision trace: entity, actor, event type, from/to state, details |
-| 9 | `ledger_journals` | Groups of ledger entries by purpose (DEPOSIT_POSTING, RETURN_REVERSAL, RETURN_FEE) |
-| 10 | `ledger_entries` | Signed amount per account per journal (double-entry bookkeeping) |
-| 11 | `settlement_batches` | Generated batch metadata: business date, file path, status, totals |
-| 12 | `settlement_batch_items` | Individual transfers included in each batch with MICR snapshot |
-| 13 | `return_notifications` | Simulated return/bounce inputs with reason codes and fees |
-| 14 | `notifications_outbox` | Stubbed investor notification queue (email templates, status tracking) |
+| #   | Table                    | Description                                                                         |
+|-----|--------------------------|-------------------------------------------------------------------------------------|
+| 1   | `correspondents`         | Broker-dealer/correspondent firms; maps to omnibus account                          |
+| 2   | `accounts`               | Investor, omnibus, and fee revenue accounts with type, status, currency             |
+| 3   | `transfers`              | Main deposit record: state machine, amounts, dates, review flags, rejection info    |
+| 4   | `transfer_images`        | File references for front/back check images with SHA256 hashes                      |
+| 5   | `vendor_results`         | Persisted vendor stub responses: decision, IQA status, MICR data, risk score        |
+| 6   | `rule_evaluations`       | Per-rule pass/fail results with JSON details                                        |
+| 7   | `operator_actions`       | Approve/reject/override actions with operator ID and notes                          |
+| 8   | `audit_events`           | Central decision trace: entity, actor, event type, from/to state, details           |
+| 9   | `ledger_journals`        | Groups of ledger entries by purpose (DEPOSIT_POSTING, RETURN_REVERSAL, RETURN_FEE)  |
+| 10  | `ledger_entries`         | Signed amount per account per journal (double-entry bookkeeping)                    |
+| 11  | `settlement_batches`     | Generated batch metadata: business date, file path, status, totals                  |
+| 12  | `settlement_batch_items` | Individual transfers included in each batch with MICR snapshot                      |
+| 13  | `return_notifications`   | Simulated return/bounce inputs with reason codes and fees                           |
+| 14  | `notifications_outbox`   | Stubbed investor notification queue (email templates, status tracking)              |
 
 ### Key Indices
 
@@ -264,7 +264,165 @@ Standalone HTTP service that simulates an external check validation vendor. Retu
 | From | To |
 |------|----|
 | Requested | Validating |
-| Validating | Analyzing, Rejected |
+| ValidatiStephen Chilcote
+
+￼
+
+Birthdays
+
+￼
+
+Tasks
+
+￼
+
+Other calendars
+
+keyboard_arrow_up
+
+￼
+
+Add other calendars
+
+￼
+
+Holidays in United States
+
+￼
+
+Gauntlet Learning
+
+Week of March 8, 2026, 16 events
+
+GMT-05
+
+SUN
+
+￼
+
+8
+
+MON
+
+￼
+
+9
+
+TUE
+
+￼
+
+10
+
+WED
+
+￼
+
+11
+
+THU
+
+￼
+
+12
+
+FRI
+
+￼
+
+13
+
+SAT
+
+￼
+
+14
+
+Add location
+
+Add location
+
+Add location
+
+Add location
+
+Add location
+
+Add location
+
+Add location
+
+1 all day event, Sunday, March 8
+
+Daylight Saving Time starts
+
+All day, Daylight Saving Time starts, Calendar: Holidays in United States, March 8, 2026
+
+1 all day event, Monday, March 9
+
+Media Day (GFA Headshot only)
+
+All day, Media Day (GFA Headshot only), Stephen Chilcote, Needs RSVP, No location, March 9, 2026
+
+1 all day event, Tuesday, March 10, today
+
+GoFundMe Interviews
+
+All day, GoFundMe Interviews, Stephen Chilcote, Needs RSVP, No location, March 10 – 11, 2026
+
+1 all day event, Wednesday, March 11
+
+GoFundMe Interviews
+
+All day, GoFundMe Interviews, Stephen Chilcote, Needs RSVP, No location, March 10 – 11, 2026
+
+1 all day event, Thursday, March 12
+
+Platinum Hiring Partner Day
+
+All day, Platinum Hiring Partner Day , Stephen Chilcote, Needs RSVP, No location, March 12, 2026
+
+No all day events, Friday, March 13
+
+No all day events, Saturday, March 14
+
+1 AM
+
+2 AM
+
+3 AM
+
+4 AM
+
+5 AM
+
+6 AM
+
+7 AM
+
+8 AM
+
+9 AM
+
+10 AM
+
+11 AM
+
+12 PM
+
+1 PM
+
+2 PM
+
+3 PM
+
+4 PM
+
+5 PM
+
+6 PM
+
+7 PMng | Analyzing, Rejected |
 | Analyzing | Approved, Rejected |
 | Approved | FundsPosted |
 | FundsPosted | Completed, Returned |
