@@ -500,9 +500,19 @@ test.describe('Professional Demo', () => {
     await clearCaption(page);
 
     await highlight(page, '.pipeline');
-    await caption(page, 'Stage tracker: Requested → Validating → Analyzing → Approved → FundsPosted', 2800);
+    await caption(page, 'Stage pipeline: Requested → Validating → Analyzing → Approved → FundsPosted', 2600);
     await clearHighlights(page);
     await clearCaption(page);
+
+    // Show the Process Return button — demonstrates return flow awareness
+    const returnBtn = page.locator('a:has-text("Process Return")').first();
+    if (await returnBtn.count() > 0) {
+      await moveCursor(page, 'a:has-text("Process Return")');
+      await highlight(page, 'a:has-text("Process Return")');
+      await caption(page, 'Process Return → available for FundsPosted transfers — R codes, fee calculation, reversal posting', 2400);
+      await clearHighlights(page);
+      await clearCaption(page);
+    }
 
     // Scroll to rule evaluations
     await page.evaluate(() => window.scrollBy(0, 600));
