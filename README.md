@@ -152,14 +152,14 @@ All transitions are validated by a centralized function in `internal/transfers/s
 
 ## Testing
 
-**Go tests (31 test functions across 7 packages):**
+**Go tests (51 test functions across 10 packages):**
 ```bash
 make test
 ```
 
-Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping.
+Covers: happy path E2E, all 7 vendor scenarios, funding rule rejections (including daily $10K limit), duplicate fingerprint detection, state machine transitions (valid + invalid), settlement batch generation + acknowledgment + ICL round-trip, return processing with fee calculation, double-entry ledger (PostDeposit/PostReversal, zero-sum invariant, balance deltas), audit event logging (LogEvent, LogEventTx rollback/commit, ordering), config loading (required fields, defaults, error accumulation), global ledger zero-sum invariant, concurrent deposit stress test (20 goroutines), vendor stub vision mode and scenario mapping.
 
-**Playwright E2E tests (14 functional spec files, 70 test cases):**
+**Playwright E2E tests (15 functional spec files, 72 test cases):**
 ```bash
 make test-e2e
 ```
