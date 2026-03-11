@@ -189,6 +189,85 @@ test.describe('API Endpoints', () => {
     expect(event.EntityID).toBe(transferId);
   });
 
+  test('POST /api/v1/settlement/batches/generate creates a batch', async ({ page }) => {
+    await submitDepositUI(page, { amount: '600.00', scenario: 'clean_pass' });
+
+    const resp = await page.request.post('/api/v1/settlement/batches/generate', {
+      data: {},
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(body).toHaveProperty('ID');
+    expect(body).toHaveProperty('Status');
+    expect(body.Status).toBe('GENERATED');
+    expect(body).toHaveProperty('TotalItems');
+    expect(body.TotalItems).toBeGreaterThan(0);
+    expect(body).toHaveProperty('TotalAmountCents');
+    expect(body.TotalAmountCents).toBeGreaterThan(0);
+  });
+
+  test('GET /api/v1/settlement/batches/{batchId} returns batch detail', async ({ page }) => {
+    await submitDepositUI(page, { amount: '550.00', scenario: 'clean_pass' });
+
+    const genResp = await page.request.post('/api/v1/settlement/batches/generate', { data: {} });
+    expect(genResp.status()).toBe(200);
+    const batch = await genResp.json();
+    const batchId = batch.ID;
+
+    const resp = await page.request.get(`/api/v1/settlement/batches/${batchId}`);
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(body).toHaveProperty('batch');
+    expect(body).toHaveProperty('items');
+    expect(body.batch.ID).toBe(batchId);
+    expect(Array.isArray(body.items)).toBe(true);
+    expect(body.items.length).toBeGreaterThan(0);
+    // BatchItem PascalCase fields
+    expect(body.items[0]).toHaveProperty('TransferID');
+    expect(body.items[0]).toHaveProperty('AmountCents');
+  });
+
+  test('POST /api/v1/settlement/batches/{batchId}/ack acknowledges batch', async ({ page }) => {
+    await submitDepositUI(page, { amount: '475.00', scenario: 'clean_pass' });
+
+    const genResp = await page.request.post('/api/v1/settlement/batches/generate', { data: {} });
+    expect(genResp.status()).toBe(200);
+    const batch = await genResp.json();
+    const batchId = batch.ID;
+
+    const resp = await page.request.post(`/api/v1/settlement/batches/${batchId}/ack`, {
+      data: { ackReference: 'ACK-API-TEST-001' },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(body).toHaveProperty('batchId');
+    expect(body.batchId).toBe(batchId);
+    expect(body).toHaveProperty('status');
+    expect(body.status).toBe('ACKNOWLEDGED');
+  });
+
+  test('POST /api/v1/returns processes a return on a completed deposit', async ({ page }) => {
+    const transferId = await submitDepositUI(page, { amount: '325.00', scenario: 'clean_pass' });
+
+    // Complete the deposit via settlement
+    const genResp = await page.request.post('/api/v1/settlement/batches/generate', { data: {} });
+    expect(genResp.status()).toBe(200);
+    const batch = await genResp.json();
+    await page.request.post(`/api/v1/settlement/batches/${batch.ID}/ack`, {
+      data: { ackReference: 'ACK-RETURN-TEST' },
+    });
+
+    const resp = await page.request.post('/api/v1/returns', {
+      data: { transferId, reasonCode: 'NSF', reasonText: 'Insufficient funds' },
+    });
+    expect(resp.status()).toBe(200);
+    const body = await resp.json();
+    expect(body).toHaveProperty('transferId');
+    expect(body.transferId).toBe(transferId);
+    expect(body).toHaveProperty('status');
+    expect(body.status).toBe('RETURNED');
+  });
+
   test('POST /api/v1/operator/transfers/{id}/approve approves flagged deposit', async ({ page }) => {
     const transferId = await submitDepositUI(page, { scenario: 'micr_failure' });
 
