@@ -1,6 +1,10 @@
 import { test as base, expect, Page } from '@playwright/test';
 import { CHECK_FRONT, CHECK_BACK } from './fixtures';
 
+// Track last cursor position so initCursor() can restore at that position
+// after navigation instead of snapping back to the hardcoded center (960,540).
+const vtCursor = { x: 960, y: 540 };
+
 /**
  * Video Tour — interview-ready walkthrough of the APEX Mobile Check Deposit system.
  *
@@ -112,21 +116,23 @@ async function pause(page: Page, ms = 1500) {
 
 /** Inject the fake cursor element (call once after first page load). */
 async function initCursor(page: Page) {
-  await page.evaluate(() => {
+  const { x, y } = vtCursor;
+  await page.evaluate(({ x, y }) => {
     if (document.getElementById('tour-cursor')) return;
     const cur = document.createElement('div');
     cur.id = 'tour-cursor';
     cur.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M5 3l14 8-6.5 1.5L10 19z" fill="white" stroke="#222" stroke-width="1.5" stroke-linejoin="round"/>
     </svg>`;
+    // Inject at last known position so navigation never snaps cursor to center.
     cur.style.cssText = `
       position: fixed; z-index: 100001; pointer-events: none;
-      left: 960px; top: 540px;
+      left: ${x}px; top: ${y}px;
       transition: left 0.5s cubic-bezier(0.4,0,0.2,1), top 0.5s cubic-bezier(0.4,0,0.2,1);
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
     `;
     document.body.appendChild(cur);
-  });
+  }, { x, y });
 }
 
 /** Re-inject cursor after full-page navigations. */
@@ -157,12 +163,16 @@ async function moveTo(page: Page, selector: string) {
   await showCursor(page);
   const box = await page.locator(selector).first().boundingBox();
   if (box) {
+    const tx = box.x + box.width / 2;
+    const ty = box.y + box.height / 2;
+    vtCursor.x = tx; // track before animating
+    vtCursor.y = ty;
     await page.evaluate(({ x, y }) => {
       const cur = document.getElementById('tour-cursor');
       if (!cur) return;
       cur.style.left = `${x}px`;
       cur.style.top = `${y}px`;
-    }, { x: box.x + box.width / 2, y: box.y + box.height / 2 });
+    }, { x: tx, y: ty });
   }
   await page.waitForTimeout(600);
 }

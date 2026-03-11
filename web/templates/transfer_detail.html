@@ -10,8 +10,9 @@
 
 <div data-transfer-id="{{.Transfer.ID}}">
 
-  <!-- State pipeline tracker -->
-  <div class="pipeline" data-state="{{.Transfer.State}}" style="margin-bottom:12px;">
+  <!-- State pipeline tracker — uses data-pipeline-state (not data-state) so
+       the [data-state] selector in tests still uniquely targets the badge span. -->
+  <div class="pipeline" data-pipeline-state="{{.Transfer.State}}" style="margin-bottom:12px;">
     <div class="pipeline-stage" data-step="Requested"><div class="pipeline-dot"></div><div class="pipeline-label">Requested</div></div>
     <div class="pipeline-conn"></div>
     <div class="pipeline-stage" data-step="Validating"><div class="pipeline-dot"></div><div class="pipeline-label">Validating</div></div>
@@ -259,7 +260,7 @@
 (function () {
   var pipeline = document.querySelector('.pipeline');
   if (!pipeline) return;
-  var state = pipeline.getAttribute('data-state');
+  var state = pipeline.getAttribute('data-pipeline-state');
   var order = ['Requested', 'Validating', 'Analyzing', 'PendingReview', 'Approved', 'Rejected', 'FundsPosted', 'Returned', 'Completed'];
   var idx = order.indexOf(state);
   var stages = pipeline.querySelectorAll('.pipeline-stage');

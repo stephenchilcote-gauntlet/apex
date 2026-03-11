@@ -81,6 +81,23 @@ export class VisualJudge {
     const screenshot = await page.screenshot({
       fullPage: options?.fullPage ?? false,
     });
+    return this.assertVisualFromBuffer(screenshot, checks, options);
+  }
+
+  /**
+   * Like assertVisual() but accepts a pre-captured screenshot buffer.
+   * Use this to capture screenshots inline with a demo flow, then run
+   * all LLM analysis in bulk after recording ends (keeps video concise).
+   */
+  async assertVisualFromBuffer(
+    screenshot: Buffer,
+    checks: VisualCheck[],
+    options?: AssertVisualOptions
+  ): Promise<Record<string, CheckResult>> {
+    if (!checks.length) {
+      throw new Error('checks list is required');
+    }
+
     const b64 = screenshot.toString('base64');
     const severityMap = new Map(checks.map((c) => [c.question, c.severity]));
 

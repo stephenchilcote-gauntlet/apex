@@ -316,9 +316,9 @@ async function waitForTerminalState(page: Page, maxMs = 30000) {
         const s = (badge.textContent ?? '').trim();
         return ['FundsPosted', 'Completed', 'Rejected', 'Returned', 'Analyzing'].includes(s);
       }
-      const pipeline = document.querySelector('.pipeline[data-state]');
+      const pipeline = document.querySelector('.pipeline[data-pipeline-state]');
       if (pipeline) {
-        const s = pipeline.getAttribute('data-state') ?? '';
+        const s = pipeline.getAttribute('data-pipeline-state') ?? '';
         return ['FundsPosted', 'Completed', 'Rejected', 'Returned', 'Analyzing'].includes(s);
       }
       return false;
@@ -328,11 +328,23 @@ async function waitForTerminalState(page: Page, maxMs = 30000) {
 }
 
 // ============================================================================
-// Visual assertions — non-fatal in demo context
+// Visual assertions — screenshots captured inline, LLM analysis deferred
+// to run concurrently after demo completes (keeps video ~2 min not 5 min)
 // ============================================================================
 
 let judge: VisualJudge | null = null;
 
+interface DeferredCheck {
+  screenshot: Buffer;
+  stepName: string;
+  checks: ReturnType<typeof critical | typeof advisory>[];
+}
+const deferredChecks: DeferredCheck[] = [];
+
+/**
+ * Capture a screenshot NOW (fast, inline with demo) and queue LLM analysis
+ * for later. Call runDeferredChecks() at the end of the test to process all.
+ */
 async function assertVisual(
   page: Page,
   stepName: string,
@@ -340,15 +352,33 @@ async function assertVisual(
 ) {
   if (!judge) return;
   try {
-    const results = await judge.assertVisual(page, checks, { testName: `demo-${stepName}`, fullPage: false });
-    for (const [, result] of Object.entries(results)) {
-      if (!result.passed) {
-        console.warn(`[visual-judge] ${stepName}: FAIL — ${result.reason}`);
-      }
-    }
+    const screenshot = await page.screenshot({ fullPage: false });
+    deferredChecks.push({ screenshot, stepName, checks });
   } catch (e) {
-    console.warn(`[visual-judge] ${stepName}: ${e}`);
+    console.warn(`[visual-judge] ${stepName}: screenshot failed — ${e}`);
   }
+}
+
+async function runDeferredChecks() {
+  if (!judge || deferredChecks.length === 0) return;
+  console.log(`\n  🔍 Running ${deferredChecks.length} deferred visual checks in parallel...`);
+  await Promise.all(
+    deferredChecks.map(async ({ screenshot, stepName, checks }) => {
+      try {
+        const results = await judge!.assertVisualFromBuffer(screenshot, checks, {
+          testName: `demo-${stepName}`,
+          fullPage: false,
+        });
+        for (const [, result] of Object.entries(results)) {
+          if (!result.passed) {
+            console.warn(`[visual-judge] ${stepName}: FAIL — ${result.reason}`);
+          }
+        }
+      } catch (e) {
+        console.warn(`[visual-judge] ${stepName}: ${e}`);
+      }
+    }),
+  );
 }
 
 // ============================================================================
@@ -420,12 +450,17 @@ test.describe('Professional Demo', () => {
     await typeEl(page, 'input[name="amount"]', '1250.00');
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
-    await page.waitForTimeout(700);
+    // Give FileReader time to render previews
+    await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
+    await page.waitForTimeout(500);
 
-    await caption(page, 'Front and back images attached — SHA256 fingerprints computed for duplicate detection', 2400);
+    await moveCursor(page, '#frontPreview');
+    await highlight(page, '#frontPreview');
+    await caption(page, 'Check images attached — thumbnails shown before upload, SHA256 fingerprints for dedup', 2600);
+    await clearHighlights(page);
     await clearCaption(page);
 
-    await caption(page, 'One submit → vendor call + 4 business rules + ledger post in a single API call', 2200);
+    await caption(page, 'One submit → vendor analysis + 4 business rules + ledger post — all in one API call', 2200);
     await clearCaption(page);
     await clickEl(page, 'button[type="submit"]');
 
@@ -638,8 +673,24 @@ test.describe('Professional Demo', () => {
     }
 
     // =========================================================================
-    // OUTRO — Dashboard wrap-up  (~2:40–2:52)
+    // OUTRO — Ledger then Dashboard wrap-up
     // =========================================================================
+
+    // Brief ledger view — shows the double-entry accounting entries
+    await clickEl(page, 'a.nav-level-tab:has-text("Ledger")');
+    await afterNav(page);
+    await page.waitForTimeout(600);
+
+    await highlight(page, 'table');
+    await caption(page, 'Ledger — every deposit generates matching debit/credit entries across asset and liability accounts', 2800);
+    await clearHighlights(page);
+    await clearCaption(page);
+
+    await assertVisual(page, 'ledger-entries', [
+      critical('Is there a financial ledger table showing entries with amounts and account types?'),
+    ]);
+
+    // Final dashboard
     await page.goto('/ui');
     await afterNav(page);
     await page.waitForTimeout(900);
@@ -648,10 +699,15 @@ test.describe('Professional Demo', () => {
       critical('Does the overview dashboard show non-zero statistics reflecting the completed workflows?'),
     ]);
 
-    await caption(page, 'Dashboard updated — three workflows completed end-to-end', 2500);
+    await caption(page, 'Three workflows complete — clean pass, operator review, and settlement batch all processed', 2600);
     await clearCaption(page);
 
     await titleCard(page, 'Apex Mobile Check Deposit', 'Go · SQLite · HTMX · X9.37 ICL · Operator Review UI');
     await page.waitForTimeout(3200);
+
+    // =========================================================================
+    // DEFERRED VISUAL CHECKS — run after video ends to avoid dead time in recording
+    // =========================================================================
+    await runDeferredChecks();
   });
 });
