@@ -216,6 +216,9 @@ func (h *Handlers) getReviewQueue(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if list == nil {
+		list = []transfers.Transfer{}
+	}
 	respondJSON(w, http.StatusOK, list)
 }
 
