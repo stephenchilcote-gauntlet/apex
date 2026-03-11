@@ -15,6 +15,8 @@ import (
 	"github.com/go-chi/chi/v5"
 	_ "github.com/mattn/go-sqlite3"
 
+	"github.com/apex-checkout/mobile-check-deposit/internal/deposits"
+	"github.com/apex-checkout/mobile-check-deposit/internal/funding"
 	"github.com/apex-checkout/mobile-check-deposit/internal/ledger"
 	"github.com/apex-checkout/mobile-check-deposit/internal/returns"
 	"github.com/apex-checkout/mobile-check-deposit/internal/settlement"
@@ -62,12 +64,21 @@ func newRouter(t *testing.T, db *sql.DB) *chi.Mux {
 		LedgerSvc:   ledgerSvc,
 	}
 
+	depositSvc := &deposits.DepositService{
+		DB:          db,
+		TransferSvc: transferSvc,
+		FundingSvc:  &funding.FundingService{DB: db},
+		LedgerSvc:   ledgerSvc,
+		ImageDir:    t.TempDir(),
+	}
+
 	h := &Handlers{
 		DB:            db,
 		TransferSvc:   transferSvc,
 		LedgerSvc:     ledgerSvc,
 		SettlementSvc: settlementSvc,
 		ReturnsSvc:    returnsSvc,
+		DepositSvc:    depositSvc,
 	}
 
 	r := chi.NewRouter()
@@ -944,6 +955,40 @@ func TestHandlers_TestSeed_IdempotentOnRerun(t *testing.T) {
 	db.QueryRow("SELECT COUNT(*) FROM transfers").Scan(&afterSecond)
 	if afterFirst != afterSecond {
 		t.Errorf("seed is not idempotent: count changed %d→%d", afterFirst, afterSecond)
+	}
+}
+
+func TestHandlers_SubmitDeposit_UnknownAccountReturns400(t *testing.T) {
+	db := newTestDB(t)
+	r := newRouter(t, db)
+
+	// Build a multipart form with all required fields but an unknown account ID
+	body := &bytes.Buffer{}
+	body.WriteString("--boundary\r\n")
+	body.WriteString("Content-Disposition: form-data; name=\"investorAccountId\"\r\n\r\n")
+	body.WriteString("INV-NONEXISTENT\r\n")
+	body.WriteString("--boundary\r\n")
+	body.WriteString("Content-Disposition: form-data; name=\"amount\"\r\n\r\n")
+	body.WriteString("100.00\r\n")
+	body.WriteString("--boundary\r\n")
+	body.WriteString("Content-Disposition: form-data; name=\"frontImage\"; filename=\"front.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n")
+	body.WriteString("fake-front-data\r\n")
+	body.WriteString("--boundary\r\n")
+	body.WriteString("Content-Disposition: form-data; name=\"backImage\"; filename=\"back.jpg\"\r\nContent-Type: image/jpeg\r\n\r\n")
+	body.WriteString("fake-back-data\r\n")
+	body.WriteString("--boundary--\r\n")
+
+	req := httptest.NewRequest("POST", "/api/v1/deposits", body)
+	req.Header.Set("Content-Type", "multipart/form-data; boundary=boundary")
+	rr := httptest.NewRecorder()
+	r.ServeHTTP(rr, req)
+	if rr.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for unknown account, got %d: %s", rr.Code, rr.Body.String())
+	}
+	var resp map[string]string
+	json.Unmarshal(rr.Body.Bytes(), &resp)
+	if !strings.Contains(resp["error"], "unknown investorAccountId") {
+		t.Errorf("error message = %q, want to contain 'unknown investorAccountId'", resp["error"])
 	}
 }
 

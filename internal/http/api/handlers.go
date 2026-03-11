@@ -115,6 +115,10 @@ func (h *Handlers) submitDeposit(w http.ResponseWriter, r *http.Request) {
 
 	result, err := h.DepositSvc.SubmitDeposit(r.Context(), investorAccountID, amountCents, frontFile, backFile)
 	if err != nil {
+		if strings.Contains(err.Error(), "resolve accounts") {
+			respondError(w, http.StatusBadRequest, "unknown investorAccountId: "+investorAccountID)
+			return
+		}
 		internalError(w, "submit deposit", err)
 		return
 	}
