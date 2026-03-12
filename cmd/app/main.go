@@ -117,13 +117,12 @@ func main() {
 			slog.Error("healthz vendor check failed", "err", err)
 			vendorStatus = "unavailable"
 			status = "degraded"
-			httpStatus = http.StatusServiceUnavailable
+			// vendor unavailability is non-fatal — keep httpStatus 200
 		} else {
 			resp.Body.Close()
 			if resp.StatusCode != http.StatusOK {
 				vendorStatus = fmt.Sprintf("HTTP %d", resp.StatusCode)
 				status = "degraded"
-				httpStatus = http.StatusServiceUnavailable
 			}
 		}
 
