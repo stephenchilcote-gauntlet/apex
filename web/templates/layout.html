@@ -220,10 +220,10 @@ document.addEventListener('click', function (e) {
   });
 });
 
-// Theme toggle — persists via localStorage, overrides prefers-color-scheme
+// Theme toggle — dark by default, persists via localStorage
 (function () {
-  var saved = localStorage.getItem('apex-theme');
-  if (saved) document.documentElement.setAttribute('data-theme', saved);
+  var saved = localStorage.getItem('apex-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
 
   document.addEventListener('DOMContentLoaded', function () {
     var btn = document.getElementById('theme-toggle');

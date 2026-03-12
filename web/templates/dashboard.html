@@ -53,34 +53,25 @@
 
 </div>
 
-<!-- State hex map + volume chart -->
+<!-- State breakdown + volume chart -->
 <div class="dash-main-grid">
 
   {{if .StateCounts}}
-  <div class="panel dash-hex-panel">
+  <div class="panel">
     <div class="panel-header">
       <span class="panel-header-title">Transfer States</span>
       <span style="font-family:var(--font-data);font-size:9px;color:var(--text-tertiary);margin-left:auto;">click to filter</span>
     </div>
-    <div class="panel-body" style="padding:20px 16px 16px;">
-      <div class="hex-grid">
-        <div class="hex-row">
-          {{range $i, $sc := .StateCounts}}{{if lt $i 4}}
-          <a href="/ui/transfers?state={{$sc.State}}" class="hex-cell hex-cell--{{$sc.State}}" title="{{$sc.State}}: {{$sc.Count}}">
-            <span class="hex-count">{{$sc.Count}}</span>
-            <span class="hex-label">{{$sc.State}}</span>
-          </a>
-          {{end}}{{end}}
+    <div class="panel-body" style="padding:8px 0;">
+      {{range .StateCounts}}
+      <a href="/ui/transfers?state={{.State}}" class="state-row">
+        <span class="badge badge--{{.State}}">{{.State}}</span>
+        <div class="state-row-bar-wrap">
+          <div class="state-row-bar" style="width:{{pct .Count $.MaxStateCount}};"></div>
         </div>
-        <div class="hex-row hex-row--offset">
-          {{range $i, $sc := .StateCounts}}{{if ge $i 4}}
-          <a href="/ui/transfers?state={{$sc.State}}" class="hex-cell hex-cell--{{$sc.State}}" title="{{$sc.State}}: {{$sc.Count}}">
-            <span class="hex-count">{{$sc.Count}}</span>
-            <span class="hex-label">{{$sc.State}}</span>
-          </a>
-          {{end}}{{end}}
-        </div>
-      </div>
+        <span class="state-row-count">{{.Count}}</span>
+      </a>
+      {{end}}
       {{if .LatestBatch}}
       <div class="batch-summary">
         <span class="batch-summary-label">Latest batch</span>
@@ -141,37 +132,6 @@
 </div>
 {{end}}
 
-<!-- Quick links with hotkey hints -->
-<div class="workspace-grid" style="margin-bottom:16px;">
-  <a href="/ui/simulate" class="dash-link-card">
-    <div class="dash-link-header">
-      <span class="dash-link-title">Simulate deposit</span>
-      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">s</kbd>
-    </div>
-    <div class="dash-link-desc">Submit a test check deposit and watch it process through the pipeline.</div>
-  </a>
-  <a href="/ui/settlement" class="dash-link-card">
-    <div class="dash-link-header">
-      <span class="dash-link-title">Settlement</span>
-      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">e</kbd>
-    </div>
-    <div class="dash-link-desc">Generate an X9.37 ICL batch file for all FundsPosted transfers.</div>
-  </a>
-  <a href="/ui/returns" class="dash-link-card">
-    <div class="dash-link-header">
-      <span class="dash-link-title">Process return</span>
-      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">n</kbd>
-    </div>
-    <div class="dash-link-desc">Mark a completed deposit as returned — NSF, fraud, stop payment, etc.</div>
-  </a>
-  <a href="/ui/ledger" class="dash-link-card">
-    <div class="dash-link-header">
-      <span class="dash-link-title">Ledger</span>
-      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">l</kbd>
-    </div>
-    <div class="dash-link-desc">Inspect double-entry account balances across the correspondent network.</div>
-  </a>
-</div>
 
 <style>
 /* ── System status strip ────────────────────────────────────── */
@@ -296,81 +256,39 @@
   .dash-main-grid { grid-template-columns: 1fr; }
 }
 
-/* ── Hex state grid ─────────────────────────────────────────── */
-.dash-hex-panel { border-left: 2px solid var(--green-dim, #004d15); }
-
-.hex-grid {
+/* ── State breakdown rows ───────────────────────────────────── */
+.state-row {
   display: flex;
-  flex-direction: column;
-  gap: 0;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-.hex-row {
-  display: flex;
-  gap: 5px;
-}
-.hex-row--offset {
-  margin-left: 37px;
-  margin-top: -11px;
-}
-.hex-cell {
-  width: 66px;
-  height: 57px;
-  clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
+  gap: 10px;
+  padding: 6px 16px;
   text-decoration: none;
+  transition: background 0.1s;
+}
+.state-row:hover { background: var(--bg-surface); text-decoration: none; }
+.state-row-bar-wrap {
+  flex: 1;
+  height: 4px;
   background: var(--bg-surface);
-  cursor: pointer;
-  transition: filter 0.12s;
+  border-radius: 2px;
+  overflow: hidden;
+}
+.state-row-bar {
+  height: 100%;
+  background: var(--green-dim, #004d15);
+  border-radius: 2px;
+  min-width: 2px;
+  transition: width 0.3s ease;
+}
+.state-row-count {
+  font-family: var(--font-data);
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  width: 24px;
+  text-align: right;
   flex-shrink: 0;
 }
-.hex-cell:hover { filter: brightness(1.4); text-decoration: none; }
-
-.hex-count {
-  font-family: var(--font-data);
-  font-size: 17px;
-  font-weight: 700;
-  color: var(--text-primary);
-  line-height: 1;
-  font-variant-numeric: tabular-nums;
-}
-.hex-label {
-  font-family: var(--font-ui);
-  font-size: 6.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-secondary);
-  margin-top: 3px;
-  text-align: center;
-  max-width: 56px;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: clip;
-}
-
-/* State-specific hex colors */
-.hex-cell--Requested  { background: #131320; }
-.hex-cell--Validating { background: #0c1428; }
-.hex-cell--Analyzing  { background: #221800; }
-.hex-cell--Analyzing .hex-count { color: var(--amber, #e8a000); }
-.hex-cell--Analyzing .hex-label { color: var(--amber-dim, #6b4a00); }
-.hex-cell--FundsPosted { background: #00280f; }
-.hex-cell--FundsPosted .hex-count { color: var(--green-bright, #00e03c); }
-.hex-cell--FundsPosted .hex-label { color: var(--green-mid, #00aa2e); }
-.hex-cell--Settled    { background: #0a1a0a; }
-.hex-cell--Settled .hex-count { color: var(--green-mid, #00aa2e); }
-.hex-cell--Rejected   { background: #260808; }
-.hex-cell--Rejected .hex-count { color: var(--accent, #f34e3f); }
-.hex-cell--Rejected .hex-label { color: var(--accent-dim, rgba(243,78,63,0.5)); }
-.hex-cell--Returned   { background: #201000; }
-.hex-cell--Returned .hex-count { color: var(--amber, #e8a000); }
-.hex-cell--Returned .hex-label { color: var(--amber-dim, #6b4a00); }
-.hex-cell--Completed  { background: #0a1a0a; }
-.hex-cell--Completed .hex-count { color: var(--green-mid, #00aa2e); }
 
 /* Batch summary row */
 .batch-summary {
@@ -507,50 +425,6 @@
   color: var(--text-tertiary);
 }
 
-/* ── Quick links ────────────────────────────────────────────── */
-.dash-link-card {
-  display: block;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-subtle);
-  border-radius: 2px;
-  padding: 14px 16px;
-  text-decoration: none;
-  transition: border-color 0.12s, background 0.12s;
-}
-.dash-link-card:hover {
-  border-color: var(--border-default);
-  background: var(--bg-surface);
-  text-decoration: none;
-}
-.dash-link-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 6px;
-}
-.dash-link-title {
-  font-family: var(--font-ui);
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-.dash-link-kbd {
-  font-family: var(--font-data);
-  font-size: 10px;
-  color: var(--text-secondary);
-  background: var(--bg-surface);
-  border: 1px solid var(--border-default);
-  border-radius: 3px;
-  padding: 1px 5px;
-  line-height: 1.6;
-}
-.dash-link-desc {
-  font-family: var(--font-ui);
-  font-size: 12px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
 
 @media (prefers-reduced-motion: reduce) {
   .status-dot[data-active] { animation: none; }
