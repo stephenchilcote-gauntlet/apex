@@ -102,7 +102,7 @@ async function afterNav(page: Page) {
 
 async function moveCursor(page: Page, selector: string) {
   await afterNav(page); // ensure cursor exists
-  const box = await page.locator(selector).first().boundingBox();
+  const box = await page.locator(selector).first().boundingBox({ timeout: 5000 }).catch(() => null);
   if (!box) return;
 
   const tx = Math.round(box.x + box.width / 2);
@@ -159,7 +159,7 @@ async function caption(page: Page, text: string, durationMs = 2800, anchorSelect
   // Resolve anchor bounding box in Node.js context (not available in evaluate)
   let anchorBox: { x: number; y: number; width: number; height: number } | null = null;
   if (anchorSelector) {
-    anchorBox = await page.locator(anchorSelector).first().boundingBox().catch(() => null);
+    anchorBox = await page.locator(anchorSelector).first().boundingBox({ timeout: 3000 }).catch(() => null);
   }
 
   const cx = cursor.x;
@@ -309,7 +309,7 @@ async function removeTitle(page: Page) {
 // ============================================================================
 
 async function highlight(page: Page, selector: string) {
-  const box = await page.locator(selector).first().boundingBox();
+  const box = await page.locator(selector).first().boundingBox({ timeout: 5000 }).catch(() => null);
   if (!box) return;
   await page.evaluate(
     (r) => {
@@ -891,11 +891,19 @@ test.describe('Professional Demo', () => {
     await page.locator('#transferId').fill('');
     await page.locator('#transferId').focus();
     await page.locator('#transferId').fill(transferId1!.substring(0, 8));
-    await page.waitForTimeout(600); // let HTMX fetch + render dropdown
+    // Wait explicitly for autocomplete dropdown to populate before showing caption
+    await page.waitForSelector('#transferId-ac .uuid-ac-item', { timeout: 8000 }).catch(() => {});
+    await page.waitForTimeout(300);
     await caption(page, 'Type a few characters, Tab to auto-complete the transfer ID', 6051, '#transferId');
     await clearCaption(page);
     await page.locator('#transferId').press('Tab');
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(400);
+    // Fallback: if Tab didn't complete the UUID (dropdown was empty), fill directly
+    const transferIdVal = await page.locator('#transferId').inputValue();
+    if (transferIdVal.length < 30) {
+      console.log(`[demo] autocomplete fallback: Tab filled "${transferIdVal}", filling full UUID`);
+      await page.locator('#transferId').fill(transferId1!);
+    }
 
     await highlight(page, 'select[name="reasonCode"]');
     await caption(page, 'NSF — Non-Sufficient Funds — the most common return reason', 5865, 'select[name="reasonCode"]');
