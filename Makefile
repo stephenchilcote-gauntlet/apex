@@ -1,4 +1,4 @@
-.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux video demo-video demo-final clean
+.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux video demo-video demo-final demo-rebuild clean
 
 build:
 	go build -o bin/app ./cmd/app
@@ -87,6 +87,26 @@ demo-final:
 	@cd tests/e2e && bash assemble-demo-video.sh
 	@echo ""
 	@echo "Final video: tests/e2e/demo-final.mp4"
+	@mpv --no-resume-playback tests/e2e/demo-final.mp4 2>/dev/null || \
+	  xdg-open tests/e2e/demo-final.mp4 2>/dev/null || \
+	  echo "(open the file above manually)"
+
+FISH_PYTHON := /home/login/PycharmProjects/chat_reader_zonos/.venv/bin/python3
+
+## demo-rebuild: edit demo-script.json, then run this to regenerate audio + re-record + assemble
+##   Only regenerates audio clips whose spoken text changed (skips unchanged clips).
+##   Use FORCE=1 to regenerate all clips: make demo-rebuild FORCE=1
+demo-rebuild:
+	@echo "=== Step 1/3: Generating audio clips (changed text only) ==="
+	@cd tests/e2e && $(FISH_PYTHON) gen-demo-audio.py $(if $(FORCE),--force,)
+	@echo ""
+	@echo "=== Step 2/3: Recording demo video ==="
+	@cd tests/e2e && npx playwright test demo-short.spec.ts
+	@echo ""
+	@echo "=== Step 3/3: Assembling voiceover + video ==="
+	@cd tests/e2e && bash assemble-demo-video.sh
+	@echo ""
+	@echo "Done! tests/e2e/demo-final.mp4"
 	@mpv --no-resume-playback tests/e2e/demo-final.mp4 2>/dev/null || \
 	  xdg-open tests/e2e/demo-final.mp4 2>/dev/null || \
 	  echo "(open the file above manually)"
