@@ -49,7 +49,7 @@
   },
   {
     "id": "13-mismatch",
-    "spoken": "The vendor stub uses Claude Haiku to implement real - though not nearly production grade - IQA and OCR."
+    "spoken": "The vendor stub uses real Claude Haiku for IQA and OCR. Not production grade, but functional."
   },
   {
     "id": "14-flagged",
