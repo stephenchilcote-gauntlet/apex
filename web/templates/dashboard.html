@@ -53,32 +53,28 @@
 
 </div>
 
-<!-- Volume chart (full width) -->
-<div class="dash-main-grid">
-
-  {{if .DailyVolume}}
-  <div class="panel">
-    <div class="panel-header">
-      <span class="panel-header-title">Daily Deposit Volume</span>
-      <span style="font-family:var(--font-data);font-size:9px;color:var(--text-tertiary);margin-left:auto;">last 7 active days</span>
-    </div>
-    <div class="panel-body">
-      <div class="daily-vol-chart">
-        {{range .DailyVolume}}
-        <a href="/ui/transfers?dateFrom={{.Date}}&dateTo={{.Date}}" class="daily-vol-bar-wrap" title="{{.Label}}: {{.Count}} deposits · ${{formatCents .AmountCents}}">
-          <div class="daily-vol-bar-outer">
-            <div class="daily-vol-bar-inner" style="height:{{pct .Count $.MaxDailyCount}};"></div>
-          </div>
-          <div class="daily-vol-label">{{.Label}}</div>
-          <div class="daily-vol-count">{{.Count}}</div>
-        </a>
-        {{end}}
-      </div>
+<!-- Daily volume chart (full width) -->
+{{if .DailyVolume}}
+<div class="panel" style="margin-bottom:16px;">
+  <div class="panel-header">
+    <span class="panel-header-title">Daily Deposit Volume</span>
+    <span style="font-family:var(--font-data);font-size:9px;color:var(--text-tertiary);margin-left:auto;">last 7 active days</span>
+  </div>
+  <div class="panel-body">
+    <div class="daily-vol-chart">
+      {{range .DailyVolume}}
+      <a href="/ui/transfers?dateFrom={{.Date}}&dateTo={{.Date}}" class="daily-vol-bar-wrap" title="{{.Label}}: {{.Count}} deposits · ${{formatCents .AmountCents}}">
+        <div class="daily-vol-bar-outer">
+          <div class="daily-vol-bar-inner" style="height:{{pct .Count $.MaxDailyCount}};"></div>
+        </div>
+        <div class="daily-vol-label">{{.Label}}</div>
+        <div class="daily-vol-count">{{.Count}}</div>
+      </a>
+      {{end}}
     </div>
   </div>
-  {{end}}
-
 </div>
+{{end}}
 
 <!-- Recent transfers thread cards -->
 {{if .Recent}}
@@ -103,47 +99,55 @@
 </div>
 {{end}}
 
-<!-- Honeycomb quick links + KPI summary -->
+<!-- Unified honeycomb: Transfer States (rows 1-2) + Quick Links (row 3) -->
 <div class="dash-hive">
-  <!-- Row 1: 4 KPI cells -->
-  <div class="hive-row">
-    <a href="/ui/review" class="hive-cell{{if gt .PendingReview 0}} hive-cell--alert{{end}}">
-      <span class="hive-value{{if gt .PendingReview 0}} hive-value--alert{{end}}">{{.PendingReview}}</span>
-      <span class="hive-label">Pending Review</span>
+  <!-- Row 1: first 4 state counts -->
+  <div class="hive-row hive-row--even">
+    {{range $i, $sc := .StateCounts}}{{if lt $i 4}}
+    <a href="/ui/transfers?state={{$sc.State}}" class="hive-cell hive-cell--{{$sc.State}}">
+      <span class="hive-count hive-count--{{$sc.State}}">{{$sc.Count}}</span>
+      <span class="hive-label">{{$sc.State}}</span>
     </a>
-    <a href="/ui/settlement" class="hive-cell{{if gt .FundsPostedCount 0}} hive-cell--posted{{end}}">
-      <span class="hive-value{{if gt .FundsPostedCount 0}} hive-value--posted{{end}}">{{.FundsPostedCount}}</span>
-      <span class="hive-label">Funds Posted</span>
-      <span class="hive-sub">${{formatCents .FundsPostedCents}}</span>
-    </a>
-    <a href="/ui/transfers?state=Rejected" class="hive-cell{{if gt .ExceptionsCount 0}} hive-cell--exception{{end}}">
-      <span class="hive-value{{if gt .ExceptionsCount 0}} hive-value--exception{{end}}">{{.ExceptionsCount}}</span>
-      <span class="hive-label">Exceptions</span>
-    </a>
-    <div class="hive-cell hive-cell--stat">
-      <span class="hive-value">{{.TotalTransfers}}</span>
-      <span class="hive-label">Total</span>
-    </div>
+    {{end}}{{end}}
   </div>
-  <!-- Row 2: 3 action cells, offset -->
-  <div class="hive-row hive-row--offset">
+  <!-- Row 2: next 3 state counts, offset -->
+  <div class="hive-row hive-row--odd">
+    {{range $i, $sc := .StateCounts}}{{if and (ge $i 4) (lt $i 7)}}
+    <a href="/ui/transfers?state={{$sc.State}}" class="hive-cell hive-cell--{{$sc.State}}">
+      <span class="hive-count hive-count--{{$sc.State}}">{{$sc.Count}}</span>
+      <span class="hive-label">{{$sc.State}}</span>
+    </a>
+    {{end}}{{end}}
+  </div>
+  <!-- Row 3: quick action links, same indent as row 1 -->
+  <div class="hive-row hive-row--even">
     <a href="/ui/simulate" class="hive-cell hive-cell--action">
-      <span class="hive-icon">⊕</span>
-      <span class="hive-label">Simulate</span>
-      <span class="hive-kbd">g+s</span>
+      <span class="hive-title">Simulate</span>
+      <span class="hive-action-kbds"><kbd>g</kbd><kbd>s</kbd></span>
+    </a>
+    <a href="/ui/settlement" class="hive-cell hive-cell--action">
+      <span class="hive-title">Settlement</span>
+      <span class="hive-action-kbds"><kbd>g</kbd><kbd>e</kbd></span>
     </a>
     <a href="/ui/returns" class="hive-cell hive-cell--action">
-      <span class="hive-icon">↩</span>
-      <span class="hive-label">Returns</span>
-      <span class="hive-kbd">g+n</span>
+      <span class="hive-title">Returns</span>
+      <span class="hive-action-kbds"><kbd>g</kbd><kbd>n</kbd></span>
     </a>
-    <a href="/ui/audit" class="hive-cell hive-cell--action">
-      <span class="hive-icon">≡</span>
-      <span class="hive-label">Audit Log</span>
-      <span class="hive-kbd">g+a</span>
+    <a href="/ui/ledger" class="hive-cell hive-cell--action">
+      <span class="hive-title">Ledger</span>
+      <span class="hive-action-kbds"><kbd>g</kbd><kbd>l</kbd></span>
     </a>
   </div>
 </div>
+
+<!-- Latest batch summary -->
+{{if .LatestBatch}}
+<div class="dash-batch-summary">
+  <span class="dash-batch-label">Latest batch</span>
+  <span class="badge badge--{{.LatestBatch.Status}}">{{.LatestBatch.Status}}</span>
+  <span class="dash-batch-meta">{{.LatestBatch.ID}}</span>
+</div>
+{{end}}
 
 <style>
 /* ── System status strip ────────────────────────────────────── */
@@ -257,14 +261,6 @@
 .action-card-cta--settle  { color: var(--green-mid, #00aa2e); }
 .action-card-cta--exception { color: var(--amber, #e8a000); }
 
-/* ── Main grid (volume chart, full width) ───────────────────── */
-.dash-main-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-  margin-bottom: 16px;
-}
-
 /* ── Daily volume chart ─────────────────────────────────────── */
 .daily-vol-chart {
   display: flex;
@@ -370,7 +366,7 @@
   color: var(--text-tertiary);
 }
 
-/* ── Honeycomb hive ─────────────────────────────────────────── */
+/* ── Unified honeycomb (state cells + action cells) ─────────── */
 .dash-hive {
   display: flex;
   flex-direction: column;
@@ -381,9 +377,16 @@
   display: flex;
   gap: 8px;
 }
-.hive-row--offset {
+.hive-row--odd {
   margin-left: 59px;
   margin-top: -24px;
+}
+.hive-row--even {
+  margin-left: 0;
+  margin-top: -24px;
+}
+.hive-row:first-child {
+  margin-top: 0;
 }
 .hive-cell {
   width: 110px;
@@ -398,26 +401,36 @@
   flex-shrink: 0;
   transition: filter 0.12s;
 }
-.hive-cell:hover { text-decoration: none; }
+.hive-cell:hover {
+  text-decoration: none;
+  filter: brightness(1.4);
+}
 
-.hive-cell--alert   { background: #221500; }
-.hive-cell--posted  { background: #003010; }
-.hive-cell--exception { background: #260808; }
-.hive-cell--action  { background: var(--bg-elevated); cursor: pointer; }
-.hive-cell--action:hover { filter: brightness(1.3); }
-.hive-cell--stat    { background: var(--bg-elevated); cursor: default; }
+/* Per-state backgrounds */
+.hive-cell--Requested  { background: #131320; }
+.hive-cell--Validating { background: #0c1428; }
+.hive-cell--Analyzing  { background: #221800; }
+.hive-cell--FundsPosted { background: #00280f; }
+.hive-cell--Settled    { background: #0a1a0a; }
+.hive-cell--Rejected   { background: #260808; }
+.hive-cell--Returned   { background: #201000; }
+.hive-cell--Completed  { background: #0a1a0a; }
 
-.hive-value {
+/* Per-state count colors */
+.hive-count {
   font-family: var(--font-data);
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text-primary);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
-.hive-value--alert     { color: var(--amber, #e8a000); }
-.hive-value--posted    { color: var(--green-bright, #00e03c); }
-.hive-value--exception { color: var(--accent, #f34e3f); }
+.hive-count--Analyzing  { color: #e8a000; }
+.hive-count--FundsPosted { color: #00e03c; }
+.hive-count--Settled    { color: #00aa2e; }
+.hive-count--Rejected   { color: #f34e3f; }
+.hive-count--Returned   { color: #e8a000; }
+.hive-count--Completed  { color: #00aa2e; }
 
 .hive-label {
   font-family: var(--font-ui);
@@ -427,26 +440,59 @@
   color: var(--text-secondary);
   margin-top: 3px;
   text-align: center;
+  max-width: 80px;
 }
-.hive-cell--action .hive-label { margin-top: 2px; }
 
-.hive-sub {
+/* Action cells */
+.hive-cell--action {
+  background: var(--bg-elevated);
+  cursor: pointer;
+}
+.hive-cell--action:hover {
+  filter: brightness(1.3);
+  background: var(--bg-elevated);
+}
+.hive-title {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.hive-action-kbds {
+  display: flex;
+  gap: 2px;
+  margin-top: 4px;
+}
+.hive-action-kbds kbd {
   font-family: var(--font-data);
   font-size: 9px;
-  color: var(--text-tertiary);
-  margin-top: 1px;
-}
-.hive-icon {
-  font-family: var(--font-data);
-  font-size: 20px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 2px;
+  padding: 1px 4px;
   color: var(--text-secondary);
-  line-height: 1;
 }
-.hive-kbd {
+
+/* ── Batch summary strip ────────────────────────────────────── */
+.dash-batch-summary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  font-family: var(--font-ui);
+  font-size: 11px;
+}
+.dash-batch-label {
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 9px;
+}
+.dash-batch-meta {
   font-family: var(--font-data);
-  font-size: 8px;
+  font-size: 10px;
   color: var(--text-tertiary);
-  margin-top: 2px;
 }
 
 @media (prefers-reduced-motion: reduce) {
