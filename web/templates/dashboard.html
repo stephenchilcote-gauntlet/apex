@@ -1,8 +1,5 @@
 {{define "content"}}
 
-<!-- Scanline overlay — CRT atmosphere, pointer-events:none -->
-<div class="scanline-overlay" aria-hidden="true"></div>
-
 <!-- Page header -->
 <div class="page-header">
   <div class="compressed-title-wrap"><h1 class="section-title">Overview</h1></div>
@@ -145,19 +142,6 @@
 {{end}}
 
 <style>
-/* ── Scanline overlay ───────────────────────────────────────── */
-.scanline-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    to bottom,
-    transparent 0px, transparent 1px,
-    rgba(0,0,0,0.07) 1px, rgba(0,0,0,0.07) 2px
-  );
-}
-
 /* ── System status strip ────────────────────────────────────── */
 .dash-system-status {
   display: flex;
@@ -492,7 +476,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .scanline-overlay { display: none; }
   .status-dot[data-active] { animation: none; }
 }
 </style>
