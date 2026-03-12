@@ -621,7 +621,7 @@ test.describe('Professional Demo', () => {
     }
 
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1001');
-    await typeEl(page, 'input[name="amount"]', '1250.00');
+    await typeEl(page, 'input[name="amount"]', '500.00');
     // Uncheck sample images to enable file upload (shows previews)
     const sampleChk = page.locator('input[name="useSampleImages"]');
     if (await sampleChk.isChecked()) await sampleChk.uncheck();
