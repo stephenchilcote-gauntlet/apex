@@ -1,63 +1,63 @@
 [
   {
     "id": "01-dashboard",
-    "spoken": "The dashboard gives you an instant view of everything happening across your investor accounts — what's been cleared, what needs attention, and any exceptions that have come in."
+    "spoken": "The default screen is a dashboard showing an overview and quick links to the detailed views for each kind of data."
   },
   {
     "id": "02-keyboard",
-    "spoken": "Operators can navigate the entire system without touching the mouse — designed for high-volume environments."
+    "spoken": "You can navigate the tabs with the mouse or keyboard shortcuts."
   },
   {
     "id": "03-shortcuts",
-    "spoken": "G then T for Transfers, G then R for the Review Queue, G then E for Settlement — you're never more than two keystrokes from anywhere you need to be."
+    "spoken": "G T for Transfers; G, R for the Review Queue; G, E for Settlement."
   },
   {
     "id": "04-search",
-    "spoken": "Control-K opens a command palette that searches any transfer or account — from anywhere in the application."
+    "spoken": "Ctrl K for quick transaction lookup."
   },
   {
     "id": "05-submit-check",
-    "spoken": "Here we're submitting a deposit with real check images — front and back — just as an investor would upload them from a mobile device."
+    "spoken": "This is the simulated deposit workflow."
   },
   {
     "id": "06-recent",
-    "spoken": "Recent deposits appear below the form instantly, with live status updates as each one processes."
+    "spoken": "NIX"
   },
   {
     "id": "07-ai-analysis",
-    "spoken": "Every check goes through AI analysis — image quality, the printed dollar amount, routing number, and account information are all verified automatically on every submission."
+    "spoken": "NIX"
   },
   {
     "id": "08-one-submit",
-    "spoken": "One submission. Automated analysis. Compliance checks. Accounting entries. All in seconds."
+    "spoken": "NIX"
   },
   {
     "id": "09-realtime",
-    "spoken": "The status updates in real time — you can watch the deposit move through each stage without refreshing the page."
+    "spoken": "NIX"
   },
   {
     "id": "10-funds-posted",
-    "spoken": "Funds posted. The deposit passed all checks and the investor's account has been credited."
+    "spoken": "This deposit passed all checks and the investor's account has been credited."
   },
   {
     "id": "11-compliance",
-    "spoken": "Five compliance checks ran automatically — account eligibility, deposit limits, contribution type, and duplicate detection. Every one passed."
+    "spoken": "The detail view shows the result of each rule check."
   },
   {
     "id": "12-process-return",
-    "spoken": "If this check bounces later, a return can be initiated in one click — with automatic fee calculation and accounting."
+    "spoken": "NIX."
   },
   {
     "id": "13-mismatch",
-    "spoken": "This check shows seven hundred fifty dollars, but the customer declared five hundred. The system catches that discrepancy automatically and routes it for human review."
+    "spoken": "The vendor stub uses Claude Haiku to implement real - though not nearly production grade - IQA and OCR."
   },
   {
     "id": "14-flagged",
-    "spoken": "Flagged for review. No manual monitoring required — the system caught it."
+    "spoken": "The amount mismatch is detected and Flagged for review."
   },
   {
     "id": "15-review-queue",
-    "spoken": "The review queue shows every deposit waiting for an operator decision — with how long each item has been waiting."
+    "spoken": "The review queue shows every deposit waiting for an operator decision."
   },
   {
     "id": "16-review-detail",
@@ -65,31 +65,31 @@
   },
   {
     "id": "17-check-images",
-    "spoken": "The operator can compare the front and back images directly against what the AI reported."
+    "spoken": "The operator can compare the front and back images directly against what the vendor reported."
   },
   {
     "id": "18-ai-finding",
-    "spoken": "The AI read the printed amount as seven fifty. That discrepancy is what triggered the review."
+    "spoken": "NIX"
   },
   {
     "id": "19-audit-trail",
-    "spoken": "Every action is recorded — state changes, who took each action, and when. Full audit trail, built in."
+    "spoken": "Every action creates an audit trail."
   },
   {
     "id": "20-approve",
-    "spoken": "After reviewing the images and the AI's findings, the operator approves the deposit with a note."
+    "spoken": "The operator approves the deposit with a note."
   },
   {
     "id": "21-approved",
-    "spoken": "Approved. The deposit clears and the investor's account is credited immediately."
+    "spoken": "Upon approval, The deposit clears and the investor's account is credited immediately."
   },
   {
     "id": "22-settlement",
-    "spoken": "Settlement packages all cleared deposits into the industry-standard clearing file format required by the Federal Reserve."
+    "spoken": "Settlement packages all cleared deposits into an X9 file - we use a library to generate real ones."
   },
   {
     "id": "23-clearing-format",
-    "spoken": "This is the actual format used by US banks to exchange checks — with the check images embedded, as required."
+    "spoken": "NIX."
   },
   {
     "id": "24-batch-ready",
@@ -97,7 +97,7 @@
   },
   {
     "id": "25-acknowledge",
-    "spoken": "Acknowledge confirms that the clearing bank has received and accepted the settlement file."
+    "spoken": "Acknowledge simulates that the clearing bank has received and accepted the settlement file."
   },
   {
     "id": "26-settled",
@@ -105,7 +105,7 @@
   },
   {
     "id": "27-returns",
-    "spoken": "When a check bounces, the return is processed using the bank's standard return reason code."
+    "spoken": "Let's bounce a check."
   },
   {
     "id": "28-autocomplete",
@@ -113,30 +113,30 @@
   },
   {
     "id": "29-nsf",
-    "spoken": "NSF — Non-Sufficient Funds — the most common reason for returned checks."
+    "spoken": "Simulating a reveral due to nonsufficient funds."
   },
   {
     "id": "30-reversal",
-    "spoken": "The system reverses the original deposit and applies the non-sufficient funds fee — automatically."
+    "spoken": "The system reverses the original deposit and applies the fee."
   },
   {
     "id": "31-returned",
-    "spoken": "Return processed. The original deposit is reversed and the NSF fee is recorded against the investor's account."
+    "spoken": "Return processed."
   },
   {
     "id": "32-ledger",
-    "spoken": "Every transaction flows through the ledger — investor accounts, clearing accounts, and fee revenue — all reconciled."
+    "spoken": "The funds are transferred from the investor's account to the fee account."
   },
   {
     "id": "33-journals",
-    "spoken": "The complete picture: the original deposit, the return reversal, and the NSF fee. Every debit matched by a credit."
+    "spoken": "NIX"
   },
   {
     "id": "34-dashboard-final",
-    "spoken": "Four core workflows — from submission to settlement to returns — all in one platform."
+    "spoken": "NIX"
   },
   {
     "id": "35-state-breakdown",
-    "spoken": "Live breakdown by status. Click any row to filter the transfers view instantly."
+    "spoken": "NIX"
   }
 ]

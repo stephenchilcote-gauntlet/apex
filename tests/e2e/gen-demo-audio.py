@@ -97,6 +97,13 @@ def main():
         dialog = entry["spoken"]
         out_path = OUTPUT_DIR / f"{clip_id}.wav"
 
+        # Skip NIX entries — no audio for these captions
+        if dialog.strip().upper().startswith("NIX"):
+            print(f"  [{i+1:02d}/{len(script)}] {clip_id}: skip (NIX)")
+            if out_path.exists():
+                out_path.unlink()
+            continue
+
         # Determine if we need to (re)generate
         text_changed = existing_texts.get(clip_id, "") != dialog
         needs_gen = args.force or not out_path.exists() or text_changed

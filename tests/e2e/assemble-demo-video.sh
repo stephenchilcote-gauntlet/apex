@@ -67,67 +67,44 @@ with open(MANIFEST_JSON) as f:
 
 manifest_by_id = {c["id"]: c for c in manifest}
 
-# Map caption sequence to audio clip
-# demo-short.spec.ts generates cap-1, cap-2 ... in order
-# gen-demo-audio.py generates 01-dashboard, 02-keyboard ... in order
-# We need to align them by sequence number
+# Match caption events to audio clips by clipId (set in demo-short.spec.ts).
+# Captions with no clipId (NIX entries, visual-only captions) produce silence.
 
-audio_clips = [c for c in manifest if "error" not in c and c.get("duration_ms", 0) > 0]
-caption_events = [t for t in timing]  # ordered by sequence
-
-print(f"Captions: {len(caption_events)}, Audio clips: {len(audio_clips)}")
-
-# Match: caption seq → audio clip (by index, skip title cards which have no caption)
-# Audio clips correspond to caption() calls in order. Title cards and other events
-# don't emit captions so there are more caption events than audio clips — or fewer.
-# Use min(len) to be safe.
-
-n = min(len(caption_events), len(audio_clips))
-print(f"Pairing {n} clips")
+print(f"Timing events: {len(timing)}, Audio clips in manifest: {len(manifest_by_id)}")
 
 # Get video duration
 result = subprocess.run(
     ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
      "-of", "default=noprint_wrappers=1:nokey=1",
-     # Find video
-     *([f for f in [
-         next((f for f in __import__("glob").glob("test-results/demo-short*/video.webm")), None)
-     ] if f])],
+     next(iter(__import__("glob").glob("test-results/demo-short*/video.webm")), "")],
     capture_output=True, text=True
 )
 video_duration_s = float(result.stdout.strip() or "240")
 
-# Build silence-padded audio track using ffmpeg
-# Strategy: for each clip, place it at (caption_start + 750ms) in the timeline.
-# Gaps between clips are silence.
-
 SAMPLE_RATE = 44100
-PAD_MS = 750  # 750ms buffer before voice clip starts
+PAD_MS = 750  # delay before voice clip starts within its caption window
 
-# Find max timeline position
-max_t_ms = 0
-for i in range(n):
-    ev = caption_events[i]
-    clip = audio_clips[i]
-    end_ms = ev["t"] + PAD_MS + clip["duration_ms"] + PAD_MS
-    max_t_ms = max(max_t_ms, end_ms)
-
-# Use ffmpeg to build audio: create silence file + mix all clips in
-# Build filter_complex with amix
-inputs = []
-filter_parts = []
 clips_data = []
+max_t_ms = 0
 
-for i in range(n):
-    ev = caption_events[i]
-    clip = audio_clips[i]
-    start_ms = ev["t"] + PAD_MS
-    start_s = start_ms / 1000.0
+for ev in timing:
+    clip_id = ev.get("clipId")
+    if not clip_id:
+        continue  # NIX or visual-only caption — silence
+    clip = manifest_by_id.get(clip_id)
+    if not clip or clip.get("duration_ms", 0) == 0:
+        print(f"  SKIP: {clip_id} — not in manifest or zero duration")
+        continue
     if not os.path.exists(clip["path"]):
         print(f"  SKIP: {clip['path']} not found")
         continue
-    clips_data.append((start_s, clip["path"], clip["duration_ms"]))
-    print(f"  [{i+1:02d}] t={start_s:.1f}s  {clip['id']}  ({clip['duration_ms']}ms)")
+    start_ms = ev["t"] + PAD_MS
+    clips_data.append((start_ms / 1000.0, clip["path"], clip["duration_ms"]))
+    end_ms = start_ms + clip["duration_ms"] + PAD_MS
+    max_t_ms = max(max_t_ms, end_ms)
+    print(f"  t={start_ms/1000:.1f}s  {clip_id}  ({clip['duration_ms']}ms)")
+
+print(f"Paired {len(clips_data)} clips")
 
 total_s = max(video_duration_s, max_t_ms / 1000.0 + 1.0)
 
