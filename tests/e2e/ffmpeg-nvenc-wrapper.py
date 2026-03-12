@@ -33,7 +33,9 @@ while i < len(args):
 
     # Replace VP8 bitrate cap with NVENC quality settings
     if a == '-b:v' and i + 1 < len(args) and args[i + 1] == '1M':
-        new_args += ['-preset', 'p4', '-cq', '20', '-pix_fmt', 'yuv420p']
+        # -f matroska forces MKV container, which supports H264 (webm doesn't).
+        # Playwright expects a .webm path; MKV with .webm extension works fine.
+        new_args += ['-preset', 'p4', '-cq', '20', '-pix_fmt', 'yuv420p', '-f', 'matroska']
         i += 2
         continue
 
