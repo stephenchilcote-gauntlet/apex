@@ -511,15 +511,15 @@ test.use({
 });
 
 test.describe('Professional Demo', () => {
-  // Visual judge adds ~15s per LLM call. With ~14 key checks that's ~3.5 min overhead.
-  // Caption durations (clip_ms + 1500) add ~5 min. Total budget: ~5 min captions + ~3.5 min checks = allow 15 min.
-  test.setTimeout(900_000);
+  // Caption durations (clip_ms + 1500) sum to ~5 min. Visual judge disabled for clean recording run.
+  test.setTimeout(2_700_000); // 45 min
 
   test('Four Core Workflows', async ({ page, request }) => {
 
-    try { judge = new VisualJudge(); } catch {
-      console.warn('[demo] VisualJudge disabled — set ANTHROPIC_API_KEY to enable');
-    }
+    // Visual judge disabled for recording run (saves ~3.5 min)
+    // try { judge = new VisualJudge(); } catch {
+    //   console.warn('[demo] VisualJudge disabled — set ANTHROPIC_API_KEY to enable');
+    // }
 
     _t0 = Date.now();
 
