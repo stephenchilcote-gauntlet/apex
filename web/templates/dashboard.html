@@ -141,6 +141,38 @@
 </div>
 {{end}}
 
+<!-- Quick links with hotkey hints -->
+<div class="workspace-grid" style="margin-bottom:16px;">
+  <a href="/ui/simulate" class="dash-link-card">
+    <div class="dash-link-header">
+      <span class="dash-link-title">Simulate deposit</span>
+      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">s</kbd>
+    </div>
+    <div class="dash-link-desc">Submit a test check deposit and watch it process through the pipeline.</div>
+  </a>
+  <a href="/ui/settlement" class="dash-link-card">
+    <div class="dash-link-header">
+      <span class="dash-link-title">Settlement</span>
+      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">e</kbd>
+    </div>
+    <div class="dash-link-desc">Generate an X9.37 ICL batch file for all FundsPosted transfers.</div>
+  </a>
+  <a href="/ui/returns" class="dash-link-card">
+    <div class="dash-link-header">
+      <span class="dash-link-title">Process return</span>
+      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">n</kbd>
+    </div>
+    <div class="dash-link-desc">Mark a completed deposit as returned — NSF, fraud, stop payment, etc.</div>
+  </a>
+  <a href="/ui/ledger" class="dash-link-card">
+    <div class="dash-link-header">
+      <span class="dash-link-title">Ledger</span>
+      <kbd class="dash-link-kbd">g</kbd><kbd class="dash-link-kbd">l</kbd>
+    </div>
+    <div class="dash-link-desc">Inspect double-entry account balances across the correspondent network.</div>
+  </a>
+</div>
+
 <style>
 /* ── System status strip ────────────────────────────────────── */
 .dash-system-status {
@@ -473,6 +505,51 @@
   font-family: var(--font-ui);
   font-size: 10px;
   color: var(--text-tertiary);
+}
+
+/* ── Quick links ────────────────────────────────────────────── */
+.dash-link-card {
+  display: block;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: 2px;
+  padding: 14px 16px;
+  text-decoration: none;
+  transition: border-color 0.12s, background 0.12s;
+}
+.dash-link-card:hover {
+  border-color: var(--border-default);
+  background: var(--bg-surface);
+  text-decoration: none;
+}
+.dash-link-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.dash-link-title {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.dash-link-kbd {
+  font-family: var(--font-data);
+  font-size: 10px;
+  color: var(--text-secondary);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 3px;
+  padding: 1px 5px;
+  line-height: 1.6;
+}
+.dash-link-desc {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-secondary);
+  line-height: 1.5;
 }
 
 @media (prefers-reduced-motion: reduce) {
