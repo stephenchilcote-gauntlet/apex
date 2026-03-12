@@ -123,7 +123,7 @@ async function moveCursor(page: Page, selector: string) {
       },
       { x: midX, y: midY },
     );
-    await page.waitForTimeout(270);
+    await page.waitForTimeout(120);
   }
 
   // Update tracker BEFORE final move so the next afterNav() call starts
@@ -137,7 +137,7 @@ async function moveCursor(page: Page, selector: string) {
     },
     { x: tx, y: ty },
   );
-  await page.waitForTimeout(520);
+  await page.waitForTimeout(200);
 }
 
 // ============================================================================
@@ -337,7 +337,7 @@ async function highlight(page: Page, selector: string) {
     },
     { x: box.x, y: box.y, w: box.width, h: box.height },
   );
-  await page.waitForTimeout(650);
+  await page.waitForTimeout(200);
 }
 
 async function clearHighlights(page: Page) {
@@ -351,7 +351,7 @@ async function clearHighlights(page: Page) {
 async function clickEl(page: Page, selector: string) {
   await moveCursor(page, selector);
   await highlight(page, selector);
-  await page.waitForTimeout(200);
+  await page.waitForTimeout(80);
   await page.locator(selector).first().click();
   await clearHighlights(page);
 }
@@ -362,9 +362,9 @@ async function typeEl(page: Page, selector: string, text: string) {
   await highlight(page, selector);
   await page.locator(selector).first().fill(''); // clear first
   for (const ch of text) {
-    await page.locator(selector).first().pressSequentially(ch, { delay: 55 });
+    await page.locator(selector).first().pressSequentially(ch, { delay: 15 });
   }
-  await page.waitForTimeout(300);
+  await page.waitForTimeout(100);
   await clearHighlights(page);
 }
 
@@ -372,7 +372,7 @@ async function selectEl(page: Page, selector: string, value: string) {
   await moveCursor(page, selector);
   await highlight(page, selector);
   await page.locator(selector).first().selectOption({ value });
-  await page.waitForTimeout(380);
+  await page.waitForTimeout(150);
   await clearHighlights(page);
 }
 
@@ -540,7 +540,7 @@ test.describe('Professional Demo', () => {
     await afterNav(page);
 
     await titleCard(page, 'Mobile Check Deposit', 'Four core workflows — 3 min demo');
-    await page.waitForTimeout(2800);
+    await page.waitForTimeout(1000);
     await removeTitle(page);
 
     // =========================================================================
@@ -566,7 +566,7 @@ test.describe('Professional Demo', () => {
     await page.keyboard.press('t');
     await page.waitForURL('**/ui/transfers', { timeout: 8000 });
     await afterNav(page);
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(200);
     await caption(page, 'g+t → Transfers · g+r → Review · g+e → Settlement · g+h → Dashboard', 4000, 'nav.nav-level-tabs, .nav-level-tabs', '03-shortcuts');
     await clearCaption(page);
 
@@ -577,26 +577,26 @@ test.describe('Professional Demo', () => {
     await page.keyboard.press('h');
     await page.waitForURL('**/ui', { timeout: 8000 });
     await afterNav(page);
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(200);
 
     // Ctrl+K — command palette search
     await showKeyBadge(page, 'Ctrl+K', 700);
     await page.keyboard.press('Control+k');
     await page.waitForSelector('#cmd-modal[open]', { timeout: 3000 }).catch(() => {});
-    await page.waitForTimeout(300);
-    await page.locator('#cmd-input').pressSequentially('INV-1001', { delay: 65 });
-    await page.waitForTimeout(900);
+    await page.waitForTimeout(150);
+    await page.locator('#cmd-input').pressSequentially('INV-1001', { delay: 15 });
+    await page.waitForTimeout(500);
     await caption(page, 'Ctrl+K — search transfers and accounts by ID or name', 2500, '#cmd-modal', '04-search');
     await clearCaption(page);
     await page.keyboard.press('Escape');
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(200);
 
     // =========================================================================
     // WORKFLOW 1 — Happy Path  (~0:18–1:05)
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 1: Happy Path`);
     await titleCard(page, 'Workflow 1: Happy Path', 'Submit a clean check → auto-approve → funds posted');
-    await page.waitForTimeout(2300);
+    await page.waitForTimeout(800);
     await removeTitle(page);
     await setProgress(page, 1, 'Happy Path');
 
@@ -611,13 +611,13 @@ test.describe('Professional Demo', () => {
     const recentSection = page.locator('.panel:has-text("Recent deposits")');
     if (await recentSection.count() > 0) {
       await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' }));
-      await page.waitForTimeout(600);
+      await page.waitForTimeout(250);
       await highlight(page, '.panel:has-text("Recent deposits") table');
       await caption(page, 'Recent deposits — live status as each deposit moves through the pipeline', 2500, '.panel:has-text("Recent deposits") table');
       await clearHighlights(page);
       await clearCaption(page);
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
-      await page.waitForTimeout(500);
+      await page.waitForTimeout(200);
     }
 
     await selectEl(page, 'select[name="investorAccountId"]', 'INV-1001');
@@ -629,7 +629,7 @@ test.describe('Professional Demo', () => {
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK);
     // Give FileReader time to render previews
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(250);
 
     await moveCursor(page, '#frontPreview');
     await page.waitForTimeout(1500);
@@ -643,7 +643,7 @@ test.describe('Professional Demo', () => {
     await afterNav(page);
 
     await waitForTerminalState(page);
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(300);
 
     await assertVisual(page, 'transfer-funds-posted', [
       critical('Does the page show a transfer with a green or positive state badge like FundsPosted or Completed?'),
@@ -673,7 +673,7 @@ test.describe('Professional Demo', () => {
 
     // Scroll to rule evaluations
     await page.evaluate(() => window.scrollBy(0, 600));
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(250);
 
     await assertVisual(page, 'rule-evaluations', [
       critical('Is there a table showing business rule evaluations with pass/fail outcomes?'),
@@ -682,14 +682,14 @@ test.describe('Professional Demo', () => {
     await caption(page, 'Rule evaluations: account eligibility · daily limit · contribution type · duplicate check — all passed', 4000, undefined, '11-compliance');
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(200);
 
     // =========================================================================
     // WORKFLOW 2 — Operator Review  (~1:05–2:00)
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 2: Operator Review`);
     await titleCard(page, 'Workflow 2: Operator Review', 'Amount mismatch → review queue → human approval');
-    await page.waitForTimeout(2300);
+    await page.waitForTimeout(800);
     await removeTitle(page);
     await setProgress(page, 2, 'Operator Review');
 
@@ -704,11 +704,11 @@ test.describe('Professional Demo', () => {
     await page.locator('input[name="frontImage"]').setInputFiles(CHECK_FRONT_WRONG_AMOUNT);
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK_WRONG_AMOUNT);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(200);
     await caption(page, 'Check printed $750, deposit declared $500 — vendor OCR detects the mismatch', 4000, '#frontPreview', '13-mismatch');
     await clearCaption(page);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(250);
 
     await clickEl(page, 'button[type="submit"]');
     await page.locator('[data-transfer-id]').waitFor({ timeout: 20000 });
@@ -745,7 +745,7 @@ test.describe('Professional Demo', () => {
     const reviewSelector = `a[href="/ui/review/${transferId2}"], a[href^="/ui/review/"]`;
     await moveCursor(page, reviewSelector);
     await highlight(page, reviewSelector);
-    await page.waitForTimeout(450);
+    await page.waitForTimeout(200);
     await clearHighlights(page);
     await page.locator(reviewSelector).first().click();
     await afterNav(page);
@@ -764,18 +764,18 @@ test.describe('Professional Demo', () => {
     await clearCaption(page);
 
     await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(350);
     await caption(page, 'Vendor reported: printed_amount=$750.00 vs. declared $500.00 — mismatch triggered review', 3000);
     await clearCaption(page);
 
     await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(350);
     await caption(page, 'Audit trail — state changes, operator actions, and system events with actor + timestamp', 2500, undefined, '19-audit-trail');
     await clearCaption(page);
 
     // Scroll to action panel (approve button) — use element-based scroll for reliability
     await page.locator('#approve-btn, button:has-text("Approve")').first().scrollIntoViewIfNeeded();
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(300);
 
     await assertVisual(page, 'approve-reject-buttons', [
       critical('Are Approve and Reject buttons visible at the bottom of the review form?'),
@@ -788,14 +788,14 @@ test.describe('Professional Demo', () => {
     const notesSelector = '#approve-notes, textarea[name="notes"]';
     if (await page.locator(notesSelector).first().count() > 0) {
       await moveCursor(page, notesSelector);
-      await page.locator(notesSelector).first().pressSequentially('Images clear, amount verified. Approving.', { delay: 30 });
-      await page.waitForTimeout(300);
+      await page.locator(notesSelector).first().pressSequentially('Images clear, amount verified. Approving.', { delay: 15 });
+      await page.waitForTimeout(100);
     }
 
     await clickEl(page, '#approve-btn, button:has-text("Approve")');
     await page.waitForURL(/\/ui\/transfers\/|\/ui\/review/, { timeout: 20000 }).catch(() => {});
     await afterNav(page);
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(300);
 
     await assertVisual(page, 'post-approve', [
       critical('Does the page indicate success — transfer in Approved or FundsPosted state?'),
@@ -809,7 +809,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 3: Settlement`);
     await titleCard(page, 'Workflow 3: Settlement', 'Package FundsPosted transfers → X9.37 ICL binary file');
-    await page.waitForTimeout(2300);
+    await page.waitForTimeout(800);
     await removeTitle(page);
     await setProgress(page, 3, 'Settlement');
 
@@ -831,7 +831,7 @@ test.describe('Professional Demo', () => {
     await clickEl(page, '#gen-btn, button:has-text("Generate")');
     await page.waitForSelector('.badge--GENERATED, td:has-text("GENERATED")', { timeout: 25000 }).catch(() => {});
     await afterNav(page); // restore overlays even though no full navigation occurred
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(300);
 
     await assertVisual(page, 'batch-generated', [
       critical('Is there a settlement batch row showing GENERATED status with item count and total amount?'),
@@ -853,7 +853,7 @@ test.describe('Professional Demo', () => {
       await ackBtn.click();
       await page.waitForSelector('.badge--ACKNOWLEDGED, td:has-text("ACKNOWLEDGED")', { timeout: 15000 }).catch(() => {});
       await afterNav(page);
-      await page.waitForTimeout(700);
+      await page.waitForTimeout(300);
 
       await assertVisual(page, 'batch-acknowledged', [
         critical('Is the settlement batch now showing ACKNOWLEDGED status?'),
@@ -868,7 +868,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 4: Returns`);
     await titleCard(page, 'Workflow 4: Return Processing', 'Completed check bounces → reversal + $30 NSF fee');
-    await page.waitForTimeout(2300);
+    await page.waitForTimeout(800);
     await removeTitle(page);
     await setProgress(page, 4, 'Returns');
 
@@ -884,11 +884,11 @@ test.describe('Professional Demo', () => {
     await page.locator('#transferId').fill(transferId1!.substring(0, 8));
     // Wait explicitly for autocomplete dropdown to populate before showing caption
     await page.waitForSelector('#transferId-ac .uuid-ac-item', { timeout: 8000 }).catch(() => {});
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(100);
     await caption(page, 'Transfer ID autocomplete — type a prefix, Tab to fill the full UUID', 2000, '#transferId', '28-autocomplete');
     await clearCaption(page);
     await page.locator('#transferId').press('Tab');
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(200);
     // Fallback: if Tab didn't complete the UUID (dropdown was empty), fill directly
     const transferIdVal = await page.locator('#transferId').inputValue();
     if (transferIdVal.length < 30) {
@@ -909,7 +909,7 @@ test.describe('Professional Demo', () => {
     // Wait for the returned transfer panel (POST renders inline, but browser reloads the page)
     await page.waitForSelector('.badge--Returned, span[data-state]:has-text("Returned")', { timeout: 20000 }).catch(() => {});
     await afterNav(page); // restore cursor + progress overlay after form POST navigation
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(350);
 
     await assertVisual(page, 'return-processed', [
       critical('Does the page show a successfully processed return with a Returned state badge?'),
@@ -928,7 +928,7 @@ test.describe('Professional Demo', () => {
     // Brief ledger view — now shows deposit + reversal + fee entries
     await clickEl(page, 'a.nav-level-tab:has-text("Ledger")');
     await afterNav(page);
-    await page.waitForTimeout(600);
+    await page.waitForTimeout(250);
 
     await highlight(page, 'table');
     await caption(page, 'Ledger — double-entry bookkeeping: investor · clearing · fee revenue accounts', 3000, 'table', '32-ledger');
@@ -937,7 +937,7 @@ test.describe('Professional Demo', () => {
 
     // Scroll to show the recent journal entries panel
     await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' }));
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(350);
 
     const journalSection = page.locator('.panel-header-title:has-text("Recent journal")');
     if (await journalSection.count() > 0) {
@@ -954,7 +954,7 @@ test.describe('Professional Demo', () => {
     // Final dashboard
     await page.goto('/ui');
     await afterNav(page);
-    await page.waitForTimeout(900);
+    await page.waitForTimeout(400);
 
     await assertVisual(page, 'dashboard-final', [
       critical('Does the overview dashboard show non-zero statistics reflecting the completed workflows?'),
@@ -968,16 +968,16 @@ test.describe('Professional Demo', () => {
 
     // Scroll to state breakdown
     await page.evaluate(() => window.scrollBy({ top: 500, behavior: 'smooth' }));
-    await page.waitForTimeout(700);
+    await page.waitForTimeout(350);
     await highlight(page, 'table');
     await caption(page, 'State breakdown — click any status to filter the transfers list', 2000, 'table');
     await clearHighlights(page);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
-    await page.waitForTimeout(400);
+    await page.waitForTimeout(200);
 
     await titleCard(page, 'Apex Mobile Check Deposit', 'Automated Analysis · Operator Review · Settlement · Full Audit Trail');
-    await page.waitForTimeout(3200);
+    await page.waitForTimeout(1500);
 
     // =========================================================================
     // Write timing log for audio assembly
