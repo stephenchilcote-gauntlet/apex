@@ -917,7 +917,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, '.flash--success, .badge--Returned');
-    await caption(page, 'State: Returned — deposit reversed, $30 NSF fee charged to investor account', 2500, '.flash--success, .badge--Returned', '31-returned');
+    await caption(page, 'State: Returned — deposit reversed, $30 NSF fee charged to investor account', 2500, '.flash--success, .badge--Returned');
     await clearHighlights(page);
     await clearCaption(page);
 
