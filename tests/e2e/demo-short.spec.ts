@@ -540,7 +540,7 @@ test.describe('Professional Demo', () => {
     await afterNav(page);
 
     await titleCard(page, 'Mobile Check Deposit', 'Four core workflows — 3 min demo');
-    await page.waitForTimeout(1000);
+    await page.waitForTimeout(2000);
     await removeTitle(page);
 
     // =========================================================================
@@ -567,7 +567,7 @@ test.describe('Professional Demo', () => {
     await page.waitForURL('**/ui/transfers', { timeout: 8000 });
     await afterNav(page);
     await page.waitForTimeout(200);
-    await caption(page, 'g+t → Transfers · g+r → Review · g+e → Settlement · g+h → Dashboard', 4000, 'nav.nav-level-tabs, .nav-level-tabs', '03-shortcuts');
+    await caption(page, 'g+t Transfers · g+r Review · g+e Settlement · g+s Simulate · g+l Ledger · g+n Returns · g+a Audit · g+h Home · ? help', 4000, 'nav.nav-level-tabs, .nav-level-tabs', '03-shortcuts');
     await clearCaption(page);
 
     // g → h  (back to Overview)
@@ -596,7 +596,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 1: Happy Path`);
     await titleCard(page, 'Workflow 1: Happy Path', 'Submit a clean check → auto-approve → funds posted');
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1600);
     await removeTitle(page);
     await setProgress(page, 1, 'Happy Path');
 
@@ -689,7 +689,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 2: Operator Review`);
     await titleCard(page, 'Workflow 2: Operator Review', 'Amount mismatch → review queue → human approval');
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1600);
     await removeTitle(page);
     await setProgress(page, 2, 'Operator Review');
 
@@ -809,7 +809,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 3: Settlement`);
     await titleCard(page, 'Workflow 3: Settlement', 'Package FundsPosted transfers → X9.37 ICL binary file');
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1600);
     await removeTitle(page);
     await setProgress(page, 3, 'Settlement');
 
@@ -868,7 +868,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Workflow 4: Returns`);
     await titleCard(page, 'Workflow 4: Return Processing', 'Completed check bounces → reversal + $30 NSF fee');
-    await page.waitForTimeout(800);
+    await page.waitForTimeout(1600);
     await removeTitle(page);
     await setProgress(page, 4, 'Returns');
 
@@ -977,7 +977,7 @@ test.describe('Professional Demo', () => {
     await page.waitForTimeout(200);
 
     await titleCard(page, 'Apex Mobile Check Deposit', 'Automated Analysis · Operator Review · Settlement · Full Audit Trail');
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(3000);
 
     // =========================================================================
     // Write timing log for audio assembly
