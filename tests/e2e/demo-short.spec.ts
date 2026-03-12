@@ -547,7 +547,7 @@ test.describe('Professional Demo', () => {
     // DASHBOARD OVERVIEW  (~0:07–0:18)
     // =========================================================================
     console.log(`[demo] ${Date.now() - _t0}ms — Dashboard overview`);
-    await caption(page, 'Dashboard — active transfers, pending review, and exceptions at a glance', 9905, '.dash-action-row', '01-dashboard');
+    await caption(page, 'Dashboard — active transfers, pending review, and exceptions at a glance', 5000, '.dash-action-row', '01-dashboard');
 
     await assertVisual(page, 'dashboard', [
       critical('Does the page show a dashboard with stat cards or metric panels?'),
@@ -556,7 +556,7 @@ test.describe('Professional Demo', () => {
     await clearCaption(page);
 
     // ── Keyboard power-user demo ──────────────────────────────────────────────
-    await caption(page, 'Keyboard navigation — g+key shortcuts throughout the app', 7862, undefined, '02-keyboard');
+    await caption(page, 'Keyboard navigation — g+key shortcuts throughout the app', 3000, undefined, '02-keyboard');
     await clearCaption(page);
 
     // g → t  (Transfers)
@@ -567,7 +567,7 @@ test.describe('Professional Demo', () => {
     await page.waitForURL('**/ui/transfers', { timeout: 8000 });
     await afterNav(page);
     await page.waitForTimeout(500);
-    await caption(page, 'g+t → Transfers · g+r → Review · g+e → Settlement · g+h → Dashboard', 10370, 'nav.nav-level-tabs, .nav-level-tabs', '03-shortcuts');
+    await caption(page, 'g+t → Transfers · g+r → Review · g+e → Settlement · g+h → Dashboard', 4000, 'nav.nav-level-tabs, .nav-level-tabs', '03-shortcuts');
     await clearCaption(page);
 
     // g → h  (back to Overview)
@@ -586,7 +586,7 @@ test.describe('Professional Demo', () => {
     await page.waitForTimeout(300);
     await page.locator('#cmd-input').pressSequentially('INV-1001', { delay: 65 });
     await page.waitForTimeout(900);
-    await caption(page, 'Ctrl+K — search transfers and accounts by ID or name', 7072, '#cmd-modal', '04-search');
+    await caption(page, 'Ctrl+K — search transfers and accounts by ID or name', 2500, '#cmd-modal', '04-search');
     await clearCaption(page);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(400);
@@ -604,7 +604,7 @@ test.describe('Professional Demo', () => {
     await clickEl(page, 'a.nav-level-tab:has-text("Simulate")');
     await afterNav(page);
 
-    await caption(page, 'Simulate — front/back check images, investor account, declared amount', 8419, 'form[action="/ui/simulate"]', '05-submit-check');
+    await caption(page, 'Simulate — front/back check images, investor account, declared amount', 3500, 'form[action="/ui/simulate"]', '05-submit-check');
     await clearCaption(page);
 
     // Briefly show the Recent Deposits section
@@ -613,7 +613,7 @@ test.describe('Professional Demo', () => {
       await page.evaluate(() => window.scrollBy({ top: 400, behavior: 'smooth' }));
       await page.waitForTimeout(600);
       await highlight(page, '.panel:has-text("Recent deposits") table');
-      await caption(page, 'Recent deposits — live status as each deposit moves through the pipeline', 7537, '.panel:has-text("Recent deposits") table');
+      await caption(page, 'Recent deposits — live status as each deposit moves through the pipeline', 2500, '.panel:has-text("Recent deposits") table');
       await clearHighlights(page);
       await clearCaption(page);
       await page.evaluate(() => window.scrollTo({ top: 0, behavior: 'smooth' }));
@@ -632,13 +632,7 @@ test.describe('Professional Demo', () => {
     await page.waitForTimeout(500);
 
     await moveCursor(page, '#frontPreview');
-    await highlight(page, '#frontPreview');
-    await caption(page, 'Vendor analysis: IQA · OCR (printed amount) · routing + account number', 10555, '#frontPreview');
-    await clearHighlights(page);
-    await clearCaption(page);
-
-    await caption(page, 'One submit triggers: vendor analysis → compliance rules → ledger entries', 8140, 'button[type="submit"]');
-    await clearCaption(page);
+    await page.waitForTimeout(1500);
     await clickEl(page, 'button[type="submit"]');
 
     await page.locator('[data-transfer-id]').waitFor({ timeout: 20000 });
@@ -647,9 +641,6 @@ test.describe('Professional Demo', () => {
 
     await page.goto(`/ui/transfers/${transferId1}`);
     await afterNav(page);
-
-    await caption(page, 'Status polling via HTMX — page auto-updates without a manual refresh', 7119, 'span[data-state]');
-    await clearCaption(page);
 
     await waitForTerminalState(page);
     await page.waitForTimeout(800);
@@ -661,12 +652,12 @@ test.describe('Professional Demo', () => {
 
     // Highlight the state badge specifically (span[data-state], not the pipeline)
     await highlight(page, 'span[data-state]');
-    await caption(page, 'FundsPosted — all checks passed, ledger entries created', 6515, 'span[data-state]', '10-funds-posted');
+    await caption(page, 'FundsPosted — all checks passed, ledger entries created', 2500, 'span[data-state]', '10-funds-posted');
     await clearHighlights(page);
     await clearCaption(page);
 
     await highlight(page, '.pipeline');
-    await caption(page, 'Each pipeline stage is logged to the audit trail', 2200, '.pipeline');
+    await caption(page, 'Each pipeline stage is logged to the audit trail', 1500, '.pipeline');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -675,7 +666,7 @@ test.describe('Professional Demo', () => {
     if (await returnBtn.count() > 0) {
       await moveCursor(page, 'a:has-text("Process Return")');
       await highlight(page, 'a:has-text("Process Return")');
-      await caption(page, 'Returns can be initiated from the transfer detail or the Returns page', 7769, 'a:has-text("Process Return")');
+      await caption(page, 'Returns can be initiated from the transfer detail or the Returns page', 2000, 'a:has-text("Process Return")');
       await clearHighlights(page);
       await clearCaption(page);
     }
@@ -688,7 +679,7 @@ test.describe('Professional Demo', () => {
       critical('Is there a table showing business rule evaluations with pass/fail outcomes?'),
     ]);
 
-    await caption(page, 'Rule evaluations: account eligibility · daily limit · contribution type · duplicate check — all passed', 9905, undefined, '11-compliance');
+    await caption(page, 'Rule evaluations: account eligibility · daily limit · contribution type · duplicate check — all passed', 4000, undefined, '11-compliance');
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
     await page.waitForTimeout(500);
@@ -714,7 +705,7 @@ test.describe('Professional Demo', () => {
     await page.locator('input[name="backImage"]').setInputFiles(CHECK_BACK_WRONG_AMOUNT);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(400);
-    await caption(page, 'Check printed $750, deposit declared $500 — vendor OCR detects the mismatch', 11298, '#frontPreview', '13-mismatch');
+    await caption(page, 'Check printed $750, deposit declared $500 — vendor OCR detects the mismatch', 4000, '#frontPreview', '13-mismatch');
     await clearCaption(page);
     await page.waitForSelector('#frontPreview[src]', { timeout: 5000 }).catch(() => {});
     await page.waitForTimeout(500);
@@ -733,7 +724,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, 'span[data-state]');
-    await caption(page, 'Analyzing · review_required=true — routed to operator review queue', 5679, 'span[data-state]', '14-flagged');
+    await caption(page, 'Analyzing · review_required=true — routed to operator review queue', 2000, 'span[data-state]', '14-flagged');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -746,7 +737,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, 'table');
-    await caption(page, 'Review Queue — pending items with wait time, sorted oldest first', 7444, 'table', '15-review-queue');
+    await caption(page, 'Review Queue — pending items with wait time, sorted oldest first', 2500, 'table', '15-review-queue');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -763,23 +754,23 @@ test.describe('Professional Demo', () => {
       critical('Does the page show a review form with transfer info and check images?'),
     ]);
 
-    await caption(page, 'Review detail — transfer metadata, vendor findings, and check images in one view', 6654, undefined, '16-review-detail');
+    await caption(page, 'Review detail — transfer metadata, vendor findings, and check images in one view', 2500, undefined, '16-review-detail');
     await clearCaption(page);
 
     // Highlight check images panel
     await highlight(page, '.check-images');
-    await caption(page, 'Front/back check images — click to expand; compare against vendor OCR output', 6051, '.check-images', '17-check-images');
+    await caption(page, 'Front/back check images — click to expand; compare against vendor OCR output', 2500, '.check-images', '17-check-images');
     await clearHighlights(page);
     await clearCaption(page);
 
     await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
     await page.waitForTimeout(700);
-    await caption(page, 'Vendor reported: printed_amount=$750.00 vs. declared $500.00 — mismatch triggered review', 7165);
+    await caption(page, 'Vendor reported: printed_amount=$750.00 vs. declared $500.00 — mismatch triggered review', 3000);
     await clearCaption(page);
 
     await page.evaluate(() => window.scrollBy({ top: 360, behavior: 'smooth' }));
     await page.waitForTimeout(700);
-    await caption(page, 'Audit trail — state changes, operator actions, and system events with actor + timestamp', 7304, undefined, '19-audit-trail');
+    await caption(page, 'Audit trail — state changes, operator actions, and system events with actor + timestamp', 2500, undefined, '19-audit-trail');
     await clearCaption(page);
 
     // Scroll to action panel (approve button) — use element-based scroll for reliability
@@ -790,7 +781,7 @@ test.describe('Professional Demo', () => {
       critical('Are Approve and Reject buttons visible at the bottom of the review form?'),
     ]);
 
-    await caption(page, 'Operator approves with an optional note — POST /api/v1/operator/approve', 6747, '#approve-btn, button:has-text("Approve")', '20-approve');
+    await caption(page, 'Operator approves with an optional note — POST /api/v1/operator/approve', 2500, '#approve-btn, button:has-text("Approve")', '20-approve');
     await clearCaption(page);
 
     // Type notes and approve
@@ -810,7 +801,7 @@ test.describe('Professional Demo', () => {
       critical('Does the page indicate success — transfer in Approved or FundsPosted state?'),
     ]);
 
-    await caption(page, 'FundsPosted — operator approval clears the deposit, investor account credited', 6329, 'span[data-state]', '21-approved');
+    await caption(page, 'FundsPosted — operator approval clears the deposit, investor account credited', 2000, 'span[data-state]', '21-approved');
     await clearCaption(page);
 
     // =========================================================================
@@ -829,11 +820,11 @@ test.describe('Professional Demo', () => {
       critical('Is there a settlement page with a button to generate a settlement batch?'),
     ]);
 
-    await caption(page, 'Settlement — packages FundsPosted transfers into a real X9.37 ICL file', 7676, undefined, '22-settlement');
+    await caption(page, 'Settlement — packages FundsPosted transfers into a real X9.37 ICL file', 3000, undefined, '22-settlement');
     await clearCaption(page);
 
     await highlight(page, '#gen-btn, button:has-text("Generate")');
-    await caption(page, 'X9.37 ICL — binary format with TIFF check images embedded, as required by the Fed', 7676, '#gen-btn, button:has-text("Generate")');
+    await caption(page, 'X9.37 ICL — binary format with TIFF check images embedded, as required by the Fed', 2000, '#gen-btn, button:has-text("Generate")');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -847,7 +838,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, 'table tbody tr:first-child');
-    await caption(page, 'Batch GENERATED — item count, total amount, X9.37 file ready to transmit', 5493, 'table tbody tr:first-child', '24-batch-ready');
+    await caption(page, 'Batch GENERATED — item count, total amount, X9.37 file ready to transmit', 2000, 'table tbody tr:first-child', '24-batch-ready');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -856,7 +847,7 @@ test.describe('Professional Demo', () => {
     if (await ackBtn.count() > 0) {
       await moveCursor(page, '[data-action="ack"], button:has-text("Acknowledge")');
       await highlight(page, '[data-action="ack"], button:has-text("Acknowledge")');
-      await caption(page, 'Acknowledge — simulates clearing bank confirmation (in prod: triggered by return message)', 6190, '[data-action="ack"], button:has-text("Acknowledge")', '25-acknowledge');
+      await caption(page, 'Acknowledge — simulates clearing bank confirmation (in prod: triggered by return message)', 2500, '[data-action="ack"], button:has-text("Acknowledge")', '25-acknowledge');
       await clearHighlights(page);
       await clearCaption(page);
       await ackBtn.click();
@@ -868,7 +859,7 @@ test.describe('Professional Demo', () => {
         critical('Is the settlement batch now showing ACKNOWLEDGED status?'),
       ]);
 
-      await caption(page, 'Batch ACKNOWLEDGED — all deposits in this batch fully settled', 5586, '.badge--ACKNOWLEDGED, td:has-text("ACKNOWLEDGED")', '26-settled');
+      await caption(page, 'Batch ACKNOWLEDGED — all deposits in this batch fully settled', 2000, '.badge--ACKNOWLEDGED, td:has-text("ACKNOWLEDGED")', '26-settled');
       await clearCaption(page);
     }
 
@@ -884,7 +875,7 @@ test.describe('Professional Demo', () => {
     await clickEl(page, 'a.nav-level-tab:has-text("Returns")');
     await afterNav(page);
 
-    await caption(page, 'Returns — bounce a check; reverses the deposit and applies the NSF fee', 6422, undefined, '27-returns');
+    await caption(page, 'Returns — bounce a check; reverses the deposit and applies the NSF fee', 2500, undefined, '27-returns');
     await clearCaption(page);
 
     // Show UUID autocomplete: type first 8 chars, wait for dropdown, Tab to complete
@@ -894,7 +885,7 @@ test.describe('Professional Demo', () => {
     // Wait explicitly for autocomplete dropdown to populate before showing caption
     await page.waitForSelector('#transferId-ac .uuid-ac-item', { timeout: 8000 }).catch(() => {});
     await page.waitForTimeout(300);
-    await caption(page, 'Transfer ID autocomplete — type a prefix, Tab to fill the full UUID', 6051, '#transferId', '28-autocomplete');
+    await caption(page, 'Transfer ID autocomplete — type a prefix, Tab to fill the full UUID', 2000, '#transferId', '28-autocomplete');
     await clearCaption(page);
     await page.locator('#transferId').press('Tab');
     await page.waitForTimeout(400);
@@ -906,11 +897,11 @@ test.describe('Professional Demo', () => {
     }
 
     await highlight(page, 'select[name="reasonCode"]');
-    await caption(page, 'Return reason: R01 (NSF) — insufficient funds', 5865, 'select[name="reasonCode"]', '29-nsf');
+    await caption(page, 'Return reason: R01 (NSF) — insufficient funds', 2000, 'select[name="reasonCode"]', '29-nsf');
     await clearHighlights(page);
     await clearCaption(page);
 
-    await caption(page, 'Reversal + $30 NSF fee posted to ledger automatically on submission', 7026, undefined, '30-reversal');
+    await caption(page, 'Reversal + $30 NSF fee posted to ledger automatically on submission', 2500, undefined, '30-reversal');
     await clearCaption(page);
 
     await clickEl(page, '#returns-submit-btn, button:has-text("Process Return")');
@@ -926,7 +917,7 @@ test.describe('Professional Demo', () => {
     ]);
 
     await highlight(page, '.flash--success, .badge--Returned');
-    await caption(page, 'State: Returned — deposit reversed, $30 NSF fee charged to investor account', 8048, '.flash--success, .badge--Returned', '31-returned');
+    await caption(page, 'State: Returned — deposit reversed, $30 NSF fee charged to investor account', 2500, '.flash--success, .badge--Returned', '31-returned');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -940,7 +931,7 @@ test.describe('Professional Demo', () => {
     await page.waitForTimeout(600);
 
     await highlight(page, 'table');
-    await caption(page, 'Ledger — double-entry bookkeeping: investor · clearing · fee revenue accounts', 8233, 'table', '32-ledger');
+    await caption(page, 'Ledger — double-entry bookkeeping: investor · clearing · fee revenue accounts', 3000, 'table', '32-ledger');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -951,7 +942,7 @@ test.describe('Professional Demo', () => {
     const journalSection = page.locator('.panel-header-title:has-text("Recent journal")');
     if (await journalSection.count() > 0) {
       await highlight(page, '.panel:has(.panel-header-title:has-text("Recent journal")) table');
-      await caption(page, 'Journal entries: deposit + reversal + NSF fee — every debit balanced by a credit', 8698, '.panel:has(.panel-header-title:has-text("Recent journal")) table');
+      await caption(page, 'Journal entries: deposit + reversal + NSF fee — every debit balanced by a credit', 2500, '.panel:has(.panel-header-title:has-text("Recent journal")) table');
       await clearHighlights(page);
       await clearCaption(page);
     }
@@ -971,7 +962,7 @@ test.describe('Professional Demo', () => {
 
     console.log(`[demo] ${Date.now() - _t0}ms — Outro: dashboard`);
     await highlight(page, '.dash-action-row');
-    await caption(page, 'Dashboard updated — all four workflows reflected in live counts', 6608, '.dash-action-row');
+    await caption(page, 'Dashboard updated — all four workflows reflected in live counts', 2000, '.dash-action-row');
     await clearHighlights(page);
     await clearCaption(page);
 
@@ -979,7 +970,7 @@ test.describe('Professional Demo', () => {
     await page.evaluate(() => window.scrollBy({ top: 500, behavior: 'smooth' }));
     await page.waitForTimeout(700);
     await highlight(page, 'table');
-    await caption(page, 'State breakdown — click any status to filter the transfers list', 6840, 'table');
+    await caption(page, 'State breakdown — click any status to filter the transfers list', 2000, 'table');
     await clearHighlights(page);
     await clearCaption(page);
     await page.evaluate(() => window.scrollTo(0, 0));
