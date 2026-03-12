@@ -2,199 +2,199 @@
   {
     "id": "cap-1",
     "clipId": "01-dashboard",
-    "t": 3039,
+    "t": 2959,
     "duration": 5000
   },
   {
     "id": "cap-2",
     "clipId": "02-keyboard",
-    "t": 8349,
+    "t": 8305,
     "duration": 3000
   },
   {
     "id": "cap-3",
     "clipId": "03-shortcuts",
-    "t": 13021,
+    "t": 12968,
     "duration": 4000
   },
   {
     "id": "cap-4",
     "clipId": "04-search",
-    "t": 19740,
+    "t": 19693,
     "duration": 2500
   },
   {
     "id": "cap-5",
     "clipId": "05-submit-check",
-    "t": 26467,
+    "t": 26446,
     "duration": 3500
   },
   {
     "id": "cap-6",
     "clipId": null,
-    "t": 30701,
+    "t": 30714,
     "duration": 2500
   },
   {
     "id": "cap-7",
     "clipId": "10-funds-posted",
-    "t": 41433,
+    "t": 40404,
     "duration": 2500
   },
   {
     "id": "cap-8",
     "clipId": null,
-    "t": 44399,
+    "t": 43377,
     "duration": 1500
   },
   {
     "id": "cap-9",
     "clipId": null,
-    "t": 46730,
+    "t": 45733,
     "duration": 2000
   },
   {
     "id": "cap-10",
     "clipId": "11-compliance",
-    "t": 49235,
+    "t": 48242,
     "duration": 4000
   },
   {
     "id": "cap-11",
     "clipId": "13-mismatch",
-    "t": 58180,
+    "t": 57230,
     "duration": 4000
   },
   {
     "id": "cap-12",
     "clipId": "14-flagged",
-    "t": 65809,
+    "t": 64663,
     "duration": 2000
   },
   {
     "id": "cap-13",
     "clipId": "15-review-queue",
-    "t": 69052,
+    "t": 67948,
     "duration": 2500
   },
   {
     "id": "cap-14",
     "clipId": "16-review-detail",
-    "t": 72513,
+    "t": 71437,
     "duration": 2500
   },
   {
     "id": "cap-15",
     "clipId": "17-check-images",
-    "t": 75494,
+    "t": 74415,
     "duration": 2500
   },
   {
     "id": "cap-16",
     "clipId": null,
-    "t": 78597,
+    "t": 77531,
     "duration": 3000
   },
   {
     "id": "cap-17",
     "clipId": "19-audit-trail",
-    "t": 82187,
+    "t": 81119,
     "duration": 2500
   },
   {
     "id": "cap-18",
     "clipId": "20-approve",
-    "t": 85266,
+    "t": 84193,
     "duration": 2500
   },
   {
     "id": "cap-19",
     "clipId": "21-approved",
-    "t": 90183,
+    "t": 89038,
     "duration": 2000
   },
   {
     "id": "cap-20",
     "clipId": "22-settlement",
-    "t": 95701,
+    "t": 94573,
     "duration": 3000
   },
   {
     "id": "cap-21",
     "clipId": null,
-    "t": 99197,
+    "t": 98069,
     "duration": 2000
   },
   {
     "id": "cap-22",
     "clipId": "24-batch-ready",
-    "t": 102622,
+    "t": 101481,
     "duration": 2000
   },
   {
     "id": "cap-23",
     "clipId": "25-acknowledge",
-    "t": 105442,
+    "t": 104314,
     "duration": 2500
   },
   {
     "id": "cap-24",
     "clipId": "26-settled",
-    "t": 108967,
+    "t": 107753,
     "duration": 2000
   },
   {
     "id": "cap-25",
     "clipId": "27-returns",
-    "t": 114435,
+    "t": 113215,
     "duration": 2500
   },
   {
     "id": "cap-26",
     "clipId": "28-autocomplete",
-    "t": 117521,
+    "t": 116300,
     "duration": 2000
   },
   {
     "id": "cap-27",
     "clipId": "29-nsf",
-    "t": 120213,
+    "t": 118990,
     "duration": 2000
   },
   {
     "id": "cap-28",
     "clipId": "30-reversal",
-    "t": 122466,
+    "t": 121249,
     "duration": 2500
   },
   {
     "id": "cap-29",
     "clipId": null,
-    "t": 126450,
+    "t": 125203,
     "duration": 2500
   },
   {
     "id": "cap-30",
     "clipId": "32-ledger",
-    "t": 130350,
+    "t": 129110,
     "duration": 3000
   },
   {
     "id": "cap-31",
     "clipId": null,
-    "t": 134177,
+    "t": 132940,
     "duration": 2500
   },
   {
     "id": "cap-32",
     "clipId": null,
-    "t": 137619,
+    "t": 136382,
     "duration": 2000
   },
   {
     "id": "cap-33",
     "clipId": null,
-    "t": 140239,
+    "t": 139012,
     "duration": 2000
   }
 ]
