@@ -773,8 +773,8 @@ test.describe('Professional Demo', () => {
     await caption(page, 'Audit trail — state changes, operator actions, and system events with actor + timestamp', 2500, undefined, '19-audit-trail');
     await clearCaption(page);
 
-    // Scroll to action panel (approve button) — use element-based scroll for reliability
-    await page.locator('#approve-btn, button:has-text("Approve")').first().scrollIntoViewIfNeeded();
+    // Scroll to reject panel
+    await page.locator('#reject-btn').first().scrollIntoViewIfNeeded();
     await page.waitForTimeout(300);
 
     await assertVisual(page, 'approve-reject-buttons', [
@@ -785,10 +785,9 @@ test.describe('Professional Demo', () => {
     await clearCaption(page);
 
     // Type notes and reject
-    const notesSelector = '#reject-notes, textarea[name="notes"]';
-    if (await page.locator(notesSelector).first().count() > 0) {
-      await moveCursor(page, notesSelector);
-      await page.locator(notesSelector).first().pressSequentially('Amount mismatch confirmed. Rejecting.', { delay: 15 });
+    if (await page.locator('#reject-notes').count() > 0) {
+      await moveCursor(page, '#reject-notes');
+      await page.locator('#reject-notes').pressSequentially('Amount mismatch confirmed. Rejecting.', { delay: 15 });
       await page.waitForTimeout(100);
     }
 

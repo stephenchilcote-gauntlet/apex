@@ -236,6 +236,20 @@
   wireSpinner('reject-btn', 'reject-spinner', 'reject-label', 'Rejecting…');
 })();
 
+// Require notes text before enabling approve/reject buttons
+(function () {
+  function wireInterlock(textareaId, btnId) {
+    var ta = document.getElementById(textareaId);
+    var btn = document.getElementById(btnId);
+    if (!ta || !btn) return;
+    function update() { btn.disabled = ta.value.trim().length === 0; }
+    update();
+    ta.addEventListener('input', update);
+  }
+  wireInterlock('approve-notes', 'approve-btn');
+  wireInterlock('reject-notes', 'reject-btn');
+})();
+
 // ← → keyboard navigation between review queue items
 (function () {
   document.addEventListener('keydown', function (e) {
