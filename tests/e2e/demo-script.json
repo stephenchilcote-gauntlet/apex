@@ -49,7 +49,7 @@
   },
   {
     "id": "13-mismatch",
-    "spoken": "The vendor stub uses real Claude Haiku for IQA and OCR. Not production grade, but functional."
+    "spoken": "The vendor stub uses Claude Haiku to implement simulated IQA and OCR on the check images."
   },
   {
     "id": "14-flagged",
@@ -77,11 +77,11 @@
   },
   {
     "id": "20-approve",
-    "spoken": "The operator approves the deposit with a note."
+    "spoken": "The operator rejects the deposit."
   },
   {
     "id": "21-approved",
-    "spoken": "Upon approval, The deposit clears and the investor's account is credited immediately."
+    "spoken": "Rejected. No funds are posted and the investor is notified."
   },
   {
     "id": "22-settlement",
@@ -101,7 +101,7 @@
   },
   {
     "id": "26-settled",
-    "spoken": "Settlement complete. All deposits in this batch are now fully settled."
+    "spoken": "All deposits are now complete."
   },
   {
     "id": "27-returns",
@@ -113,7 +113,7 @@
   },
   {
     "id": "29-nsf",
-    "spoken": "Simulating a reveral due to nonsufficient funds."
+    "spoken": "Simulating a reversal due to nonsufficient funds."
   },
   {
     "id": "30-reversal",
@@ -121,7 +121,7 @@
   },
   {
     "id": "31-returned",
-    "spoken": "Return processed."
+    "spoken": "NIX"
   },
   {
     "id": "32-ledger",

@@ -584,9 +584,9 @@ test.describe('Professional Demo', () => {
     await page.keyboard.press('Control+k');
     await page.waitForSelector('#cmd-modal[open]', { timeout: 3000 }).catch(() => {});
     await page.waitForTimeout(150);
-    await page.locator('#cmd-input').pressSequentially('INV-1001', { delay: 15 });
-    await page.waitForTimeout(500);
     await caption(page, 'Ctrl+K — search transfers and accounts by ID or name', 2500, '#cmd-modal', '04-search');
+    await page.locator('#cmd-input').pressSequentially('INV-1001', { delay: 15 });
+    await page.waitForTimeout(400);
     await clearCaption(page);
     await page.keyboard.press('Escape');
     await page.waitForTimeout(200);
@@ -781,27 +781,27 @@ test.describe('Professional Demo', () => {
       critical('Are Approve and Reject buttons visible at the bottom of the review form?'),
     ]);
 
-    await caption(page, 'Operator approves with an optional note — POST /api/v1/operator/approve', 2500, '#approve-btn, button:has-text("Approve")', '20-approve');
+    await caption(page, 'Operator rejects — amount mismatch confirmed, printed $750 vs declared $500', 2500, '#reject-btn, button:has-text("Reject")', '20-approve');
     await clearCaption(page);
 
-    // Type notes and approve
-    const notesSelector = '#approve-notes, textarea[name="notes"]';
+    // Type notes and reject
+    const notesSelector = '#reject-notes, textarea[name="notes"]';
     if (await page.locator(notesSelector).first().count() > 0) {
       await moveCursor(page, notesSelector);
-      await page.locator(notesSelector).first().pressSequentially('Images clear, amount verified. Approving.', { delay: 15 });
+      await page.locator(notesSelector).first().pressSequentially('Amount mismatch confirmed. Rejecting.', { delay: 15 });
       await page.waitForTimeout(100);
     }
 
-    await clickEl(page, '#approve-btn, button:has-text("Approve")');
+    await clickEl(page, '#reject-btn, button:has-text("Reject")');
     await page.waitForURL(/\/ui\/transfers\/|\/ui\/review/, { timeout: 20000 }).catch(() => {});
     await afterNav(page);
     await page.waitForTimeout(300);
 
-    await assertVisual(page, 'post-approve', [
-      critical('Does the page indicate success — transfer in Approved or FundsPosted state?'),
+    await assertVisual(page, 'post-reject', [
+      critical('Does the page show a rejected transfer state?'),
     ]);
 
-    await caption(page, 'FundsPosted — operator approval clears the deposit, investor account credited', 2000, 'span[data-state]', '21-approved');
+    await caption(page, 'Rejected — deposit denied, no ledger entries posted, investor notified', 2000, 'span[data-state]', '21-approved');
     await clearCaption(page);
 
     // =========================================================================
