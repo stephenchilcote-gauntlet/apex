@@ -512,8 +512,8 @@ test.use({
 
 test.describe('Professional Demo', () => {
   // Visual judge adds ~15s per LLM call. With ~14 key checks that's ~3.5 min overhead.
-  // Total budget: ~3 min video + ~3.5 min checks = allow 10 min.
-  test.setTimeout(600_000);
+  // Caption durations (clip_ms + 1500) add ~5 min. Total budget: ~5 min captions + ~3.5 min checks = allow 15 min.
+  test.setTimeout(900_000);
 
   test('Four Core Workflows', async ({ page, request }) => {
 

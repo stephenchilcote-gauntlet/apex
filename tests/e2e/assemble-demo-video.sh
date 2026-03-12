@@ -170,13 +170,14 @@ VIDEO_FILE=$(find test-results -name "video.webm" -path "*/demo-short*" | sort |
 ffmpeg -y \
   -i "$VIDEO_FILE" \
   -i "${AUDIO_DIR}/voiceover.wav" \
-  -c:v copy \
+  -c:v h264_nvenc -preset p4 -cq 23 -pix_fmt yuv420p -movflags +faststart \
   -c:a aac -b:a 128k \
   -shortest \
   demo-final.mp4
 
 echo ""
 echo "✓ Output: tests/e2e/demo-final.mp4"
+du -h demo-final.mp4
 echo ""
 
 if [[ "${1:-}" == "--preview" ]]; then

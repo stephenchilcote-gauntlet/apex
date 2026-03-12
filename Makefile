@@ -1,4 +1,4 @@
-.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux video demo-video clean
+.PHONY: dev build test demo reset vendor-stub app docker-dev docker-build build-linux video demo-video demo-final clean
 
 build:
 	go build -o bin/app ./cmd/app
@@ -77,6 +77,18 @@ demo-video:
 	@echo "Video: $(DEMO_WEBM)"
 	@mpv --no-resume-playback "$(DEMO_WEBM)" 2>/dev/null || \
 	  xdg-open "$(DEMO_WEBM)" 2>/dev/null || \
+	  echo "(open the file above manually)"
+
+## demo-final: record demo + assemble voiceover + encode H.264 via NVENC → demo-final.mp4
+demo-final:
+	@echo "Recording demo..."
+	@cd tests/e2e && npx playwright test demo-short.spec.ts
+	@echo "Assembling voiceover + encoding H.264..."
+	@cd tests/e2e && bash assemble-demo-video.sh
+	@echo ""
+	@echo "Final video: tests/e2e/demo-final.mp4"
+	@mpv --no-resume-playback tests/e2e/demo-final.mp4 2>/dev/null || \
+	  xdg-open tests/e2e/demo-final.mp4 2>/dev/null || \
 	  echo "(open the file above manually)"
 
 ## video: full 10-minute walkthrough with architecture diagrams
