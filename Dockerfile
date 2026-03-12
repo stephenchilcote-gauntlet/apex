@@ -19,6 +19,8 @@ COPY config/vendor_scenarios.yaml config/vendor_scenarios.yaml
 COPY web/templates/ web/templates/
 COPY web/static/ web/static/
 COPY db/migrations/ db/migrations/
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
 
 EXPOSE 8080
-CMD ["./app"]
+ENTRYPOINT ["./entrypoint.sh"]

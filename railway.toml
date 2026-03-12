@@ -2,7 +2,6 @@
 dockerfile = "Dockerfile"
 
 [deploy]
-startCommand = "APP_PORT=$PORT ./app"
 healthcheckPath = "/healthz"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
