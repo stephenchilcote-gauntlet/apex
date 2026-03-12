@@ -14,6 +14,8 @@ FROM alpine:3.21
 WORKDIR /app
 COPY --from=builder /vendorstub .
 COPY config/vendor_scenarios.yaml config/vendor_scenarios.yaml
+COPY entrypoint-vendorstub.sh .
+RUN chmod +x entrypoint-vendorstub.sh
 
 EXPOSE 8081
-CMD ["./vendorstub"]
+ENTRYPOINT ["./entrypoint-vendorstub.sh"]

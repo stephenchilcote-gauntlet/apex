@@ -2,7 +2,6 @@
 dockerfile = "Dockerfile.vendorstub"
 
 [deploy]
-startCommand = "./vendorstub"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
