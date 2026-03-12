@@ -14,6 +14,8 @@ export default defineConfig({
     baseURL: 'http://localhost:8080',
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
+    navigationTimeout: 30000,
+    actionTimeout: 30000,
     // Persists the session cookie obtained in globalSetup across all tests.
     storageState: 'storageState.json',
     // Sends API key on every request fixture call (no-op when API_KEY is unset).

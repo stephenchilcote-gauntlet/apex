@@ -47,7 +47,7 @@ let _captionSeq = 0;
  * All DOM elements are wiped on navigation so we must recreate them.
  */
 async function afterNav(page: Page) {
-  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {});
 
   await page.evaluate(
     ({ cx, cy, pcurrent, ptotal, plabel }) => {
@@ -150,7 +150,7 @@ async function moveCursor(page: Page, selector: string) {
 // ============================================================================
 
 async function caption(page: Page, text: string, durationMs = 2800, anchorSelector?: string) {
-  await page.waitForLoadState('domcontentloaded');
+  await page.waitForLoadState('domcontentloaded', { timeout: 5000 }).catch(() => {});
 
   // Record timing for audio assembly
   const tOffset = _t0 ? Date.now() - _t0 : 0;
@@ -546,7 +546,8 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     // DASHBOARD OVERVIEW  (~0:07–0:18)
     // =========================================================================
-    await caption(page, 'Live activity across all investor accounts — deposits, exceptions, and what needs attention now', 9905, '.dash-cards');
+    console.log(`[demo] ${Date.now() - _t0}ms — Dashboard overview`);
+    await caption(page, 'Live activity across all investor accounts — deposits, exceptions, and what needs attention now', 9905, '.dash-action-row');
 
     await assertVisual(page, 'dashboard', [
       critical('Does the page show a dashboard with stat cards or metric panels?'),
@@ -593,6 +594,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     // WORKFLOW 1 — Happy Path  (~0:18–1:05)
     // =========================================================================
+    console.log(`[demo] ${Date.now() - _t0}ms — Workflow 1: Happy Path`);
     await titleCard(page, 'Workflow 1: Happy Path', 'Submit a clean check → auto-approve → funds posted');
     await page.waitForTimeout(2300);
     await removeTitle(page);
@@ -694,6 +696,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     // WORKFLOW 2 — Operator Review  (~1:05–2:00)
     // =========================================================================
+    console.log(`[demo] ${Date.now() - _t0}ms — Workflow 2: Operator Review`);
     await titleCard(page, 'Workflow 2: Operator Review', 'Amount mismatch → review queue → human approval');
     await page.waitForTimeout(2300);
     await removeTitle(page);
@@ -813,6 +816,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     // WORKFLOW 3 — Settlement  (~2:00–2:40)
     // =========================================================================
+    console.log(`[demo] ${Date.now() - _t0}ms — Workflow 3: Settlement`);
     await titleCard(page, 'Workflow 3: Settlement', 'Package FundsPosted transfers → X9.37 ICL binary file');
     await page.waitForTimeout(2300);
     await removeTitle(page);
@@ -871,6 +875,7 @@ test.describe('Professional Demo', () => {
     // =========================================================================
     // WORKFLOW 4 — Returns  (~2:45–3:15)
     // =========================================================================
+    console.log(`[demo] ${Date.now() - _t0}ms — Workflow 4: Returns`);
     await titleCard(page, 'Workflow 4: Return Processing', 'Completed check bounces → reversal + $30 NSF fee');
     await page.waitForTimeout(2300);
     await removeTitle(page);
@@ -956,8 +961,9 @@ test.describe('Professional Demo', () => {
       critical('Does the overview dashboard show non-zero statistics reflecting the completed workflows?'),
     ]);
 
-    await highlight(page, '.dash-cards');
-    await caption(page, 'Four core workflows complete — dashboard reflects all live activity', 6608, '.dash-cards');
+    console.log(`[demo] ${Date.now() - _t0}ms — Outro: dashboard`);
+    await highlight(page, '.dash-action-row');
+    await caption(page, 'Four core workflows complete — dashboard reflects all live activity', 6608, '.dash-action-row');
     await clearHighlights(page);
     await clearCaption(page);
 
