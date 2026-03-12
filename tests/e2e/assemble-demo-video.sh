@@ -82,10 +82,11 @@ result = subprocess.run(
 video_duration_s = float(result.stdout.strip() or "240")
 
 SAMPLE_RATE = 44100
-PAD_MS = 750  # delay before voice clip starts within its caption window
+PAD_MS = 300      # short delay after caption appears before voice starts
+GAP_MS = 200      # minimum silence gap between consecutive clips
 
 clips_data = []
-max_t_ms = 0
+prev_end_ms = 0
 
 for ev in timing:
     clip_id = ev.get("clipId")
@@ -98,12 +99,17 @@ for ev in timing:
     if not os.path.exists(clip["path"]):
         print(f"  SKIP: {clip['path']} not found")
         continue
-    start_ms = ev["t"] + PAD_MS
+    # Place clip at caption time + PAD, but never before previous clip finishes
+    desired_ms = ev["t"] + PAD_MS
+    start_ms = max(desired_ms, prev_end_ms + GAP_MS)
+    end_ms = start_ms + clip["duration_ms"]
+    lag = start_ms - desired_ms
+    lag_str = f"  [+{lag}ms lag]" if lag > 0 else ""
     clips_data.append((start_ms / 1000.0, clip["path"], clip["duration_ms"]))
-    end_ms = start_ms + clip["duration_ms"] + PAD_MS
-    max_t_ms = max(max_t_ms, end_ms)
-    print(f"  t={start_ms/1000:.1f}s  {clip_id}  ({clip['duration_ms']}ms)")
+    print(f"  t={start_ms/1000:.1f}s  {clip_id}  ({clip['duration_ms']}ms){lag_str}")
+    prev_end_ms = end_ms
 
+max_t_ms = prev_end_ms
 print(f"Paired {len(clips_data)} clips")
 
 total_s = max(video_duration_s, max_t_ms / 1000.0 + 1.0)
